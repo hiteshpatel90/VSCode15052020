@@ -1,0 +1,107 @@
+<apex:component >
+    <link rel="stylesheet" href="{!$Resource.clearmeBundle}"/>
+    <apex:stylesheet value="{!$Resource.MyFontsWebfontsKit}"/>
+    <style>
+        body {
+            font-family: FFMarkWebProMedium;
+        }
+    </style>
+    
+    <footer>
+    <div class="container">
+        <button class="btn btn-lg btn-enroll pull-left visible-xs" style="margin: 60px 15px 30px 15px;">Get Clear</button>
+        <section>
+            <div class="col-xs-12 col-sm-7 flex">
+                <div class="wrapper" >
+                    <h3 style="font-family: FFMarkWebProLight;">Questions for us?<br/>We’re here to help.</h3>
+                    <ul class="communication">
+                        <li class="faqs"><a style="font-family: FFMarkWebProLight;" href="/faq">FAQs</a></li>
+                        <li class="chat hidden-xs"><a href="javascript://Chat" id="liveagent_button_online_573150000008Zej" onclick="liveagent.startChat('573150000008Zej')" style="font-family: FFMarkWebProLight;"><i class="icon"></i>CHAT WITH US</a></li>
+                        <li class="tel"><span class="visible-xs" style="font-family: FFMarkWebProLight;">TALK</span><i class="icon"></i><span class="hidden-xs">855-CLEARME (253-2763)</span></li>
+                        <li class="email"><i class="icon"></i><a style="font-family: FFMarkWebProLight;" href="mailto:memberservices@clearme.com">EMAIL CLEAR</a></li>
+                    </ul>
+                </div>
+            </div>
+            <div class="col-xs-12 col-sm-5 flex">
+                <div class="top">
+                    <button style="font-family: FFMarkWebProLight;" class="btn btn-lg btn-enroll pull-right hidden-xs primary">Get Clear</button>
+                </div>
+                <div class="bottom">
+                    <ul class="social">
+                        <li class="li">
+                            <a href="http://www.linkedin.com/influencer/17086692-Caryn-Seidman%20Becker" target="_blank" title="Follow the LinkedIn Influencer posts of CLEAR's Chairperson and CEO Caryn Seidman Becker">
+                                <i class="icon"></i>
+                                <span class="hidden">Follow the LinkedIn Influencer posts of CLEAR's Chairperson and CEO Caryn Seidman Becker</span>
+                            </a>
+                        </li>
+                        <li class="tw">
+                            <a href="https://twitter.com/CLEAR" target="_blank" title="Follow CLEAR on twitter">
+                                <i class="icon"></i>
+                                <span class="hidden">Follow CLEAR on twitter</span>
+                            </a>
+                        </li>
+                        <li class="fb">
+                            <a href="https://www.facebook.com/Clearme" target="_blank" title="Like CLEAR on facebook">
+                                <i class="icon"></i>
+                                <span class="hidden">Like CLEAR on facebook</span>
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </section>
+    </div>
+    <nav class="navbar navbar-inverse">
+        <div class="container">
+            <div class="col-xs-12 paddingShim">
+                <ul class="nav navbar-nav navbar-left pull-left">
+                    <!--template bindings={}--><li class="first">
+                        <!--template bindings={}-->
+                            <a href="/about-us" style="font-family: FFMarkWebProLight;"> About Us</a>
+                        
+                        <!--template bindings={}-->
+                    </li><li>
+                        <!--template bindings={}-->
+                        <!--template bindings={}-->
+                            <a style="font-family: FFMarkWebProLight;" target="_blank" href="careers"> Careers at CLEAR</a>
+                        
+                    </li><li>
+                        <!--template bindings={}-->
+                            <a style="font-family: FFMarkWebProLight;" href="/news"> Latest News</a>
+                        
+                        <!--template bindings={}-->
+                    </li><li>
+                        <!--template bindings={}-->
+                        <!--template bindings={}-->
+                            <a style="font-family: FFMarkWebProLight;" target="_blank" href="https://refer.clearme.com/homepage"> Refer a Friend</a>
+                        
+                    </li>
+                </ul>
+                <ul class="nav navbar-nav navbar-right pull-right">
+                    <!--template bindings={}--><li>
+                        <!--template bindings={}-->
+                            <a style="font-family: FFMarkWebProLight;" href="/privacy_policy"> Privacy Policy</a>
+                        
+                        <!--template bindings={}-->
+                    </li><li>
+                        <!--template bindings={}-->
+                            <a style="font-family: FFMarkWebProLight;" href="/member-terms"> Member Terms</a>
+                        
+                        <!--template bindings={}-->
+                    </li><li>
+                        <!--template bindings={}-->
+                            <a style="font-family: FFMarkWebProLight;" href="/terms"> Terms of Use</a>
+                        
+                        <!--template bindings={}-->
+                    </li>
+                </ul>
+
+            </div>
+            <div class="col-xs-12 copyright">
+                <p style="font-family: FFMarkWebProLight;" class="small">&copy; 2017 Secure Identity, LLC. All rights reserved.</p>
+            </div>
+        </div>
+    </nav>
+</footer>
+
+</apex:component>

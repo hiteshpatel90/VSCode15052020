@@ -1,0 +1,29 @@
+<apex:page >
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css"></link>
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+  <style>
+  .modal-content{
+      background:none;
+      border: none;
+      -webkit-box-shadow: none;
+      -moz-box-shadow: none;
+      box-shadow: none;
+
+  }
+  </style>
+  <!-- Trigger the modal with a button -->
+    <button type="button" class="btn btn-info btn-lg" data-toggle="modal" data-target="#myModal">See it in action</button>
+    
+    <!-- Modal -->
+    <div id="myModal" class="modal fade in" tabindex="-1" >
+      <div class="modal-dialog modal-lg">
+        <!-- Modal content-->
+        <div class="modal-content">
+          <div class="modal-body">    
+            <iframe src="https://www.youtube.com/embed/diM-hoOq7AQ?rel=0&modestbranding=1&autoplay=1&controls=0&showinfo=0" width="898" height="505" frameborder="0"></iframe>
+          </div>
+        </div>
+      </div>
+    </div>
+</apex:page>

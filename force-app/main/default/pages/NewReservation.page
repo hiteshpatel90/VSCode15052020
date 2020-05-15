@@ -1,0 +1,120 @@
+<!-------------------------------------------------------------------------------------------
+- Type             : visualforce Page
+- Name             : NewReservation
+- Created by       : 
+- Created Date     : 
+- Last Modified By : Hitesh Patel 8th May 2015
+- Purpose          : This controller is used to reserve desk on Particular time at Particular office.
+---------------------------------------------------------------------------------------------->
+<apex:page id="myPage" Controller="resmanagerController">
+    <style>    
+        .myTable {
+            border-collapse: collapse;
+        }        
+        .myTabletd{
+            border: 1px solid black;
+            cursor:pointer;
+        }
+    </style>
+    <script>
+        function populateStartDate(clickdt, deskname, deskid){
+            var dt = new Date(clickdt);       
+            var dateTemp = dt.getMonth() + 1 + '/' + dt.getDate() + '/' + dt.getFullYear();
+                            
+            document.getElementById('myPage:myFrm:pbNewRes:pbSecNewRes:pbSecItemlblOfficeDesk:hdnOfficeDesk').value = deskid;
+            document.getElementById('myPage:myFrm:pbNewRes:pbSecNewRes:pbSecItemlblOfficeDesk:lblOfficeDesk').innerHTML = deskname;
+            document.getElementById('myPage:myFrm:pbNewRes:pbSecNewRes:pbSecItemStartDate:txtStartDate').value = dateTemp;
+            document.getElementById('myPage:myFrm:pbNewRes:pbSecNewRes:pbSecItemEndDate:txtEndDate').value = dateTemp;       
+        }
+    </script>
+    <apex:form id="myFrm">
+        <apex:pagemessages ></apex:pagemessages>
+        <apex:sectionHeader title="New Reservation"/>            
+            <apex:pageBlock id="pbMain" title="Search for Existing Reservations">                
+                <apex:pageBlockSection id="pbsMain" columns="2">                   
+                    <apex:inputField value="{!objReservation.Start_Date__c}"/>
+                    <apex:inputField value="{!objReservation.End_Date__c}"/>
+                      <apex:inputField value="{!objDesk.Office__c}"/>
+                </apex:pageBlockSection>
+                <apex:pageBlockButtons >
+                    <apex:commandButton action="{!searchReservation}" value="Search"/>
+                </apex:pageBlockButtons>
+            </apex:pageBlock>  
+            <apex:pageBlock title="Reservations" rendered="{!lstwrapperDateRange.size > 0}">
+                
+                <apex:outputPanel rendered="{!If(lstwrapperDateRange.size > 0, true, false)}">
+                <table class="myTable">
+                    <tr>
+                        <td class="myTabletd" style="border:1px solid black;">
+                            <apex:outputLabel style="font-weight:bold;" value="Desk Number"></apex:outputLabel>
+                        </td>
+                        <apex:repeat value="{!lstwrapperDateRange}" var="dr">
+                            <td class="myTabletd" style="border:1px solid black;">
+                                <apex:outputText style="font-weight:bold;" value="{0,date,MM'/'dd'/'yyyy}">
+                                    <apex:param value="{!dr.objDate}" /> 
+                                </apex:outputText>
+                            </td>
+                        </apex:repeat> 
+                    </tr>
+                    <apex:repeat value="{!lstwrapperDesk}" var="dsk">
+                        <tr>
+                            <td class="myTabletd">
+                                <apex:outputLabel value="{!dsk.strDeskNumber}"></apex:outputLabel>
+                            </td>
+                            <apex:repeat value="{!lstwrapperDateRange}" var="dr">
+                              
+                                <apex:variable value="{!dr.objDate}{!dsk.objDesk.id}" var="mapKey"/>                                        
+                                    
+                                    <apex:variable value="{!1}" var="rowNum"/>  
+                                    <apex:repeat value="{!dsk.mapAvailable}" var="mapAvail">                                        
+                                        <apex:outputPanel rendered="{!mapAvail == mapKey}">
+                                            <apex:variable var="rowNum" value="{!rowNum + 1}"/>                                                                                                                             
+                                            <td class="myTabletd" bgcolor="{!If(mapAvail == mapKey,'#47BBFF', '')}">
+                                                <apex:outputLabel value="{!dsk.objDesk.createdby.Name}"></apex:outputLabel>
+                                            </td>       
+                                        </apex:outputPanel>                                                                       
+                                    </apex:repeat>
+                                    
+                                    <apex:outputPanel rendered="{!If(dsk.intMapSize > 0 && rowNum <> 2, true, false)}">                                                                                                                              
+                                        <td class="myTabletd" onclick="populateStartDate('{!dr.objDate}', '{!dsk.objDesk.Name}', '{!dsk.objDesk.id}');">
+                                       
+                                        </td>       
+                                    </apex:outputPanel>
+                                                                                                                                
+                                <apex:outputPanel rendered="{!If(dsk.intMapSize == 0, true, false)}">
+                                    <td class="myTabletd" onclick="populateStartDate('{!dr.objDate}', '{!dsk.objDesk.Name}', '{!dsk.objDesk.id}');">
+                                   
+                                    </td>
+                                </apex:outputPanel>
+                            </apex:repeat>   
+                        </tr>
+                    </apex:repeat> 
+                </table>
+                </apex:outputPanel>
+            </apex:pageBlock>
+            <apex:pageBlock id="pbNewRes" title="Create New Reservations" rendered="{!lstwrapperDateRange.size > 0}">
+                <apex:pageblockButtons location="bottom">
+                    <apex:commandButton value="Save" action="{!createNewReservation}"/>
+                </apex:pageblockButtons>
+                <apex:pageblockSection id="pbSecNewRes" columns="1">
+                    <apex:pageblockSectionItem id="pbSecItemlblOfficeDesk">
+                        <apex:outputLabel value="Office Desk"></apex:outputLabel>
+                        <apex:outputPanel id="opOfficeDesk">
+                            <apex:outputLabel id="lblOfficeDesk" value=""></apex:outputLabel>
+                            <apex:inputhidden id="hdnOfficeDesk" value="{!objReservationnew.Office_Desk__c}"/>
+                        </apex:outputPanel>
+                        
+                    </apex:pageblockSectionItem>
+                    <apex:pageblockSectionItem id="pbSecItemStartDate">
+                        <apex:outputLabel value="Start Date"></apex:outputLabel>
+                        <apex:inputfield id="txtStartDate" value="{!objReservationnew.Start_Date__c}"/>
+                    </apex:pageblockSectionItem>
+                    <apex:pageblockSectionItem id="pbSecItemEndDate">
+                        <apex:outputLabel value="End Date"></apex:outputLabel>
+                        <apex:inputfield id="txtEndDate" value="{!objReservationnew.End_Date__c}"/>
+                    </apex:pageblockSectionItem>
+                </apex:pageblockSection>
+            </apex:pageBlock>
+    </apex:form>
+    <script>function setFocusOnLoad() {}</script>
+</apex:page>

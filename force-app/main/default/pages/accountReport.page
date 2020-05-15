@@ -1,0 +1,59 @@
+<apex:page controller="accountReportController">
+    <apex:includeScript value="https://ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"/>
+    <apex:includeScript value="https://ajax.googleapis.com/ajax/libs/jqueryui/1.10.3/jquery-ui.min.js"/>
+    
+    <apex:includeScript value="{!$Resource.tablesorter}"/>
+    <script type="text/javascript">
+        $j = jQuery.noConflict();    
+        $j(document).ready(function () {
+        $j("[id$=accountTable]").tablesorter();
+       
+        });
+    
+      //some other unrelated js
+    
+    </script>
+    <style>
+        .headerSortUp {
+            background-color: #8dbdd8 !important;
+            background-image: url("/img/alohaSkin/sortArrows_sprite.png") !important;
+            background-repeat: no-repeat !important;
+            background-position: center right !important;
+            background-position: 0 -16px;
+            cursor: pointer !important;
+           
+            
+        }
+        
+        .headerSortDown {
+            background-color: #8dbdd8 !important;
+            background-image: url("/img/alohaSkin/sortArrows_sprite.png") !important;
+            background-repeat: no-repeat !important;
+            background-position: center right !important;
+            cursor: pointer !important;
+        }
+    </style>
+    
+ 
+    <apex:form >
+        <apex:pageBlock title="Account Report">
+            <apex:pageBlockTable id="accountTable" value="{!lstAccount}" var="acc">
+                <apex:column headerValue="Account Name">
+                    <apex:outputLink value="{!acc.id}">{!acc.Name}</apex:outputLink>
+                </apex:column>
+                <apex:column headerValue="Address">
+                    <apex:outputLabel value="{!acc.BillingStreet}"/>
+                </apex:column>
+                <apex:column headerValue="City">
+                    <apex:outputLabel value="{!acc.BillingCity}"/>
+                </apex:column>
+                <apex:column headerValue="Province">
+                    <apex:outputLabel value="{!acc.BillingState}"/>
+                </apex:column>
+                <apex:column headerValue="Number of employees">
+                    <apex:outputLabel value="{!acc.NumberOfEmployees}"/>
+                </apex:column>
+            </apex:pageBlockTable>
+        </apex:pageBlock>
+    </apex:form>
+</apex:page>

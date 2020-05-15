@@ -1,0 +1,80 @@
+<apex:page standardController="Medical_Event_vod__c">
+    <apex:includeScript value="/soap/ajax/34.0/connection.js"/>
+    <apex:includeScript value="/apex/dsfs__DocuSign_JavaScript"/>
+    <script>  
+        
+        if('{!$Setup.AZ_Docusign_Contract_Setting__c.Sponsorship_Contract_Enable__c}' == 'true'){     
+            //********* Option Declarations (Do not modify )*********//
+            var RC = '';var RSL='';var RSRO='';var RROS='';var CCRM='';var CCTM='';var CCNM='';var CRCL='';var OCO='';var DST='';var LA='';var CEM='';var CES='';var STB='';var SSB='';var SES='';var SEM='';var SRS='';var SCS ='';var RES='';var CRL = '';
+            //*************************************************//
+            CRL = "Email~{!Medical_Event_vod__c.Contract_Recipient_Email__c}";
+            // Modify individual options here:
+            //{!Medical_Event_vod__c.Id}
+            // Related Content (default no related content)
+            RC = ''; //
+            // Recipient Signer Limit (default no limit)
+            RSL = ''; //Ex: '3'
+            // Recipient Starting Routing Order (default 1)
+            RSRO = ''; // Ex: '1'
+            // Recipient Routing Order Sequential (default not sequential)
+            RROS = ''; //Ex: '1'
+            // Custom Contact Role Map (default config role)
+            CCRM = 'HCP~HCP;Sales Rep~Sales Rep'; //Ex: 'Decision Maker~Signer1;Economic Buyer~CarbonCopy'
+            // Custom Contact Type Map (default Signer)
+            CCTM = ''; //Ex: 'Decision Maker~Signer;Economic Buyer~CC'
+            // Custom Contact Note Map (default no note)
+            CCNM = ''; //Ex: 'Decision Maker~Note for DM;Economic Buyer~Note For EB;DEFAULT_NOTE~Default Note'
+            // Custom Related Contact List (default object contact)
+            //CRCL = '{!Medical_Event_vod__c.Contract_Recipient_Email__c};LastName~ {!$User.LastName};FirstName~ {!$User.FirstName};Role~HCP'; //Ex: MyContacts__r,Email~Email__c;FirstName~First_Name__c;LastName~Last_Name__c;Role~Role__c,LoadDefaultContacts~0
+            CRL = "Email~{!$User.Email};FirstName~ {!$User.FirstName};LastName~{!$User.LastName};Role~HCP,Email~{!Medical_Event_vod__c.Contract_Recipient_Email__c};LastName~{!$User.FirstName};Role~HCP";
+            
+            if('{!Medical_Event_vod__c.Contracts_required__c}' == 'New Sponsorship contract required'){
+            
+                CRL = "Email~{!Medical_Event_vod__c.Contract_Recipient_Email__c};FirstName~ {!Medical_Event_vod__c.Recepient_Name__c};Role~HCP";
+            
+            }
+            
+            // One Click Option (default edit envelope screen)
+            OCO = ''; //Ex: Tag
+            // DocuSign Template ID (default no template)
+
+           // DST = 'C4B80530-28F7-4919-B88B-4BDDA9EC5A3A';
+            <!-- DST = '{!$Setup.Select_DFS_Template__c.Speaker_Template__c}'; -->
+            
+            //DST = 'C4B80530-28F7-4919-B88B-4BDDA9EC5A3A'; //Ex: '67870A79-A0B5-4596-8AC1-CC7CC1EA01EB'
+            // Load Attachments (default on)
+            LA = ''; //Ex: '0'
+            // Custom Email Message (default in config)
+            CEM = ''; //Ex: 'Envelope sent by [FirstName] [LastName] ([Email])!'
+            // Custom Email Subject (default in config)
+            CES = ''; //Ex: 'Re: Opportunity Name:'
+            // Show Tag Button (default in config)
+            STB = ''; //Ex: '1'
+            // Show Send Button (default in config)
+            SSB = ''; //Ex: '1'
+            // Show Email Subject (default in config)
+            SES = ''; //Ex: '1'
+            // Show Email Message (default in config)
+            SEM = ''; //Ex: '1'
+            // Show Reminder/Expire (default in config)
+            SRS = ''; //Ex: '1'
+            // Show Chatter (default in config)
+            SCS = ''; //Ex: '1'
+            // Reminder and Expiration Settings
+            RES = ''; //Ex: '0,1,2,0,120,3'
+            if('{!Medical_Event_vod__c.Contracts_required__c}' != 'New Sponsorship contract required'){
+                alert('Contracts required field has not been set to Sponsorship contract.'); 
+                window.location.href = "/{!Medical_Event_vod__c.Id}";   
+            }else if('{!Medical_Event_vod__c.Contract_Recipient_Email__c}' == ''){
+                alert('Please Enter Email Address.');
+                window.location.href = "/{!Medical_Event_vod__c.Id}";   
+            }else{            
+                
+                //********* Page Callout (Do not modify) *********//
+                window.location.href = "/apex/dsfs__DocuSign_CreateEnvelope?DSEID=0&SourceID={!Medical_Event_vod__c.Id}&RC="+RC+"&RSL="+RSL+"&RSRO="+RSRO+"&RROS="+RROS+"&CCRM="+CCRM+"&CCTM="+CCTM+"&CRCL="+CRCL+"&CRL="+CRL+"&OCO="+OCO+"&DST="+DST+"&CCNM="+CCNM+"&LA="+LA+"&CEM="+CEM+"&CES="+CES+"&SRS="+SRS+"&STB="+STB+"&SSB="+SSB+"&SES="+SES+"&SEM="+SEM+"&SRS="+SRS+"&SCS="+SCS+"&RES="+RES;
+            }
+        }else{
+            window.location.href = "/{!Medical_Event_vod__c.Id}";   
+        }
+    </script>
+</apex:page>

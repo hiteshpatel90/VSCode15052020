@@ -1,0 +1,15 @@
+<aura:component implements="flexipage:availableForRecordHome,force:hasRecordId" access="global" >
+	<div class="slds-p-bottom_large slds-p-left_large" style="width:500px">
+        <lightning:recordEditForm aura:id="recordViewForm"
+                                    onsuccess="{!c.handleSuccess}"
+                                     objectApiName="Employee__c">
+            <lightning:messages />
+            <lightning:inputField fieldName="Name__c" />
+            <lightning:inputField fieldName="State__c" />
+            <lightning:inputField fieldName="City__c" />
+            <lightning:inputField fieldName="Billing_City__c" />
+            <lightning:button class="slds-m-top_small" type="submit" label="Create new" />
+            <lightning:button class="slds-m-top_small" label="Cancel" onclick="{!c.Cancel}" />
+            </lightning:recordEditForm>
+    </div>
+</aura:component>

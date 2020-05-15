@@ -1,0 +1,32 @@
+<apex:page controller="ErrorHandlingDemo">
+    <apex:sectionHeader title="Contact Edit" subtitle="New Contact"/>
+    <apex:form >
+        <apex:pagemessages ></apex:pagemessages>
+        <apex:pageblock title="Contact Information">
+            <apex:pageblockSection >
+                <apex:pageblockSectionItem >
+                    <apex:outputLabel value="First Name"></apex:outputLabel>
+                    <apex:inputfield value="{!objCon.FirstName}"/>
+                </apex:pageblockSectionItem>
+                <apex:pageblockSectionItem >
+                    <apex:outputLabel value="Last Name"></apex:outputLabel>
+                    <apex:inputfield value="{!objCon.LastName}"/>
+                </apex:pageblockSectionItem>
+                <apex:pageblockSectionItem >
+                    <apex:outputLabel value="Email"></apex:outputLabel>
+                    <apex:inputfield value="{!objCon.Email}"/>
+                </apex:pageblockSectionItem>
+                <apex:pageblockSectionItem >
+                    <apex:outputLabel value="Phone"></apex:outputLabel>
+                    <apex:inputfield value="{!objCon.Phone}"/>
+                </apex:pageblockSectionItem>
+            
+            </apex:pageblockSection>
+            <apex:pageblockButtons >
+                <apex:commandButton value="Save" action="{!saveContactRecord}"/>
+                <apex:commandButton value="Cancel" action="{!cancelRecord}"/>
+            </apex:pageblockButtons>
+            
+        </apex:pageblock>
+    </apex:form>
+</apex:page>

@@ -1,0 +1,5 @@
+<aura:component access="global">
+  <aura:attribute name="class" type="String" access="global"/>
+  <aura:attribute name="xlinkHref" type="String" access="global"/>
+  <aura:attribute name="aria-Hidden" type="String" default="true" access="global"/>
+</aura:component>

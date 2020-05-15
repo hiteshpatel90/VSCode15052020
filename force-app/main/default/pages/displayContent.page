@@ -1,0 +1,373 @@
+<apex:page standardController="ContentDocument" standardStylesheets="true"  extensions="displayContentExtension" sidebar="false">
+   <!-- apex:stylesheet value="{!$Resource.contentStandard}"/-->
+    <script>
+        function switchMenu(obj,obj1,obj2) {
+            var el = document.getElementById(obj);                                       
+            if ( el.style.display != 'none' ) {
+                el.style.display = 'none';
+            } else {
+                el.style.display = '';
+            }
+            var e2 = document.getElementById(obj1);                                       
+            if ( e2.style.display != 'none' ) {
+                e2.style.display = 'none';
+            } else {
+                e2.style.display = '';
+            }
+            var e3 = document.getElementById(obj2);                                       
+            if ( e2.style.display != 'none' ) {
+                e3.style.display = 'none';
+            } else {
+                e3.style.display = '';
+            }
+        }
+        
+        function showHiddenFilters(hdnIndex, rowNumberHeader){
+            for(var i=0; i< hdnIndex;i++){
+                var trShow = document.getElementById('innerFiltertr'+rowNumberHeader+i).style.display = 'block';
+            }
+            document.getElementById('moretrdisplay'+rowNumberHeader).style.display = 'none';
+            document.getElementById('lesstrdisplay'+rowNumberHeader).style.display = 'block';            
+            return false;
+        }
+        function hideHiddenFilters(hdnIndex, rowNumberHeader){
+            for(var i = hdnIndex - 1; i > '{!intFilterHideSize}'; i--){
+                
+                var trShow = document.getElementById('innerFiltertr'+rowNumberHeader+i).style.display = 'none';               
+            }
+            document.getElementById('moretrdisplay'+rowNumberHeader).style.display = 'block';
+            document.getElementById('lesstrdisplay'+rowNumberHeader).style.display = 'none';            
+            return false;
+        }        
+    </script> 
+    <style>
+        .pbButton{
+            padding-left: 250px !important;
+            display: block !important;
+        }
+        .pbTitle{        
+            width:10px !important;        
+        }
+        .sprite-doctype_pdf_16 {
+            width: 16px;
+            height: 16px;
+            background: url("/sfc/images/docicons/doctype_16_sprite.png?v=188-1") no-repeat scroll 0px 0px transparent;
+            background-position: 0px -416px;
+        }
+        .sprite-doctype_pdf_16 {
+            width: 16px;
+            height: 16px;
+            background: url("/sfc/images/docicons/doctype_16_sprite.png?v=188-1") no-repeat scroll 0px 0px transparent;
+            background-position: 0px -416px;
+        }
+        .sprite-doctype_doc_16 {
+            width: 16px;
+            height: 16px;
+            background: url("/sfc/images/docicons/doctype_16_sprite.png?v=188-1") no-repeat scroll 0px 0px transparent;
+            background-position: 0px -676px;
+        }
+        .sprite-doctype_docx_16 {
+            width: 16px;
+            height: 16px;
+            background: url("/sfc/images/docicons/doctype_16_sprite.png?v=188-1") no-repeat scroll 0px 0px transparent;
+            background-position: 0px -676px;
+        }
+        .sprite-doctype_txt_16 {
+            width: 16px;
+            height: 16px;
+            background: url("/sfc/images/docicons/doctype_16_sprite.png?v=188-1") no-repeat scroll 0px 0px transparent;
+            background-position: 0px -546px;
+        }
+        .sprite-doctype_rtf_16 {
+            width: 16px;
+            height: 16px;
+            background: url("/sfc/images/docicons/doctype_16_sprite.png?v=188-1") no-repeat scroll 0px 0px transparent;
+            background-position: 0px -494px;
+        }
+        .sprite-doctype_ppt_16 {
+            width: 16px;
+            height: 16px;
+            background: url("/sfc/images/docicons/doctype_16_sprite.png?v=188-1") no-repeat scroll 0px 0px transparent;
+            background-position: 0px -442px;
+        }
+        .sprite-doctype_audio_16 {
+            width: 16px;
+            height: 16px;
+            background: url("/sfc/images/docicons/doctype_16_sprite.png?v=188-1") no-repeat scroll 0px 0px transparent;
+            background-position: 0px -52px;
+        }
+        .sprite-doctype_csv_16 {
+            width: 16px;
+            height: 16px;
+            background: url("/sfc/images/docicons/doctype_16_sprite.png?v=188-1") no-repeat scroll 0px 0px transparent;
+            background-position: 0px -78px;
+        }
+        .sprite-doctype_excel_16 {
+            width: 16px;
+            height: 16px;
+            background: url("/sfc/images/docicons/doctype_16_sprite.png?v=188-1") no-repeat scroll 0px 0px transparent;
+            background-position: 0px -130px;
+        }
+        .sprite-doctype_exe_16 {
+            width: 16px;
+            height: 16px;
+            background: url("/sfc/images/docicons/doctype_16_sprite.png?v=188-1") no-repeat scroll 0px 0px transparent;
+            background-position: 0px -156px;
+        }
+        .sprite-doctype_flash_16 {
+            width: 16px;
+            height: 16px;
+            background: url("/sfc/images/docicons/doctype_16_sprite.png?v=188-1") no-repeat scroll 0px 0px transparent;
+            background-position: 0px -182px;
+        }
+        .sprite-doctype_html_16 {
+            width: 16px;
+            height: 16px;
+            background: url("/sfc/images/docicons/doctype_16_sprite.png?v=188-1") no-repeat scroll 0px 0px transparent;
+            background-position: 0px -286px;
+        }
+        .sprite-doctype_image_16 {
+            width: 16px;
+            height: 16px;
+            background: url("/sfc/images/docicons/doctype_16_sprite.png?v=188-1") no-repeat scroll 0px 0px transparent;
+            background-position: 0px -312px;
+        }
+        .sprite-doctype_link_16 {
+            width: 16px;
+            height: 16px;
+            background: url("/sfc/images/docicons/doctype_16_sprite.png?v=188-1") no-repeat scroll 0px 0px transparent;
+            background-position: 0px -338px;
+        }
+        .sprite-doctype_mp4_16 {
+            width: 16px;
+            height: 16px;
+            background: url("/sfc/images/docicons/doctype_16_sprite.png?v=188-1") no-repeat scroll 0px 0px transparent;
+            background-position: 0px -364px;
+        }
+        .sprite-doctype_pack_16 {
+            width: 16px;
+            height: 16px;
+            background: url("/sfc/images/docicons/doctype_16_sprite.png?v=188-1") no-repeat scroll 0px 0px transparent;
+            background-position: 0px -390px;
+        }
+        .sprite-doctype_psd_16 {
+            width: 16px;
+            height: 16px;
+            background: url("/sfc/images/docicons/doctype_16_sprite.png?v=188-1") no-repeat scroll 0px 0px transparent;
+            background-position: 0px -468px;
+        }
+        .sprite-doctype_slide_16 {
+            width: 16px;
+            height: 16px;
+            background: url("/sfc/images/docicons/doctype_16_sprite.png?v=188-1") no-repeat scroll 0px 0px transparent;
+            background-position: 0px -520px;
+        }
+        .sprite-doctype_unknown_16 {
+            width: 16px;
+            height: 16px;
+            background: url("/sfc/images/docicons/doctype_16_sprite.png?v=188-1") no-repeat scroll 0px 0px transparent;
+            background-position: 0px -572px;
+        }
+        .sprite-doctype_xml_16 {
+            width: 16px;
+            height: 16px;
+            background: url("/sfc/images/docicons/doctype_16_sprite.png?v=188-1") no-repeat scroll 0px 0px transparent;
+            background-position: 0px -702px;
+        }
+        .sprite-doctype_zip_16 {
+            width: 16px;
+            height: 16px;
+            background: url("/sfc/images/docicons/doctype_16_sprite.png?v=188-1") no-repeat scroll 0px 0px transparent;
+            background-position: 0px -728px;
+        }
+        .roundBtn {
+            position: relative;
+            display: inline;
+            background-image: url("/sfc/images/roundBtn_bg.png");
+            background-repeat: no-repeat;
+            font-weight: normal;
+            font-size: 11px;
+            padding: 2px 5px 3px;
+            margin: 0px;
+            text-decoration: none;
+            cursor: pointer;
+            text-align: left;
+            white-space: nowrap;
+            color: #333;
+            overflow: visible;
+            padding-right:4px;
+        }
+        .roundBtn .right {
+    position: absolute;
+    right: -1px;
+    top: 0px;
+    width: 4px;
+    height: 17px;
+    background-image: url("/sfc/images/roundBtn_r.png");
+    background-repeat: no-repeat;
+}
+    </style>
+    <apex:form >
+        <apex:actionFunction action="{!refreshGrid}" name="queryByPage" reRender="pbContent,lblResults">
+            <apex:param name="firstParam" assignTo="{!intCurrentPage}" value="" />
+        </apex:actionFunction>
+        <table width="100%" style="font-family:Avenir;">
+            <tr>
+                <td valign="top" width="25%" style="font-family:Avenir;">                    
+                    <table width="100%">
+                        <tr>
+                            <td style="padding:5px 9px;border-radius: 5px;font-size:12px;font-family:Avenir;">                           
+                                <br/>
+                                <h2>FILTER YOUR RESULTS</h2>
+                                <hr/>                           
+                            </td>
+                        </tr>                        
+                        <tr>
+                        <td style="padding:5px 9px;border-radius: 5px;font-family:Avenir;">
+                            <table>
+                            <tr>
+                                <td>
+                                    <apex:outputLabel style="font-family: Avenir !important;font-size:11px;" value="Use the filters below to restrict your search results."></apex:outputLabel>                                          
+                                </td>
+                           </tr>
+                           <tr>
+                               <td align="right">
+                                   <apex:commandLink style="font-family: Avenir !important;text-align:right;font-size:10PX;text-decoration:none" action="{!clearSearchContentRecords}" value="CLEAR FILTERS"/>                                   
+                               </td>
+                           </tr>
+                        <apex:variable value="{!0}" var="rowNum"/>
+                        <apex:repeat value="{!lstwrapperFilterOptions}" var="wrFilter">
+                             <tr>
+                                 <td>
+                                    <apex:variable var="rowNum" value="{!rowNum+1}"/>
+                                    <apex:outputpanel id="plusimage" >
+                                        <apex:image style="cursor:pointer;" url="/sfc/images/filter_arrow_down.gif" onclick="switchMenu('inlinetablesecHeader{!rowNum}','{!$Component.minusimage}','{!$Component.plusimage}')" title="{!wrFilter.strFilterLabel}"/> 
+                                    </apex:outputpanel>
+                                    <apex:outputpanel id="minusimage" style="display:none;" >
+                                        <apex:image style="cursor:pointer;" url="/sfc/images/filter_arrow_right.gif" onclick="switchMenu('inlinetablesecHeader{!rowNum}','{!$Component.plusimage}','{!$Component.minusimage}')" title="{!wrFilter.strFilterLabel}"/>      
+                                    </apex:outputpanel>
+                                    <apex:outputLabel style="font-weight:bold;" value="{!wrFilter.strFilterLabel} ({!wrFilter.lstInnerFilter.size}{!If(intFilterHideSize != null && wrFilter.lstInnerFilter.size > intFilterSize ,'+','')})"></apex:outputLabel>
+                                    <br/>
+                                     
+                                </td>
+                            </tr>
+                            <tr id="inlinetablesecHeader{!rowNum}">
+                                <apex:variable value="{!0}" var="rowNumInner"/>
+                                <td >
+                                    <table cellpadding="0" cellspacing="0">                                
+                                        <apex:repeat value="{!wrFilter.lstInnerFilter}" var="wrInnerFilter">
+                                            <tr id="innerFiltertr{!rowNum}{!rowNumInner}" style="{!If(intFilterHideSize != null && rowNumInner > intFilterHideSize, 'display:none;','')}">
+                                                <td>                                                   
+                                                    <apex:variable var="rowNumInner" value="{!rowNumInner+1}"/>
+                                                    <apex:inputCheckbox value="{!wrInnerFilter.blnFilterSelected}">
+                                                        <apex:actionSupport action="{!filterContentRecords}" event="onchange"/>
+                                                    </apex:inputCheckbox>
+                                                    <apex:outputLabel style="font-size:10px" value="{!If(LEN(wrInnerFilter.strFilterValue) > 15, LEFT(wrInnerFilter.strFilterValue,15) + '...', wrInnerFilter.strFilterValue)} ({!wrInnerFilter.intFilterCount})"></apex:outputLabel>
+                                                                           
+                                                    <br/>  
+                                               </td>
+                                           </tr>                                           
+                                        </apex:repeat>
+                                        <tr id="moretrdisplay{!rowNum}">
+                                            <td>
+                                                <apex:commandLink styleClass="roundBtn" onclick="return showHiddenFilters('{!rowNumInner}', '{!rowNum}');" rendered="{!If(intFilterHideSize != null && rowNumInner > intFilterHideSize, true, false)}" value="More">
+                                                    
+                                                    <img src="/sfc/images/mutton_arrow.gif" class="muttonArrow"/>
+                                                    
+                                                    <div class="right"></div>
+                                                 </apex:commandLink>
+                                            </td>
+                                        </tr>
+                                        <tr id="lesstrdisplay{!rowNum}" style="display:none;">
+                                            <td align="right">
+                                                <apex:commandLink styleClass="roundBtn" onclick="return hideHiddenFilters('{!rowNumInner}', '{!rowNum}');" value="Less">
+                                                    <img src="/sfc/images/mutton_arrow.gif" class="muttonArrow"/>
+                                                    
+                                                    <div class="right"></div>
+                                                 </apex:commandLink>
+                                            </td>
+                                        </tr>
+                                    </table>
+                                    <br />
+                                    
+                        
+                                </td>                                
+                            </tr>          
+                        </apex:repeat>   
+                        </table>
+                        
+                        </td>
+                        </tr>        
+                    </table>
+                    
+                </td>
+                <td width="75%" valign="top">
+                <br/>
+                <apex:outputLabel style="font-size:2em !important;color:#01748B !important;font-family: Avenir !important;" value="Content"></apex:outputLabel>
+                <!--<apex:sectionHeader title="Content" subtitle="Search for Content"/>-->
+                <hr/>
+                <apex:outputLabel value="Search in " style="font-weight:bold;"></apex:outputLabel>
+                <apex:selectList value="{!strSelLibrary}" size="0" > 
+                    <apex:selectOptions value="{!Libraries}"/>            
+                </apex:selectList>
+                <apex:outputLabel value=" for " style="font-weight:bold;"></apex:outputLabel>
+                <apex:inputText value="{!strSearchLibrary}"/>&nbsp;
+                <apex:commandButton value="Go!" action="{!searchContentRecords}"/>&nbsp;
+                <apex:commandButton value="Clear Search" styleClass="fFooter" style="background-color:#EA9B3F !important" action="{!clearSearchContentRecords}"/>
+                <br/>
+                <br/>
+                <apex:outputLabel style="font-family: Avenir !important;padding:20px;color:#01748b !important" value="SEARCH RESULTS:"> </apex:outputLabel>
+                
+                 <apex:outputLabel id="lblResults" value="Showing {!intFirstRecord}-{!intLastRecord} of {!intTotalRecords} results"></apex:outputLabel>
+                <br/>
+                <br/>
+                
+                <!--<apex:commandButton value="Download" onclick="Shepherd.run('form', 'submit', {formId : 'documentListTableForm', controller : 'document', action : 'multiDownload', params : {action : 'downloadBegin', target : 'downloadIFrame', shepherdToken : ''}});return false;"/>-->
+                <apex:pageBlock id="pbContent">
+                    <apex:pageblockTable value="{!lstwrapperContentDocument}" var="wrapperCnt">
+                        <!--<apex:column width="10px">
+                            <apex:facet name="header">
+                                <apex:inputCheckbox value="{!blnSelAllContentDocument}"/>
+                            </apex:facet>
+                            <apex:inputCheckbox value="{!wrapperCnt.blnSelContentDocument}"/>
+                        </apex:column>-->                      
+                        <apex:column headerValue="Title">
+                           <!-- {!wrapperCnt.objContentDocument.FileExtension} -->
+                           <table>
+                               <tr>
+                                    <td style="border-width: 0px 0px 0px;">
+                                        <div class="sprite-doctype_{!wrapperCnt.objContentDocument.FileExtension}_16">
+                                    
+                                        </div>
+                                    </td>
+                                    <td style="border-width: 0px 0px 0px;">
+                                        <apex:outputLink value="/apex/contentPage?Id={!wrapperCnt.objContentDocument.LatestPublishedVersionId}">{!wrapperCnt.objContentDocument.Title}</apex:outputLink>
+                                    </td>
+                               </tr>
+                            </table>
+                            <apex:outputLabel value=""></apex:outputLabel>
+                        </apex:column>
+                        
+                        <apex:column headerValue="Size">
+                            <apex:outputLabel value="{!wrapperCnt.StrContentDocSize}"></apex:outputLabel>
+                        </apex:column>
+                        <!--<apex:column headerValue="Author">
+                            <apex:outputLink value="/{!wrapperCnt.objContentDocument.Owner.Id}">{!wrapperCnt.objContentDocument.Owner.Name}</apex:outputLink>
+                        </apex:column>-->
+                        <apex:column headerValue="Last Modified">
+                            <apex:outputText value="{0,date,MM/dd/yyyy}">
+                                <apex:param value="{!wrapperCnt.objContentDocument.LastModifieddate}"/>
+                            </apex:outputText>
+                        </apex:column>
+                        <!--<apex:column headerValue="Downloads">
+                            <apex:outputLabel value="{!wrapperCnt.intNumberofDownloaded}"></apex:outputLabel>
+                        </apex:column>-->
+                    </apex:pageblockTable>
+                    <apex:dynamicComponent componentValue="{!myCommandButtons}"/> 
+                </apex:pageBlock>
+               
+                </td>
+            </tr>
+        </table>
+    </apex:form>
+</apex:page>

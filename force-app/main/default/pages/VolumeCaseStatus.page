@@ -1,0 +1,10 @@
+<apex:page controller="ctrlVolumeController" showHeader="false" sidebar="false">
+    <apex:form >    
+        <apex:pageBlock title="Volume By Case Status">        
+            <apex:pageBlockTable value="{!data}" var="d">            
+                <apex:column headerValue="Status" value="{!d.Status}"/>
+                <apex:column headerValue="Record Count" value="{!d.intCount}"/>
+            </apex:pageBlockTable>        
+        </apex:pageBlock>
+    </apex:form>
+</apex:page>

@@ -1,0 +1,153 @@
+<apex:page standardController="ContentVersion" extensions="contentPageExtension" sidebar="false">
+    <style>
+        .accountTab .pageTitleIcon, .individualPalette .accountBlock .pageTitleIcon{
+            background-image:none;
+        }
+        .mainTitle{
+            font-family:Avenir;
+        }
+        .pbTitle{
+            width: 40% !important;
+        }
+        
+    </style>
+    <apex:form id="frm">
+     <table width="100%" style="font-family:Avenir;">
+            <tr>
+                <td valign="top" width="16%" style="font-family:Avenir;">                    
+                    <table width="100%">
+                        <tr>
+                            <td>
+                                 <br/>
+                                <h2 style="font-weight:bold" >CONTENT SEARCH</h2>
+                                <hr/> 
+                                <br/>
+                                 <apex:selectList style="width:130px;" value="{!strSelLibrary}" size="0" > 
+                                    <apex:selectOptions value="{!Libraries}"/>            
+                                </apex:selectList>
+                                <br/>
+                                
+                                <apex:inputText style="width:77px" value="{!strSearchLibrary}"/>&nbsp;
+                                <apex:commandButton value="Search" action="{!searchContentRecords}"/>
+                            </td>
+                        </tr>
+                         <tr>
+                            <td>
+                                 <br/>
+                                <h2 style="font-weight:bold">RECENT ITEMS</h2>
+                                <hr/> 
+                                
+                                <apex:repeat value="{!lstwrapperRecentlyViewd }" var="rec">
+                                <apex:outputLink rendered="{!If(rec.strRecordType=='ContentDocument', true, false)}" style="font-size: 10px !important;text-decoration:none;" value="/apex/contentPage?id={!rec.recordId}">{!rec.strRecordName}</apex:outputLink>
+                                <apex:outputLink rendered="{!If((rec.strRecordType=='Case'), true, false)}" style="font-size: 10px !important;text-decoration:none;" value="/apex/contentPage?id={!rec.recordId}">{!rec.strRecordName}</apex:outputLink>
+                                
+                                 
+                                    <!--<apex:outputLink rendered="{!If(rec.Type=='ContentDocument',true,false)}" style="font-size: 10px !important;text-decoration:none;" value="/apex/contentPage?id={!rec.id}">{!rec.Name}</apex:outputLink>
+                                    <apex:outputLink rendered="{!If(rec.Type=='Case',true,false)}" style="font-size: 10px !important;text-decoration:none;" value="/{!rec.id}">{!rec.Name}</apex:outputLink>
+                                    <apex:outputLink rendered="{!If(rec.Type=='KnowledgeArticle',true,false)}" style="font-size: 10px !important;text-decoration:none;" value="/{!rec.id}">{!rec.Name}</apex:outputLink>
+                                    -->
+                                    <br/>
+                                    
+                                    <br/>
+                                </apex:repeat>
+                            </td>
+                        </tr>
+                    </table>
+                </td>
+                <td width="2%"></td>
+                <td width="82%" style="font-family:Avenir;">
+                       
+                                                   
+                            <table width="100%">
+                             <tr>
+                              <td>
+                               <img src="/customer/sfc/images/docicons/doctype_{!contentversion.fileextension}_32.png?v=188-1" class="" title=""></img>
+                               <h1 class="pageType" id="pageTitle" style="font-family:Avenir;font-size:18pt;color:#01748b !important">Content</h1>
+                               
+                              </td>
+                             </tr>
+                        </table>
+                   
+                   <!-- <apex:outputLabel value="Last Modified By: "></apex:outputLabel> 
+                   
+                    <apex:outputField style="color:#015BA7" value="{!ContentVersion.ContentModifiedById}"/>
+                    -->
+                    
+                    
+                    <br />
+                    <apex:pageBlock title="Content Details">
+                        <table >
+                        <tr>
+                        <td valign="top" width="60%">
+                        <apex:pageblockButtons dir="LTR" location="top" >
+                      
+                         
+                            <apex:commandButton reRender="frm" action="{!downloadPDFfile}" title="Download the latest version of this content" styleClass=" x-btn-text" id="ext-gen20" value="Download"/>
+                           
+                        </apex:pageblockButtons> 
+                     
+                    
+                        <apex:pageBlockSection columns="1">
+                            <apex:pageBlockSectionItem >
+                                {!ContentVersion.description}
+                            </apex:pageBlockSectionItem>
+                            <apex:pageBlockSectionItem >
+                                <apex:outputLabel >
+                                <img alt="Tags" src="/img/icon/tags16.gif" />
+                                <apex:outputLabel value="Tags"></apex:outputLabel>
+                                </apex:outputLabel>
+                                <apex:repeat value="{!lstTags}" var="tg">
+                                    
+                                    <apex:outputLink value="/apex/displayContent?searchTags={!tg}">{!tg}</apex:outputLink>
+                                    <img src="/sfc/images/context_arrow.gif"/>
+                                    <apex:outputLabel value=" ">&nbsp;</apex:outputLabel>
+                                </apex:repeat>
+                            </apex:pageBlockSectionItem>
+                            <apex:pageBlockSectionItem >
+                                <apex:outputLabel value="Created"></apex:outputLabel>
+                                <apex:outputField value="{!ContentVersion.createddate}"/>
+                            </apex:pageBlockSectionItem>
+                            <apex:pageBlockSectionItem >
+                                <apex:outputLabel value="Version"></apex:outputLabel>
+                                <apex:outputField value="{!ContentVersion.VersionNumber}"/>
+                            </apex:pageBlockSectionItem>
+                            <apex:pageBlockSectionItem >
+                                <apex:outputLabel value="Featured"></apex:outputLabel>
+                                <apex:image value="{!If(ContentVersion.FeaturedContentBoost == 1, '/img/checkbox_checked.gif','/img/checkbox_unchecked.gif')}"/> 
+                                <!--<apex:outputField value="{!ContentVersion.FeaturedContentBoost}"/>-->
+                            </apex:pageBlockSectionItem>
+                            <apex:pageBlockSectionItem >
+                                <apex:outputLabel value="Size"></apex:outputLabel>
+                                <apex:outputField value="{!ContentVersion.ContentSize}"/>
+                            </apex:pageBlockSectionItem>
+                            <apex:pageBlockSectionItem >
+                                <apex:outputLabel value="In My Libraries"></apex:outputLabel>
+                                <apex:outputPanel >
+                                    <apex:outputLink value="/customer/apex/displayContent?selectedWorkspaceId={!ContentVersion.ContentDocument.ParentId}">{!mapLibraries[ContentVersion.ContentDocument.ParentId]}</apex:outputLink>
+                                    <img src="/sfc/images/context_arrow.gif"/>
+                                </apex:outputPanel>
+                                <!--<apex:outputField  value="{!ContentVersion.ContentDocument.ParentId}"/>-->
+                            </apex:pageBlockSectionItem> 
+                        </apex:pageBlockSection>
+                        </td>
+                        <td align="right">
+                            <div id="dpvPreviewWrapper" align="center">
+                            
+                            <div class="chatterFileViewerPanel" id="chatterFileViewerPanel">
+                            
+                            <embed src="/DocViewer.swf"  id="renditionLarge" quality="high" bgcolor="#f3f3f3" name="renditionLarge" 
+                            allowscriptaccess="sameDomain" allowfullscreen="true"                             
+                            align="middle" height="500px" width="350px"/>                            
+                            <noembed><p>Flash file preview</p></noembed></div>
+                            <script>insertFlexComponent('/_swf/121310/sfc/flex/DocViewer', 'shepherd_prefix=/sfc/servlet.shepherd&v={!ContentVersion.Id}&mode=chatterfilepreview&in_tests=false', '450px', '350px', '#f3f3f3', 'chatterFileViewerPanel', 'renditionLarge', false, { adobeFlashVersionLbl : 'You must enable or download Adobe Flash Player version 9.0.115 or later to use this feature.', downloadAdobeLbl : 'Download Adobe Flash Player', downloadAdobeLinkLbl : 'Click the link below to download the Adobe Flash Player:', closeDialogLbl : 'Cancel'}); Ninja.Flex.ContentStaticResourcesBase = '/_swf/121310/sfc';Ninja.Flex.ShepherdController = '/sfc/servlet.shepherd';</script>
+                            </div>
+                        </td>
+                        </tr>
+                        </table>
+                    </apex:pageBlock>
+                </td>
+            </tr>
+        </table>
+</apex:form>
+
+</apex:page>

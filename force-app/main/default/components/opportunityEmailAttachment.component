@@ -1,0 +1,7 @@
+<apex:component controller="Opp_Approval_EmailController" access="global" rendered="true">
+    <apex:attribute name="opptyId" assignTo="{!oppId}" access="global" type="String" description="Id Opportunity"/>
+    <apex:variable value="{!attachmentBody}" var="oppAttachment"/>
+    
+    
+     <apex:componentBody />
+</apex:component>

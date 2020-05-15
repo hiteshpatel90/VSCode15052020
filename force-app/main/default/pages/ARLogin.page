@@ -1,0 +1,503 @@
+<apex:page id="page" applyBodyTag="false" applyHtmlTag="false" showChat="false" showHeader="false" sidebar="false" showQuickActionVfHeader="false" standardStylesheets="false" controller="SiteLoginController">
+    <html class="ARUhtml" >
+        <style type="text/css">
+            input.form-control {
+                color:#555 !important;
+            }
+            div.centered-content {
+                margin: 0 auto;
+            }
+            .no-pad {
+                padding: 0px !important;
+            }
+            .ARUfooter{
+                position: relative !important;
+            }
+        </style>
+
+        <head>
+            <meta charset="utf-8" />
+            <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+            <meta name="viewport" content="width=device-width, initial-scale=1" />
+            <meta name="description" content="" />
+            <meta name="author" content="" />
+
+            <title>AXIS - Landing Page</title>
+            
+            <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
+
+            <!-- Bootstrap core CSS -->
+            <link href="{!$Resource.AxisTemplate}/Axis/css/bootstrap.min.css" rel="stylesheet" />
+
+            <!-- Animation CSS -->
+            <link href="{!$Resource.AxisTemplate}/Axis/css/animate.css" rel="stylesheet" />
+            <link href="{!$Resource.AxisTemplate}/Axis/font-awesome/css/font-awesome.css" rel="stylesheet" />
+
+            <!-- Custom styles for this template -->
+            <link href="{!$Resource.styleEdited}" rel="stylesheet" />
+
+            <!-- Toastr style -->
+            <link href="{!$Resource.AxisTemplate}/Axis/css/plugins/toastr/toastr.min.css" rel="stylesheet" />
+        </head>
+        
+        <script>
+            
+            function isNumberKey(evt){
+                var charCode = (evt.which) ? evt.which : event.keyCode
+                if (charCode > 31 && (charCode < 48 || charCode > 57))
+                    return false;
+                return true;
+            } 
+            
+            
+
+        </script>
+        
+
+        <body class="ARUbody">
+            <div class="container-fluid ARUheader-main hidden-xs">
+                  <div class="row ARUheader">
+                    <h1 class="text-center"><strong>ArthreX Integrated System</strong></h1>
+                    <h1 class="text-center">Helping Agencies Service Their Customers Better</h1>
+                      <!-- <h1 class="text-center">Helping Agencies Service their Customers Better</h1> -->
+                      
+                  </div><!-- row header -->
+                </div><!-- container-fluid -->
+            
+            <!-- SP code added to Center AXIS Logo on Home Screen-->
+            
+                <div class="container content"  style="padding-right:0px !important">
+                  <img class="img-responsive center-block logo no-pad" src="{!$Resource.axisBG}/logo.png" />
+                  
+             <!-- SP end of code -->      
+            
+                  <div class="row tagline hidden-xs">
+                      <div class="col-sm-4 col-md-4">
+                        <div class="centered-content" style="width:99px">
+                            <p>Connect</p>
+                            <ul class="hidden-xs">
+                              <li>Simple</li>
+                              <li>Mobile</li>
+                              <li>Seamless</li>
+                            </ul>
+                        </div>
+                      </div>
+                      <div class="col-sm-4 col-md-4">
+                          <div class="centered-content" style="width:131px">
+                          <p>Collaborate</p>
+                            <ul class="hidden-xs">
+                              <li>Integrated</li>
+                              <li>Powerful</li>
+                              <li>Cohesive</li>
+                            </ul>
+                          </div>
+                    </div>
+                    <div class="col-sm-4 col-md-4">
+                      <div class="centered-content" style="width:199px">
+                      <p>Compete</p>
+                        <ul class="hidden-xs">
+                          <li>Customer Focused</li>
+                          <li>Analytical Insight</li>
+                          <li>Supports Our Mission</li>
+                        </ul>
+                      </div>
+                </div>
+            </div><!-- end row tagline -->
+            <div class="row">
+                <div class="col-sm-4 col-sm-offset-4 text-center">
+                    <apex:form id="frm" styleClass="m-t" html-role="form" >
+                            <div class="form-group">
+                                <apex:inputText id="txtUserName" value="{!username}" styleClass="form-control" html-placeholder="{!$Label.CS_Usernameplaceholder}" required="true"/>
+                            </div>
+                            <div class="form-group">
+                                <!-- <apex:inputSecret value="{!password}" id="txtPassword" styleClass="form-control" html-placeholder="{!$Label.CS_PasswordPlaceholder}" required="true" /> -->
+                                
+                                <apex:inputSecret value="{!password}" id="txtPassword" styleClass="form-control" label="{!$Label.CS_PasswordPlaceholder}" required="true" />
+                            </div>
+                            <div class="form-group">
+                            
+                            
+                            <p class="text-left" style="color: #d0d5d9; font-weight: 300;">                                                   
+                                <input type="checkbox" name="remember" value="remember-me" id="remember"/> Remember me
+                            </p>
+                          
+                                   
+                            </div>
+                            <!-- <apex:commandButton value="{!$Label.CS_Login}" id="loginbutton" onclick="rememberMe();" action="{!loginButton}" styleClass="btn btn-primary block full-width m-b" > -->
+                            <apex:actionFunction name="loginFunction" action="{!loginButton}" immediate="true"/> 
+                            <apex:commandButton value="{!$Label.CS_Login}" id="loginbutton" onclick="rememberMe();" action="{!loginButton}" styleClass="btn btn-primary block full-width m-b" >
+                            </apex:commandButton>
+                            <apex:messages />
+   
+                        </apex:form>
+                </div>
+            </div>
+
+            <div class="row cta">
+             <!--<a href="#Login" data-toggle="modal" data-target="#Login"><button type="button" class="center-block btn btn-default">Login to AXIS</button></a>-->
+             <p class="text-center"><a href="/apex/ForgotPassword?lang={!language}" class="forgotpassword">Forgot Your Password?</a></p>
+             <p class="text-center"><a href="#ContactUs" data-toggle="modal" data-target="#ContactUs">Contact Us</a></p>
+            </div>
+            
+            
+            <!--<div id="Login" class="modal fade" role="dialog" style="color:#676a6c; font-size:13px;">
+                  <div class="modal-dialog">
+                
+                    
+                    <div class="modal-content">
+                      <div class="modal-body">
+                         <center>
+                        <apex:form style="width:400px;">
+                        <form action="" method="POST">
+
+                            <div class="form-group">
+                                <apex:inputText styleClass="form-control" html-placeholder="{!$Label.CS_Usernameplaceholder}" required="true"/>
+                            </div>
+                            <div class="form-group">
+                                <apex:inputSecret styleClass="form-control" html-placeholder="{!$Label.CS_PasswordPlaceholder}" required="true" />
+                            </div>
+                            <apex:commandButton value="{!$Label.CS_Login}" styleClass="btn btn-primary block full-width m-b" ></apex:commandButton>
+                            <center><apex:messages styleclass="text-danger"/></center>
+
+                        </form>
+                        </apex:form>
+                        </center>
+                        </div>
+                    </div>
+                
+                  </div>
+                </div>-->
+            
+            
+            <div id="ContactUs" class="modal fade" role="dialog" style="color:#676a6c; font-size:13px;">
+                  <div class="modal-dialog">
+                
+                    <!-- Modal content-->
+                    <div class="modal-content">
+                      <div class="modal-header">
+                        <button type="button" class="close" data-dismiss="modal">&times;</button>
+                        <h4 class="modal-title">Contact Us</h4>
+                      </div>
+                      <div class="modal-body">
+
+<!--                         <form action="https://arthrex--Dev2.cs51.my.salesforce.com/servlet/servlet.WebToCase?encoding=UTF-8" method="POST">
+ -->                        <form action="{!LEFT($CurrentPage.URL,FIND('/',$CurrentPage.URL,9))}/servlet/servlet.WebToCase?encoding=UTF-8" method="POST" id="contactForm">
+
+                            <input type="hidden" name="orgid" value="{!$Organization.Id}" id="orgid"/>
+                            <input type="hidden" name="retURL" value="{!LEFT($CurrentPage.URL,FIND('/',$CurrentPage.URL,9))}?contactsubmitted" id="retURL"/>
+
+                            <div class="form-group">
+                                <label for="name" class="control-label"><span class="text-danger">*</span>Contact Name</label>
+                                <input  id="name" class="form-control name" maxlength="80" name="name" size="20" type="text" />
+                            </div>
+
+                            <div class="form-group">
+                                <label for="email" class="control-label"><span class="text-danger">*</span>Email</label>
+                                <input  id="email" class="form-control email" maxlength="80" name="email" size="20" type="text" />
+                            </div>
+
+                            <div class="form-group">
+                                <label for="phone" class="control-label"><span class="text-danger">*</span>Phone</label>
+                                <input  id="phone" class="form-control phone" maxlength="40" name="phone" size="20" type="text" />
+                            </div>
+                            
+                            <div class="form-group">
+                                <label for="type" class="control-label"><span class="text-danger">*</span> Type</label>
+                                <select class="form-control type" name="type">
+                                    <option value=''> -- Select -- </option>
+                                    <apex:repeat value="{! helpTypeOptions}" var="option">
+                                        <option value='{! option.value}'>{! option.label}</option>
+                                    </apex:repeat>
+                                </select>
+                                
+                            </div>
+
+                            <!-- <div class="form-group">
+                                <label for="subject" class="control-label">Subject</label>
+                                <input  id="subject" class="form-control" maxlength="80" name="subject" size="20" type="text" />
+                            </div> -->
+                            
+                            <div class="form-group">
+                                <label for="description" class="control-label"><span class="text-danger">*</span>Description</label>
+                                <textarea name="description" class="form-control description" ></textarea>
+                            </div>
+                            
+                            <div class="error text-danger"></div>
+                            <br/>
+                            
+                            <div class="form-group">
+                                <input type="hidden" name="subject" value="AXIS Support Ticket - Unauthenticated User."/>
+                                <input type="button" class="btn btn-primary block full-width m-b" name="submit" value="Submit" onclick="validateAndSubmit()"/>
+                            </div>
+
+                        </form>
+
+                        </div>
+                    </div>
+                
+                  </div>
+                </div>
+            
+            
+                </div><!-- end .container -->
+            
+            <br>
+            </br>
+            <br>
+            </br>
+            <br>
+            </br>
+     
+
+                <footer class="ARUfooter">
+                  <div class="container">
+                  <p class="text-center">
+                    &copy; {!YEAR(Today())} Arthrex, Inc. All rights reserved. &nbsp; <!-- // Modified by Swetha, TCS on 08.21.2017 for Release 4.4, CID-000421.-->
+                    <a href="http://www.arthrex.com/privacy-policy">Privacy Policy</a> | 
+                    <a href="http://www.arthrex.com/legal-ethics-notice">Legal &amp; Ethics Notice</a>
+                  </p>
+                  
+                  </div>
+                </footer>
+            
+
+            <script src="{!$Resource.AxisTemplate}/Axis/js/jquery-2.1.1.js"></script>
+            <script src="{!$Resource.AxisTemplate}/Axis/js/bootstrap.min.js"></script>
+            <script src="{!$Resource.AxisTemplate}/Axis/js/plugins/metisMenu/jquery.metisMenu.js"></script>
+            <script src="{!$Resource.AxisTemplate}/Axis/js/plugins/slimscroll/jquery.slimscroll.min.js"></script>
+            <script src="{!$Resource.AxisTemplate}/Axis/js/inspinia.js"></script>
+            <script src="{!$Resource.AxisTemplate}/Axis/js/plugins/pace/pace.min.js"></script>
+            <script src="{!$Resource.AxisTemplate}/Axis/js/plugins/wow/wow.min.js"></script>
+            <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/jquery-cookie/1.4.1/jquery.cookie.min.js"></script>
+            
+            <!-- Toastr -->
+            <script src="{!$Resource.AxisTemplate}/Axis/js/plugins/toastr/toastr.min.js"></script>
+            
+            
+            <script>
+                function validate(){
+                        //if ((document.contactfield.cname.value=="") ||
+                        //    (document.contactfield.cemail.value=="") ||
+                        //    (document.contactfield.cphone.value=="") ||
+                        //    (document.contactfield.csubject.value=="") ||
+                        //    (document.contactfield.cdescription.value=="") ||
+                        //    (document.contactfield.ccr.value=="--None--") ){
+                            alert("You must fill in all of the required fields!");
+                        //    return false
+                        //}
+                        //else
+                        //    alert("All fields are filled up. Thanks!")
+                        //    return true
+                    }
+
+                // this function is called by the native mobile application when the page is rendered
+                // through the UIView on the native mobile application.
+                // It is not called by anything else except for the native mobile application
+                // - Chad 
+                // PS don't touch it.
+                function mobileAppDetected() {
+                    $(".hide-on-mobile").hide();
+                    window.isMobileApp = true;
+                }
+            
+                $(document).ready(function () {
+
+                    $("a.forgotpassword").on("click", function(e) {
+                        // this click handler is used to enable forgot password 
+                        // support to the native mobile application, don't mess with
+                        // it. - Chad
+                        if ( window.isMobileApp === true ) {
+                            // this is the mobile app, append the 
+                            // mobile auth url to the link
+                            e.preventDefault();
+                            e.stopPropagation();
+                            var authUrlEncoded = encodeURIComponent( document.location.href );
+                            var href = $(this).attr("href");
+                            href += "&redirect="+authUrlEncoded;
+                            document.location.href = href;
+                        }
+
+                    });
+
+                    $('body').scrollspy({
+                        target: '.navbar-fixed-top',
+                        offset: 80
+                    });
+
+                    // Page scrolling feature
+                    $('a.page-scroll').bind('click', function(event) {
+                        var link = $(this);
+                        $('html, body').stop().animate({
+                            scrollTop: $(link.attr('href')).offset().top - 50
+                        }, 500);
+                        event.preventDefault();
+                    });
+                });
+
+                var cbpAnimatedHeader = (function() {
+                    var docElem = document.documentElement,
+                            header = document.querySelector( '.navbar-default' ),
+                            didScroll = false,
+                            changeHeaderOn = 200;
+                    function init() {
+                        window.addEventListener( 'scroll', function( event ) {
+                            if( !didScroll ) {
+                                didScroll = true;
+                                setTimeout( scrollPage, 250 );
+                            }
+                        }, false );
+                    }
+                    function scrollPage() {
+                        var sy = scrollY();
+                        if ( sy >= changeHeaderOn ) {
+                            $(header).addClass('navbar-scroll')
+                        }
+                        else {
+                            $(header).removeClass('navbar-scroll')
+                        }
+                        didScroll = false;
+                    }
+                    function scrollY() {
+                        return window.pageYOffset || docElem.scrollTop;
+                    }
+                    init();
+
+                })();
+
+                // Activate WOW.js plugin for animation on scrol
+                new WOW().init();
+                    
+
+                
+                // if contactsubmitted is a param then the user is returning after submitting the
+                // contact us web-to-case form
+                if ( location.search.indexOf("contactsubmitted") != -1 ) {
+                    toastr.options = {
+                        "positionClass": "toast-top-left",
+                    };
+                    toastr.success("Thanks for submitting your request, please check you email for reference information!");
+                }
+                
+
+                (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+                (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+                m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+                })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+                
+                ga('create', 'UA-73832506-1', 'auto');
+                ga('send', 'pageview');         
+
+                function validateAndSubmit(){
+                
+                     name = $("#ContactUs input.name").val() || "";
+                     email = $("#ContactUs input.email").val() || "";
+                     phone = $("#ContactUs input.phone").val() || "";
+                     description = $("#ContactUs textarea.description").val() || "";
+                     type = $("#ContactUs select.type").val() || "";
+
+                     var hasEmptyFields = false;
+                     var invalidEmail = false;
+                     if ( name.length === 0 ) { hasEmptyFields = true; }
+                     if ( email.length === 0 ) { hasEmptyFields = true; }
+                     if ( phone.length === 0 ) { hasEmptyFields = true; }
+                     if ( description.length === 0 ) { hasEmptyFields = true; }
+                     if ( type.length === 0 ) { hasEmptyFields = true; }
+
+                     
+                     if ( email.length > 0 ) {
+                         var validEmailRegex = /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
+                         invalidEmail = !validEmailRegex.test(email);
+                     }
+
+                     if ( hasEmptyFields ) {
+                         
+                         $("#ContactUs div.error").text("All fields are required");   
+
+                     } else if ( invalidEmail ) {
+                     
+                         $("#ContactUs div.error").text("Your email is not valid");   
+                     
+                     } else if (description.length > 500 ){
+                        $("#ContactUs div.error").text("Description has to less than 500 characters");
+                        
+                     } else {
+                     
+                        url = $("#contactForm").attr("action");
+                        orgid = $("#orgid").val();
+                        retURL = $("#retURL").val();
+                        
+                        var postObject = { 
+                            orgid: orgid, 
+                            retURL: retURL, 
+                            name: name, 
+                            email: email, 
+                            phone: phone, 
+                            type: type, 
+                            subject: "AXIS Support Ticket - Unauthenticated User.", 
+                            description: description 
+                        };
+
+                        if ( typeof isMobileApp != "undefined" && isMobileApp === true ) {
+
+                            postObject["origin"] = 'Mobile';
+                        }
+
+                        $.post( url, postObject , function( data ) {
+                                    
+                                    $('#ContactUs').modal('hide');
+                                    
+                                    toastr.options = {
+                                        "positionClass": "toast-top-left",
+                                    };
+                                    toastr.success("Thank you, we got it!");
+                                } );
+                        
+                     }  //  end of if-else
+                     
+                }   //  end of validateForm
+                
+                $(document).ready(function() {
+            
+                    var remember = $.cookie('remember');
+                    if (remember == 'true') 
+                    {
+                        var email = $.cookie('email');
+                        document.getElementById('page:frm:txtUserName').value = email;
+                        document.getElementById('remember').checked = true;
+                    }
+                });
+                
+                function rememberMe(){
+                
+                    if ($('#remember').is(':checked')) {
+                        var email = document.getElementById('page:frm:txtUserName').value;
+                        // set cookies to expire in 14 days
+                        $.cookie('email', email, { expires: 14 });
+                        $.cookie('remember', true, { expires: 14 });                
+                    }
+                    else
+                    {
+                        // reset cookies
+                        $.cookie('page:frm:txtUserName', null);
+                        $.cookie('remember', null);
+                    }
+              }
+              
+              function loginbuttonF(){
+              
+                 var pass = document.getElementById('page:frm:txtPassword').value;
+                 console.log('##--pass: '+ pass);
+                 if(pass == ''){
+                 
+                 }else{
+                    console.log('calling loginButton()');
+                    loginFunction();
+                 }
+                 return false;
+              } 
+            
+            </script>
+
+        </body>
+    </html>
+</apex:page>

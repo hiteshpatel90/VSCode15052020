@@ -1,0 +1,48 @@
+<apex:page >
+    
+    <!-- Remote Objects definition to set accessible sObjects and fields -->
+    <apex:remoteObjects >
+        <apex:remoteObjectModel name="Account" jsShorthand="Warehouse" 
+            fields="Name,Id">
+            <apex:remoteObjectField name="Rating" jsShorthand="Phone"/>
+        </apex:remoteObjectModel>
+    </apex:remoteObjects>
+
+    <!-- JavaScript to make Remote Objects calls -->
+    <script>
+        var fetchWarehouses = function(){
+            // Create a new Remote Object
+            var wh = new SObjectModel.Warehouse();
+            
+            // Use the Remote Object to query for 10 warehouse records
+            wh.retrieve({ limit: 1000 }, function(err, records, event){
+                if(err) {
+                    alert(err.message);
+                }
+                else {
+                    var ul = document.getElementById("warehousesList");
+                    records.forEach(function(record) {
+                        // Build the text for a warehouse line item
+                        var whText = record.get("Name");
+                        whText += " -- ";
+                        whText += record.get("Phone");
+                        
+                        // Add the line item to the warehouses list
+                        var li = document.createElement("li");
+                        li.appendChild(document.createTextNode(whText));
+                        ul.appendChild(li);
+                    });
+                }
+            });
+        };
+    </script>
+
+    <h1>Retrieve Accounts via Remote Objects</h1>
+
+    <p>Accounts:</p>
+
+    <ul id="warehousesList">
+    </ul>
+    <button onclick="fetchWarehouses()">Retrieve Accounts</button>
+
+</apex:page>

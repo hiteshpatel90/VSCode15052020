@@ -1,0 +1,28 @@
+.ctag-list .ctag [data-role="remove-tag"] {
+    cursor: pointer;
+    margin-left: 0px 3px;
+    font-weight: bold;
+}
+.ctag-list .ctag [data-role="remove-tag"]:after {
+    content: "x";
+    padding: 0px 2px;
+}
+.ctag {
+    display:inline-block;
+    font-size: 0.85em;
+}
+.ctag.alert {
+    padding: 3px 5px;
+    margin: 3px 3px 3px 0px;
+    display: inline-block;
+}
+.modal.modal-authrex .modal-header {
+    background-color: #325996;
+    color: white;
+}
+.modal.modal-authrex .close {
+    color: white;
+}
+.close:focus, .close:hover, {
+    color: white;
+}

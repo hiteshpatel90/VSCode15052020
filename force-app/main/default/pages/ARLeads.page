@@ -1,0 +1,459 @@
+<apex:page id="thePage" applyBodyTag="false" applyHtmlTag="false" showChat="false" showHeader="false" sidebar="false" showQuickActionVfHeader="false" standardStylesheets="false" controller="CS_ARContactsCC"  extensions="CS_ARCCExtension" docType="html-5.0">
+    <apex:composition template="ARtemplate">
+        <apex:define name="bodyContent">
+        
+            <style>
+                html, body{
+                    height: 100% !important;
+                }
+                
+                .displayDetailBlock{ 
+                    padding: 7px;
+                    min-height: 35px;
+                }
+                .displayBlock{
+                    display: block;
+                    border: thin solid lightgray;
+                    padding: 7px;
+                    min-height: 35px;
+                }
+                
+                .font-large {
+                    font-size: large;
+                }
+                
+                .header-left{
+                    text-align: left;
+                    background-color: lightgray;
+                }
+                
+                .section-header-lead-details{
+                
+                    color: #3A9DDB !important;
+                }
+                
+                .muted_label{
+                    padding-top: 0px;
+                    color: #9c9a9a; /*lightgrey;*/
+                    min-height: 25px !important;
+                }
+                
+                .ag-header-cell-menu-button{
+                    opacity:1 !important;
+                }
+                
+            </style>
+            
+            <script type="text/javascript"> 
+                
+                var rowData; 
+                
+                var lstProductTeams = [];
+                
+                var FILTER_TITLE =
+                '<div style="text-align: center; background: lightgray; width: 100%; display: block; border-bottom: 1px solid grey;">' +
+                '<b>TITLE_NAME</b>' +
+                '</div>';
+                
+                var PROFICIENCY_TEMPLATE =
+                    '<label style="border: 1px solid lightgrey; margin: 4px; padding: 4px;">'  +
+                    '<input type="checkbox" name="RANDOM"/>' +
+                    'PROFICIENCY_NAME' +
+                    '</label>';  
+                
+                var columnDefs = [  
+                    
+                    {headerName: "Campaign Name", field: 'objConferenceMember.Conference__r.Name', rowGroupIndex: 0, hide: true, headerClass: "header-left"},  
+                    {headerName: "First Name", field: "objConferenceMember.Contact__r.FirstName", checkboxSelection: true, headerClass: "header-left"},
+                    {headerName: "Last Name", field: "objConferenceMember.Contact__r.LastName", headerClass: "header-left"},
+                    {headerName: "Designation", field: "objConferenceMember.Contact__r.Designation__c", headerClass: "header-left"},
+                    {headerName: "Team", field: "teamName", headerClass: "header-left"},
+                    {headerName: "Status", field: "status", headerClass: "header-left"},
+                    {headerName: "Product Team", field: "productTeam", headerClass: "header-left"
+                                   , filter: ProductTeamFilter//, 
+                                   //filterParams: {values: lstProductTeams, newRowsAction: 'keep'}
+                                  }
+                ];
+                
+                var gridOptions = {
+                    rowHeight: '100px',
+                    rowSelection: 'single',
+                    suppressRowClickSelection: true,
+                    enableFilter: true,
+                    columnDefs: columnDefs,
+                    rowData: null,
+                    animateRows: true,
+                    groupUseEntireRow: true,
+                    enableColResize: true,
+                    autoSizeColumns: true,
+                    enableSorting: true
+                }; 
+                
+                function ProductTeamFilter() {
+                }
+                
+                ProductTeamFilter.prototype.init = function (params) {
+                    this.filterChangedCallback = params.filterChangedCallback;
+                    //this.selected = PROFICIENCY_NONE;
+                    this.valueGetter = params.valueGetter;
+                };
+                
+                ProductTeamFilter.prototype.getModel = function () {
+
+                };
+            
+                ProductTeamFilter.prototype.setModel = function (model) {
+            
+                };
+                
+                ProductTeamFilter.prototype.getGui = function () {
+                    var eGui = document.createElement('div'); 
+                    var random = '' + Math.random();
+            
+                    var that = this;
+                    lstProductTeams.forEach( function (name, index) {
+                        var eFilter = document.createElement('div'); 
+                        var html = PROFICIENCY_TEMPLATE.replace('PROFICIENCY_NAME', name).replace('RANDOM', random); 
+                        eFilter.innerHTML = html;
+                        var eRadio = eFilter.querySelector('input'); 
+                        eGui.appendChild(eFilter);
+                        
+                        console.log('##--getGui.eRadio: '+ JSON.stringify(eRadio));
+                        eRadio.addEventListener('click', function () {
+                            console.log('##--index: '+ index);
+                            that.selected = lstProductTeams[index];
+                            console.log('##--eRadio.checked'+ eRadio.checked); 
+                            //that.model[name] = eRadio.checked;
+                            
+                            console.log('##--getGui.that'+ JSON.stringify(that));
+                            that.filterChangedCallback();
+                        });
+                    });
+            
+                    return eGui;
+                };
+                
+                ProductTeamFilter.prototype.doesFilterPass = function (params) {
+                    // make sure each word passes separately, ie search for firstname, lastname
+                    var passed = true;
+                    var value = this.valueGetter(params); 
+                    //console.log('##--doesFilterPass.params: '+ JSON.stringify(params));
+                    console.log('##--doesFilterPass.value: '+ value);
+                    console.log('##--doesFilterPass.selected: '+this.selected);
+                    
+                    if(value == undefined || !value.includes(this.selected)){
+                        return false;
+                    }
+                
+                    return passed;
+                };
+                
+                ProductTeamFilter.prototype.isFilterActive = function () {
+                    return true;
+                };
+                
+                
+                
+                
+                
+                $(document).ready(function () {
+                    
+                    var aggridLicenseKey = 'Arthrex_Inc_Site_1Devs17_January_2018__MTUxNjE0NzIwMDAwMA==f78a3bf17fb3daeb78acd7ced888139e';
+                    agGrid.LicenseManager.setLicenseKey(aggridLicenseKey);
+                    
+                    
+                    $('#leads').addClass('active');//set the Contact "tab" as the active link
+                    $("h2.title-icon-container i").removeClass().addClass("fa fa-star");
+                    
+                    
+                    populateInitialData();
+                    
+                    
+                }); //  end of ready function
+                
+                 
+                function populateInitialData(){ 
+                    $("#campaignListHeader").html('List of Campaigns');  
+                    var productTeams = [];
+                    Visualforce.remoting.Manager.invokeAction("{!$RemoteAction.CS_ARCCExtension.returnAllConferenceMembers}",
+                    function(result, event){ 
+                        
+                        
+                        $.each(result, function(i, v){
+                            
+                            
+                            if(v.productTeam == undefined || v.productTeam == null){
+                                return;
+                            }
+                            var splitOptionValue = v.productTeam.split("; ");
+                            
+                            for (i = 0; i < splitOptionValue.length; i++) {
+                                if(lstProductTeams.indexOf(splitOptionValue[i]) == -1){
+                                    lstProductTeams.push(splitOptionValue[i]);
+                                }
+                                
+                            }
+                        });
+                        console.log('##==productTeams: '+ productTeams);
+                        //lstProductTeams = ArrNoDupe(productTeams);
+                        console.log('##==lstProductTeams: '+ lstProductTeams);
+                        console.log('##--Campaigns: ' + JSON.stringify(result));
+                        
+                        gridDiv = document.querySelector('#campaignGrid');
+                        console.log('##--populateInitialData.gridDiv: ' + gridDiv);
+                        new agGrid.Grid(gridDiv, gridOptions); 
+                        
+                        gridOptions.api.setRowData(result);
+                        gridOptions.api.addEventListener("rowSelected", showLeadDetails);
+                        gridOptions.api.sizeColumnsToFit();
+                        
+                        
+                    }); 
+                    
+                }   //  end of populateInitialData 
+                
+                function ArrNoDupe(a) {
+                    var temp = {};
+                    for (var i = 0; i < a.length; i++)
+                        temp[a[i]] = true;
+                    var r = [];
+                    for (var k in temp)
+                        r.push(k);
+                    return r;
+                }
+                
+                
+                function showLeadDetails(){ 
+                
+                    var leadDetails = gridOptions.api.getSelectedRows();
+                    console.log ('##--showLeadDetails.leadDetails: '+ leadDetails);
+                    
+                    if(leadDetails == null || leadDetails.length==0){
+                        $('#divLeadDetails span[id^="td"]').html('');
+                        return false;
+                    }
+                     
+                    var leadContactHtm = '';
+                     leadContactHtm += leadDetails[0].objConferenceMember.Contact__r.Name;
+                     if(leadDetails[0].objConferenceMember.Contact__r.Designation__c != undefined){
+                        leadContactHtm += ', ' + leadDetails[0].objConferenceMember.Contact__r.Designation__c;
+                     }
+                    $('#divLeadDetails div.tdContactName').html(leadContactHtm);
+                    //$('#divLeadDetails div.tdContactName').html(leadDetails[0].objConferenceMember.Contact__r.Name + ', ' + leadDetails[0].objConferenceMember.Contact__r.Designation__c);
+                    $('#divLeadDetails div.tdTeam').html(leadDetails[0].teamName);
+                    
+                    
+                    //populate registration details
+                    //Lead Captured - Attended Booth
+                    var registrationDetailsHtm = '';
+                    
+                    if(leadDetails[0].objConferenceMember.Attended__c == true){
+                        registrationDetailsHtm += 'Lead Captured - Attended'+ '<br/>';
+                    }
+                    
+                    //populate invited to cafe
+                    
+                    if(leadDetails[0].objConferenceMember.Invited__c == true){
+                        registrationDetailsHtm += 'Invited to Café'+ '<br/>';
+                    }
+                    
+                    //populate RSVP to cafe
+                    if(leadDetails[0].objConferenceMember.RSVP__c == true){
+                        registrationDetailsHtm += 'RSVP to Café'+ '<br/>';
+                    }
+                    
+                    //populate Attended to cafe
+                    Visualforce.remoting.Manager.invokeAction("{!$RemoteAction.CS_ARCCExtension.retrieveArthrexCafeConferenceMember}",
+                        leadDetails[0].objConferenceMember.Conference__c,
+                        leadDetails[0].objConferenceMember.Contact__c,
+                        function(result, event){ 
+                            
+                            console.log('##--retrieveArthrexCafeConferenceMember: '+ JSON.stringify(result));
+                            
+                            console.log('##--retrieveArthrexCafeConferenceMember.result.size: '+ result.length > 0);
+                            if(result.length > 0){
+                                
+                                console.log('##--retrieveArthrexCafeConferenceMember.result.size: '+ result.length);
+                                registrationDetailsHtm += 'Attended the Café'+ '<br/>';
+                            
+                            }
+                            
+                            $('#divLeadDetails div.tdRegistrationDetails').html(registrationDetailsHtm);
+                        
+                        });  
+                    
+                    // populate general comments and action items
+                    
+                    Visualforce.remoting.Manager.invokeAction("{!$RemoteAction.CS_ARCCExtension.retrieveAllGeneralComments}",
+                        leadDetails[0].objConferenceMember.Conference__c,
+                        leadDetails[0].objConferenceMember.Contact__c, 
+                        function(result, event){ 
+                        
+                            var generalCommentshtm = '';
+                            var actionItemshtm = '';
+                            $.each(result, function(i, v){
+                                
+                                console.log('##--v: '+ JSON.stringify(v));
+                                if(v.RecordType.Name == 'General Comments'){ 
+                                    generalCommentshtm += v.Description + '<br/>';
+                                }else if(v.RecordType.Name == 'Have Technology Consultant Contact me' 
+                                            || v.RecordType.Name == 'Additional Information on SOS' 
+                                            || v.RecordType.Name == 'Add to OrthoIllustrated' 
+                                            || v.RecordType.Name == 'Update Contact Information' 
+                                            || v.RecordType.Name == 'Whats new Subscription'){
+                                
+                                    actionItemshtm += v.Conference__r.Team__r.Name + ' - ' + v.Subject + '<br/>';
+                                }
+                                
+                            });
+                            
+                        $('#divLeadDetails div.tdGeneralComments').html(generalCommentshtm);
+                        $('#divLeadDetails div.tdActionItems').html(actionItemshtm);
+                        });
+                        
+                    // populate lead interests getConferenceTeams
+                    Visualforce.remoting.Manager.invokeAction("{!$RemoteAction.CS_ARCCExtension.getConferenceTeams}",
+                        leadDetails[0].objConferenceMember.Conference__c,
+                        function(result, event){ 
+                            var teamNamesInOrder=[];
+                            
+                            $.each(result, function(i, v){
+                                teamNamesInOrder.push(v.Team__r.Name);
+                            }); //  end of for-each teams
+                            
+                            populateInterests(teamNamesInOrder, leadDetails[0].objConferenceMember.Conference__c, leadDetails[0].objConferenceMember.Contact__c);
+                        }); //  end of remote call to get Teams
+                    
+                }
+                
+                function populateInterests(teamNamesInOrder, conferenceId, contactId){
+                    
+                    Visualforce.remoting.Manager.invokeAction("{!$RemoteAction.CS_ARCCExtension.retrievePersonCoferenceInterests}",
+                        conferenceId,
+                        contactId, 
+                        function(result, event){ 
+                            var htmlString='';
+                            $.each(teamNamesInOrder, function(ti, tn){
+                                if(result[tn]){
+                                    var teamName = tn;
+                                    htmlString += '<span><b>'+teamName+'</span></b><br/>';
+                                    
+                                    $.each(result[tn], function(li, lv){
+                                        
+                                        htmlString += '<span>'+lv.Conference_Interest_Name__c+'</span><br/>';
+                                    }); //  end of for-each interest
+                                    htmlString += '<br/>';
+                                }
+                            }); //  end of for each team
+                            
+                            $('#divLeadDetails div.tdLeadInterests').html(htmlString);
+                             
+                        }); //  end of remote call to get the Interests
+                    
+                }   //  end of populateInterests
+            </script>
+            
+            
+            <div class="wrapper wrapper-content">
+            
+                <div class="row">
+                    <div class="col-sm-8">
+                        <div class="ibox float-e-margins" style="background-color: white;"> 
+                            <div class="ibox-title" style="background-color: white; border-bottom-color: #151516 !important; border-bottom: solid 2px; margin-bottom: 10px"> 
+                                <div class="clearfix">
+                                    <div class="pull-left">
+                                        <div id="taskListView">
+                                            <h2>
+                                                <b><span class="font-large">Leads</span></b>
+                                                <i class="LeadsListView-busy fa fa-refresh fa-spin" style="display:none"></i>
+                                            </h2>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>  <!-- end of ibox-title -->
+                            <div class="ibox-container">
+                                <div class="clearfix" style="padding: 10px">    
+                                    <p class="instructions" style="display:none"></p>  
+                                    
+                                </div> 
+                            </div>
+                            <div style="padding: 2px">
+                                <div id="campaignGrid" style="border:thin; border-color:gray; height: 600px;" class="ag-bootstrap"></div>
+                            </div> 
+                        </div>
+                    </div>
+                    <div class="col-sm-4">
+                        <div class="ibox float-e-margins" style="background-color: white;"> 
+                            <div class="ibox-title" style="background-color: white; border-bottom-color: #151516 !important; border-bottom: solid 2px; margin-bottom: 10px"> 
+                                <div class="clearfix">
+                                    <div class="pull-left">
+                                        <div id="taskListHeader">
+                                            <h2>
+                                                <b><span class="font-large">Lead Details</span></b>
+                                                <i class="taskListView-busy fa fa-refresh fa-spin" style="display:none"></i>
+                                            </h2>
+                                        </div>
+                                    </div>
+                                </div> 
+                             </div> <!-- end of ibox-title -->
+                             <div class="ibox-container">
+                                <div class="clearfix" style="padding: 10px">
+                                    <p class="instructions" style="display:none"></p> 
+                                    <div id="divLeadDetails">
+                                        <div class="row"> 
+                                            <div class="col-sm-6">
+                                                <div class="col-sm-12"> 
+                                                    <div class="form-group">
+                                                        <p class="form-control-static muted_label">Lead Contact</p>
+                                                        <div class="tdContactName" ></div>
+                                                        <input  id="contactId" type="hidden" />
+                                                    </div> 
+                                                </div> 
+                                                <div class="col-sm-12">
+                                                    <div class="form-group">
+                                                        <label class= "section-header-lead-details">Lead Interests</label>
+                                                        <div class="tdLeadInterests" ></div>
+                                                    </div>
+                                                </div> 
+                                                <div class="col-sm-12">
+                                                <div class="form-group">
+                                                    <label class= "section-header-lead-details">General Comments</label>
+                                                    <div class="tdGeneralComments" ></div>
+                                                </div>
+                                            </div>
+                                            </div> 
+                                            <div class="col-sm-6">
+                                                <div class="col-sm-12"> 
+                                                    <div class="form-group"> 
+                                                        <p class="form-control-static muted_label">Team</p>
+                                                        <div class="tdTeam" ></div>
+                                                    </div> 
+                                                </div>
+                                                <div class="col-sm-12">
+                                                    <div class="form-group">
+                                                        <label class= "section-header-lead-details">Registration Details</label>    
+                                                        <div class="tdRegistrationDetails" ></div>
+                                                    </div>
+                                                </div> 
+                                                <div class="col-sm-12">
+                                                    <div class="form-group">
+                                                        <label class= "section-header-lead-details">Action Items</label>    
+                                                        <div class="tdActionItems" ></div>
+                                                    </div>
+                                                </div> 
+                                            </div>
+                                        </div>  
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>  
+                </div>  <!-- end of row -->   
+            </div>  <!-- end of top wrapper -->
+            
+            
+        </apex:define>
+        
+        
+    </apex:composition>
+</apex:page>

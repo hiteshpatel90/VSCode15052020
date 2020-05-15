@@ -1,0 +1,6 @@
+<aura:component implements="forceCommunity:availableForAllPageTypes" access="global">
+	TEST
+    
+    <a href="https://hiteshpatel90-developer-edition.na46.force.com/royalEnfield/s/vidyardvideo">vidyard video</a>  
+    
+</aura:component>

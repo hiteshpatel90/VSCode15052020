@@ -1,0 +1,16 @@
+<apex:page standardController="Account" showHeader="false" sidebar="false"> 
+<apex:includeScript value="/support/console/26.0/integration.js"/> 
+<apex:includeScript value="/soap/ajax/26.0/connection.js"/> 
+
+<script type="text/javascript"> 
+function testOpenEdit() { 
+if (sforce.console.isInConsole()) { 
+var urlValue ='test'; 
+} 
+} 
+</script> 
+
+<apex:form > 
+<apex:commandLink id="cmmlink" value="Edit" onclick="testOpenEdit()"/> 
+</apex:form> 
+</apex:page>

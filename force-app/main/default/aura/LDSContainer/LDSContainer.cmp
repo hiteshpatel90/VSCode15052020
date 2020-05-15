@@ -1,0 +1,12 @@
+<aura:component implements="flexipage:availableForAllPageTypes,flexipage:availableForRecordHome,force:hasRecordId,force:lightningQuickActionWithoutHeader" access="global" >
+    <aura:attribute name="currentView" type="String" default="baseView" />    
+    
+   <aura:if isTrue="{!v.currentView == 'baseView'}">
+        <c:LightningDataServiceExample recordId="{!v.recordId}" curView="{!v.currentView}" />	
+    </aura:if> 
+ 
+    <aura:if isTrue="{!v.currentView == 'editView'}">
+        <c:LightningDataServiceEdit recordId="{!v.recordId}" curView="{!v.currentView}" />	
+    </aura:if> 
+ 
+</aura:component>

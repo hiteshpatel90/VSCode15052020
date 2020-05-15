@@ -1,0 +1,132 @@
+<apex:page controller="checkJavaScriptController">
+<html>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js" type="text/javascript"></script>
+<script src="https://d3js.org/d3.v3.min.js"></script>
+            <script src="https://cdn.rawgit.com/jakezatecky/d3-funnel/v0.7.5/dist/d3-funnel.js"></script>
+   
+    <body>
+    <div class="form-group">
+    <span id="spnPhone"></span>
+    vv
+    </div>
+    </body>
+    
+    <script>  
+        
+        alert('h');
+       var intVal = '-180';
+        var intType = 'd';
+        var limitDate = new Date();  
+        alert('h1');
+        limitDate.add(intVal, intType);
+        
+        alert('h'+limitDate);
+        
+        function daysBetween(val, intVal, intType){
+                
+                    //selectedVal = filterData[0];
+                    //intVal = selectedVal.split(' ')[0];
+                    //intType = selectedVal.split(' ')[1];
+                    today = moment().startOf('day');
+                    console.log('##--date limit: '+ val);
+                    if($.isNumeric(val)){
+                        givenDate = moment(val);
+                    } else{
+                        givenDate = moment(val, 'MM-DD-YYYY');
+                    }
+                    
+                    if(intType == 'd'){
+                        
+                        limitDate = moment(today);
+                        limitDate.add(intVal, intType);
+                        
+                        if(givenDate.isBetween(limitDate, today, null, '[]') || givenDate.isBetween(today, limitDate, null, '[]')){
+                            return true;
+                        }
+                        return false;
+                    } else if(intType == 'M' || intType == 'w'){
+                        limitDate = moment(today);
+                        limitDate.add(intVal, intType);
+                        limitDate.startOf(intType);
+                        
+                        today.add(intVal, intType);
+                        today.endOf(intType);
+                        
+                        if(givenDate.isBetween(limitDate, today, null, '[]')){
+                            return true;
+                        }
+                        
+                        return false;
+                        
+                    }else if(intType == 'q' ){
+                        
+                        var d = new Date();
+                        var quarter = Math.floor((d.getMonth() / 3))+3;
+                        quarter = quarter>4?quarter-4:quarter;
+                        console.log('##-- quarter: '+quarter +'intVal: '+ intVal);
+                        if(quarter == 1){
+                            limitDate = new Date(d.getFullYear(), 6, 1);
+                        }else if(quarter == 2){
+                            limitDate = new Date(d.getFullYear(), 9, 1);
+                        }else if(quarter == 3){
+                            limitDate = new Date(d.getFullYear(), 0, 1);
+                        }else if (quarter ==4 || quarter == 0){
+                            limitDate = new Date(d.getFullYear(), 3, 1);
+                        }
+                        
+                        if(d.getMonth() < 3 &&  parseInt(intVal) == -1){
+                            limitDate = new Date(d.getFullYear()-1, 9, 1);
+                        }else if (parseInt(intVal) == -1){
+                            limitDate = new Date(limitDate.getFullYear(), limitDate.getMonth() -3, 1);
+                        }
+                        
+                        if(d.getMonth() > 8 &&  parseInt(intVal) == 1){
+                            limitDate = new Date(d.getFullYear()+1, 0, 1);
+                        }else if (parseInt(intVal) == 1){
+                            limitDate = new Date(limitDate.getFullYear(), limitDate.getMonth() + 3, 1);
+                        }
+                        
+                        today = new Date(limitDate.getFullYear(), limitDate.getMonth() + 3, 0);
+                        console.log('##-- begining of quarter: '+limitDate +'end of quarter: '+ today);
+                        
+                        if(givenDate.isBetween(limitDate, today, null, '[]')){
+                            return true;
+                        }
+                        
+                        return false;
+                    }else if (intType == 'f'){
+                    
+                        var d = new Date();
+                        var month = d.getMonth();
+                        var currentFY = month <=5 ? -1: 0;
+                        
+                        limitDate = new Date(d.getFullYear()+ currentFY, 6, 1);
+                        console.log('##--parseInt(intVal): '+ parseInt(intVal));
+                        console.log('##--currentFY: '+ currentFY);
+                        if(parseInt(intVal) == -1 ){
+                            limitDate = new Date(limitDate.getFullYear() - 1, limitDate.getMonth(), 1);
+                        }else if(parseInt(intVal) == 1){
+                            limitDate = new Date(limitDate.getFullYear() + 1, limitDate.getMonth(), 1);
+                        }
+                    
+                        today = new Date(limitDate.getFullYear(), limitDate.getMonth() + 12, 0);
+                        console.log('##-- begining of FY: '+limitDate +'end of FY: '+ today);
+                        
+                        if(givenDate.isBetween(limitDate, today, null, '[]')){
+                            return true;
+                        }
+                        
+                        return false;
+                    }
+                    
+                    return false; 
+                
+                }//  end of if check for Projected Close Date
+                
+                
+                
+
+    </script>
+    
+    </html>
+</apex:page>

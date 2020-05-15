@@ -1,0 +1,782 @@
+* {
+	margin: 0px;
+	padding: 0px;
+	outline: none;
+}
+html {
+	height: 100%;
+	overflow-y: scroll;
+}
+body {
+	height: 100%;
+	background: #fff;
+	font: 12px Arial, Verdana, Helvetica, sans-serif;
+	color: #4d4d4d;
+}
+body.loginContextBody {
+	background: #014975;
+}
+/* ELEMENTS */
+a {
+	color: #015c93;
+	text-decoration: none;
+}
+a:hover {
+	color: #4a99c9;
+	text-decoration: underline;
+}
+.loginContext a {
+	color: #6b8da2;
+}
+.loginContext a:hover {
+	color: #fff;
+	text-decoration: none;
+}
+form {
+	height: 100%;
+}
+h1 {
+}
+h2 {
+	font-size: 16px;
+	font-weight: bold;
+	color: #055e96;
+}
+.L3TitleHolder h2 {
+	color: #4a99c9;
+	font: 20px Georgia, Times New Roman, Times, Times Roman, Serif;
+	font-weight: normal;
+}
+.L3TitleHolder h2 span {
+	display: block;
+	font-size: 16px;
+	color: #055e96;
+	font-weight: bold;
+	font-style: italic;
+}
+h3 {
+	color: #4a99c9;
+	font: 14px Georgia, Times New Roman, Times, Times Roman, Serif;
+	font-weight: bold;
+	margin-bottom: 5px;
+}
+.loginContext h3 {
+	display: none;
+}
+h4 {
+}
+h5 {
+}
+img {
+	border: none;
+}
+/* Form Elements */
+label {
+	font-size: 12px;
+	font-weight: bold;
+}
+.loginContext label {
+	font-weight: normal;
+	color: #fff;
+}
+input.TextBox01, textarea.TextArea01 {
+	border: 1px solid #e6e8e9;
+	background-color: #ebeff0;
+	padding: 3px;
+	width: 250px;
+}
+.loginContext input.TextBox01 {
+	color: #fff;
+	border: 1px solid #7093a8;
+	background-color: #a6bcc8;
+}
+/* Buttons */
+span.Btn01_Outer {
+	float: left;
+	display: inline;
+	height: 35px;
+	color: #fff;
+	margin-right: 10px;
+	padding-left: 15px;
+	border: none;
+	background: url(images/Btn01_Outer.gif) no-repeat 0 0;
+}
+span.Btn01_Outer_Over {
+	float: left;
+	display: inline;
+	height: 35px;
+	color: #fff;
+	margin-right: 10px;
+	padding-left: 15px;
+	border: none;
+	background: url(images/Btn01_Outer.gif) no-repeat 0 -35px;
+}
+.loginContext span.Btn01_Outer, .loginContext span.Btn01_Outer_Over {
+	float: none;
+	height: auto;
+	margin: 0;
+	padding: 0;
+	background: none;
+}
+input.Btn01 {
+	float: left;
+	height: 35px;
+	color: #578ca6;
+	font-weight: bold;
+	text-align: left;
+	vertical-align: middle;
+	padding-right: 17px;
+	border: none;
+	cursor: pointer;
+	text-transform: uppercase;
+	background: url(images/Btn01.gif) no-repeat right 0px;
+}
+*html input.Btn01 {
+	padding-right: 0px;
+}
+* + html input.Btn01 {
+	padding-right: 0px;
+}
+span.Btn01_Outer_Over input.Btn01 {
+	background: url(images/Btn01.gif) no-repeat right -35px;
+}
+.loginContext input.Btn01, .loginContext span.Btn01_Outer_Over input.Btn01 {
+	width: 84px;
+	height: 32px;
+	text-transform: none;
+	color: #fff;
+	text-indent: -99999px;
+	font-size: 0px;
+	line-height: 0px;
+	background: url(images/Btn01_Login.gif) no-repeat right 0px;
+}
+p {
+	margin-bottom: 15px;
+}
+/* Tables */
+table.ShortListTable {
+	width: 475px;
+	border-top: 1px solid #e1e2e4;
+}
+table.ShortListTable td {
+	padding: 3px 8px;
+	border-bottom: 1px solid #e1e2e4;
+}
+table.ShortListTable tr.HeadingRow td {
+	font-weight: bold;
+	color: #fff;
+	padding: 6px 8px;
+	border-bottom: 1px solid #e1e2e4;
+}
+table.ShortListTable tr.GapAbove td {
+	padding-top: 35px;
+}
+table.ShortListTable tr.BoldRow td {
+	font-weight: bold;
+}
+table.ShortListTable tr.ItemRow td {
+	border-bottom: none;
+	border-left: 1px solid #e1e2e4;
+	background: #f6f7fb;
+}
+.doubleUnderLine {
+	 border-bottom: 3px double !important;
+	 text-align:right center !important;
+		 
+}
+table.ShortListTable tr.ItemRow td.TotalAmountCell {
+	text-align: right;
+	border-bottom: 3px double;
+}
+table.ShortListTable tr.ItemRow td.AmountCell {
+	border-left: none;
+	border-right: 1px solid #e1e2e4;
+}
+table.ShortListTable tr.Indent0 td {
+	padding-left: 5px;
+}
+table.ShortListTable tr.Indent1 td {
+	padding-left: 20px;
+}
+table.ShortListTable tr.Indent2 td {
+	padding-left: 35px;
+}
+table.ShortListTable tr.Indent3 td {
+	padding-left: 50px;
+}
+table.ShortListTable tr.Indent4 td {
+	padding-left: 65px;
+}
+table.ShortListTable tr.IndentedRow td {
+	padding-left: 20px;
+}
+table.ShortListTable tr.oddRow td {
+}
+table.ShortListTable tr.TotalRow td {
+}
+table.ShortListTable tr.LineAbove td {
+	border-top: 1px solid #e1e2e4;
+}
+table.ShortListTable td.AmountCell {
+	text-align: right;
+}
+table.LatestDocumentList {
+	width: 758px;
+}
+table.LatestDocumentList th {
+	font-weight: bold;
+	color: #fff;
+	padding: 6px 8px;
+	text-align: left;
+	border-right: 1px solid #fff;
+	background: #055e96;
+}
+table.LatestDocumentList th a {
+	display: block;
+	color: #fff;
+}
+table.LatestDocumentList td {
+	padding: 3px 8px;
+	border-right: 1px solid #fff;
+	text-align: left;
+}
+table.LoginTable td {
+	text-align: left;
+	vertical-align: middle;
+	padding: 4px 10px 4px 0;
+}
+table.FormHolderTable td {
+	text-align: left;
+	vertical-align: top;
+	padding: 4px 10px 4px 0;
+}
+table.FormHolderTable td.TopNoteCell {
+	padding-bottom: 15px;
+}
+table.summary {
+	width: 100%;
+	margin-bottom: 15px;
+	padding-bottom: 3px;
+	border-top: 1px solid #dfdfdf;
+	border-bottom: 1px solid #dfdfdf;
+}
+table.summary th {
+	width: 83px;
+	font-size: 11px;
+	text-align: left;
+	vertical-align: bottom;
+	padding: 5px;
+	border-right: 1px solid #fff;
+	border-bottom: 1px solid #fff;
+	background: #f6f7fb;
+}
+table.summary th.al-right {
+	text-align: right;
+}
+table.summary th.al-left {
+	text-align: left;
+}
+table.summary th.al-center {
+	text-align: center;
+}
+table.summary td.al-center {
+	text-align: center;
+}
+table.summary tr.al-left {
+	text-align:left;
+}
+table.summary td {
+	width: 83px;
+	font-size: 11px;
+	padding: 5px;
+	border-right: 1px solid #fff;
+	border-bottom: 1px solid #fff;
+	background: #f6f7fb;
+}
+/* added for total cells on cumulative statement */
+table.summary td.BoldRow {
+	font-weight: bold;
+}
+table.summary tr.subtotal td {
+	background: #e4e5e7;
+}
+table.summary a {
+	text-decoration: underline;
+}
+/* Sorted Columns */
+th a.sortedAscending {
+	display: block;
+	background: url(images/arrow_Ascending.gif) no-repeat right;
+}
+th a.sortedDescending {
+	display: block;
+	background: url(images/arrow_Descending.gif) no-repeat right;
+}
+/* Alternating Rows */
+.oddRow {
+	background: #efefef;
+}
+tr.subtotal td {
+	font-weight: bold;
+}
+.cumulativeStatementLastPostedDate
+{
+    font-weight: bold;
+}
+/* Lists */
+ul {
+	list-style: none;
+}
+/* Dynamically Displayed Document Lists */
+ul.DocumentList {
+	float: left;
+	width: 758px;
+}
+ul.DocumentList li.L0, ul.DocumentList li.L0_selected {
+	float: left;
+	margin-bottom: 2px;
+}
+ul.DocumentList li.L0 span, ul.DocumentList li.L0_selected span {
+	display: block;
+	width: 738px;
+	padding: 6px 10px;
+	font-weight: bold;
+	color: #fff;
+	cursor: pointer;
+	background: #65b4e0 url(images/icon_Expand.gif) no-repeat 733px 9px;
+}
+ul.DocumentList li.L0 span:hover {
+	color: #fff;
+	background: #055e96 url(images/icon_Expand.gif) no-repeat 733px 9px;
+}
+ul.DocumentList li.L0_selected span, ul.DocumentList li.L0_selected span:hover {
+	color: #fff;
+	background: #055e96 url(images/icon_Close.gif) no-repeat 733px 9px;
+}
+ul.DocumentList li.L1, ul.DocumentList li.L1_selected {
+	margin: 0;
+	padding: 0 0 1px 0;
+	background: url(images/divider_Dotted01.gif) repeat-x left bottom;
+}
+ul.DocumentList li.L1 span {
+	display: block;
+	width: 701px;
+	padding: 6px 10px 8px 10px;
+	color: #6f7d8b;
+	font-weight: bold;
+	cursor: pointer;
+	background: #fff;
+}
+ul.DocumentList li.L1 span:hover {
+	color: #666;
+	font-weight: bold;
+	background: #fff;
+}
+ul.DocumentList li.L1_selected span {
+	display: block;
+	width: 701px;
+	padding: 6px 10px 8px 10px;
+	color: #666;
+	font-weight: bold;
+	cursor: pointer;
+	background: #fff;
+}
+ul.DocumentList li.L1_selected span:hover {
+	color: #666;
+	background: #fff;
+}
+/* 3rd level Nested Lists */
+ul.DocumentList li.L1_selected ul {
+	padding-bottom: 10px;
+	background: #fff;
+}
+ul.DocumentList li.L1_selected li {
+	width: auto;
+	margin-bottom: 4px;
+	padding-left: 30px;
+	background: url(images/Bullet_Arrow01.gif) no-repeat 20px 5px;
+}
+/* Document Lists with no display toggling */
+ul.DueDiligenceList {
+	margin-bottom: 15px;
+}
+ul.DueDiligenceList li.L0_selected span {
+	font-weight: bold;
+}
+ul.DueDiligenceList li ul {
+	margin: 5px 0 10px 10px;
+}
+ul.DueDiligenceList li ul li {
+	margin-bottom: 4px;
+	padding-left: 10px;
+	background: url(images/arrow_gray.gif) no-repeat 0px 5px;
+}
+ul.AccountsList {
+	margin-bottom: 15px;
+}
+ul.AccountsList li {
+	padding-left: 10px;
+	background: url(images/Bullet_Arrow01.gif) no-repeat 0 5px;
+	margin-bottom: 3px;
+}
+/* Announcement Widget List */
+ul.ArrowList {
+	margin-bottom: 15px;
+}
+ul.ArrowList li {
+	padding-left: 10px;
+	background: url(images/Bullet_Arrow01.gif) no-repeat 0 5px;
+	margin-bottom: 3px;
+}
+ul.ArrowList li a {
+}
+/* STYLES BY SITE STRUCTURE */
+.loginContext {
+	width: 100%;
+	height: 100%;
+	background: #014975;
+}
+.CenteringWrapper {
+	width: 980px;
+	margin: 0px auto;
+}
+.HeaderWrapper {
+	float: left;
+	min-width: 980px;
+	width: 100% !important;
+	height: 108px;
+	background: #4999c9 url(images/HeaderWrapper.gif) repeat-x 0 0;
+}
+.loginContext .HeaderWrapper {
+	padding-top: 125px;
+	background-position: 0 bottom;
+}
+.LogoHolder {
+	float: left;
+	width: 276px;
+	height: 108px;
+}
+.LogoHolder img {
+	float: left;
+}
+.HeaderNavHolder {
+	float: left;
+	width: 704px;
+}
+.HeaderNavHolder ul {
+	float: right;
+	margin-top: 17px;
+}
+.loginContext .HeaderNavHolder ul {
+	float: left;
+	margin-top: 76px;
+}
+.HeaderNavHolder li {
+	float: left;
+	display: inline;
+	margin-left: 18px;
+}
+.TopNav_Print {
+	padding-left: 16px;
+	background: url(images/icon_Print.gif) no-repeat 0 1px;
+}
+.TopNav_Home {
+	padding-left: 16px;
+	background: url(images/icon_Home.gif) no-repeat 0 1px;
+}
+.TopNav_ContactUs {
+	padding-left: 18px;
+	background: url(images/icon_Contact.gif) no-repeat left;
+}
+.TopNav_Questions {
+	padding-left: 12px;
+	background: url(images/icon_Questions.gif) no-repeat left;
+}
+.TopNav_LogOut {
+	padding-left: 14px;
+	background: url(images/icon_LogOut.gif) no-repeat left;
+}
+.loginContext .TopNav_LogOut {
+	display: none;
+	
+}
+.publicContext .TopNav_LogOut{
+	display: none;
+}
+.standardContext .TopNav_LogOut {
+	/*display: none;
+	*/
+	color: #fff;
+}
+.disclaimerContext .TopNav_LogOut {
+	/*display: none;
+	*/
+	color: #fff;
+}
+.resetPasswordContext .TopNav_LogOut{
+	display: none;
+}
+.forgotPasswordContext .TopNav_LogOut{
+	display: none;
+}
+.termsOfUseContext .TopNav_LogOut{
+	display: none;
+}
+.contactUsContext .TopNav_LogOut{
+	display: none;
+}
+.loggedInAs {
+	color: #fff;
+}
+.loginContext .loggedInAs {
+	display: none;
+}
+.publicContext .loggedInAs {
+	display: none;
+}
+.HeaderNavHolder a {
+	color: #fff;
+	text-decoration: none;
+}
+.HeaderNavHolder a:hover {
+	color: #fff;
+	text-decoration: underline;
+}
+.MiddleWrapper {
+	float: left;
+	min-width: 980px;
+	width: 100% !important;
+	padding: 0 0 30px 0;
+	border-bottom: 1px solid #dfdfdf;
+}
+.loginContext .MiddleWrapper {
+	height: 369px;
+	border: none;
+	padding: 0px;
+	background: #014975 url(images/MiddleWrapper_Login.gif) repeat-x 0 0;
+}
+.loginContext .LoginWrapper {
+	float: left;
+	min-width: 980px;
+	width: 100% !important;
+	height: 369px;
+	background: Transparent url(images/LoginWrapper.gif) no-repeat 50% 0;
+}
+.LeftColumn {
+	float: left;
+	display: inline;
+	width: 192px;
+	padding-top: 20px;
+	margin-right: 30px;
+}
+/* Left Navigation */
+/* 1st Level */
+.LeftNavHolder li {
+	width: 192px;
+	margin-bottom: 2px;
+}
+.LeftNavHolder a {
+	display: block;
+	padding: 12px;
+	font: 14px Georgia, Times New Roman, Times, Times Roman, Serif;
+	font-weight: bold;
+	border: 1px solid #65b4e0;
+}
+.LeftNavHolder a:hover {
+	color: #fff;
+	text-decoration: none;
+	background: #65b4e0;
+}
+.LeftNavHolder a.selected, .LeftNavHolder a.selected:hover {
+	color: #fff;
+	text-decoration: none;
+	background: #055e96;
+}
+/* 2nd Level */
+.LeftNavHolder li ul {
+	border: 1px solid #65b4e0;
+	margin-top: 2px;
+	padding: 12px;
+}
+.LeftNavHolder li ul li {
+	width: 166px;
+	margin-bottom: 3px;
+	padding-bottom: 2px;
+	border-bottom: 1px solid #ccdfed;
+}
+.LeftNavHolder li ul li a {
+	width: 156px;
+	border: none;
+	padding: 0 5px;
+}
+.LeftNavHolder li ul li a:hover {
+	background: none;
+	color: #020203;
+}
+.LeftNavHolder li ul li a.selected, .LeftNavHolder li ul li a.selected:hover {
+	color: #020203;
+	text-decoration: none;
+	background: #eaf3f8;
+}
+/* Third Level */
+.LeftNavHolder li ul li ul {
+	padding: 3px;
+	margin: 0px;
+	border: none;
+	background: #eaf3f8;
+}
+.LeftNavHolder li ul li ul li {
+	width: 160px;
+	border: none;
+}
+.LeftNavHolder li ul li ul li a {
+	width: auto;
+	padding: 0 5px 0 12px;
+	font: 12px Arial, Verdana, Helvetica, Sans-Serif;
+	background: url(images/Bullet_Arrow_LeftNav.gif) no-repeat 4px 4px;
+}
+.LeftNavHolder li ul li ul li a:hover {
+	color: #015c93;
+	text-decoration: underline;
+	background: url(images/Bullet_Arrow_LeftNav.gif) no-repeat 4px 4px;
+}
+.LeftNavHolder li ul li ul li a.selected, .LeftNavHolder li ul li ul li a.selected:hover {
+	background: url(images/Bullet_Arrow_LeftNav_Selected.gif) no-repeat 4px 4px;
+}
+.loginContext .LeftColumn {
+	display: none;
+}
+.RightColumn {
+	float: left;
+	width: 758px;
+	padding: 32px 0 50px 0;
+}
+.loginContext .RightColumn {
+	width: 700px;
+	padding: 60px 0 0 280px;
+}
+.MainContent {
+	position: relative;
+}
+.MainContent div{
+    margin-top:0;
+    margin-bottom:0
+}
+.L3TitleHolder {
+	width: 100%;
+	margin-bottom: 12px;
+	padding-bottom: 10px;
+	border-bottom: 1px solid #dfdfdf;
+}
+.loginContext .L3TitleHolder  {
+	display: none;
+}
+.inPageTopRightLink 
+{
+	/*
+	position: absolute;
+	right: 0px;
+	top: 20px;
+	*/
+}
+.inPageTopRightLink a {
+	text-decoration: underline;
+}
+/* Paging Controls */
+.PagingHolder li {
+	float: left;
+	display: inline;
+}
+.PagingHolder a, .PagingHolder span {
+	display: block;
+	float: left;
+	padding: 2px 3px;
+	margin-right: 2px;
+}
+.PagingHolder a {
+	text-decoration: none;
+}
+.PagingHolder a:hover {
+	text-decoration: underline;
+}
+.PagingHolder a.ArrowPrev {
+	padding-left: 10px;
+	background: url(images/Bullet_Arrow01_Back.gif) no-repeat 0 7px;
+}
+.PagingHolder a.ArrowNext {
+	padding-right: 10px;
+	background: url(images/Bullet_Arrow01.gif) no-repeat right 7px;
+}
+.PagingHolder span {
+	border: 1px solid #dfdfdf;
+}
+.FooterWrapper {
+	float: left;
+	min-width: 980px;
+	width: 100% !important;
+	padding: 15px 0;
+	border-top: 1px solid #f6f6f6;
+}
+.loginContext .FooterWrapper {
+	border: none;
+}
+.FooterWrapper p, .FooterWrapper ul, .FooterWrapper li {
+	float: left;
+	display: inline;
+}
+.FooterWrapper a:hover {
+	text-decoration: underline;
+}
+.loginContext .FooterWrapper p, .loginContext .FooterWrapper ul, .loginContext .FooterWrapper li, .loginContext .FooterWrapper a {
+	color: #99b6c8;
+}
+.FooterWrapper p {
+	margin-right: 15px;
+}
+.FooterWrapper li span {
+	margin: 0 8px;
+}
+/* GENERAL CLASSES */
+.required {
+	color: Red;
+}
+.errorMessage {
+	line-height: 20px;
+	font-size: 11px;
+	font-weight: bold;
+	color: #ff0000;
+}
+.statusMessage {
+	line-height: 20px;
+	font-size: 11px;
+	font-weight: bold;
+	color: #29c90f;
+}
+.al-right {
+	text-align: right;
+}
+.al-center {
+	text-align: center;
+}
+.textUnderline
+{
+   /* text-decoration:underline;
+    text-align: right;
+	*/
+    border-bottom: 1px solid !important;
+    text-align: right !important;
+}
+.numberUnderline
+{
+	   
+    text-align: right;
+    border-bottom: 3px double;
+}
+#cellContactLink
+{
+    font: 16px 'CrimsonRoman' , Times New Roman, serif;
+    font-weight: normal;
+    color: #fff;
+    padding-top: 12px;
+    line-height: 1.8em;
+}

@@ -1,0 +1,226 @@
+<apex:page controller="ApexCodeCoverageList_Con" sidebar="false">
+
+    <apex:variable var="themeName" value="-flatly"/>
+    <apex:includeScript value="https://ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"/>
+    <apex:includeScript value="{!URLFOR($Resource.VisualStrap_Resources, 'js/bootstrap.min.js')}" />
+    <apex:stylesheet value="{!URLFOR($Resource.VisualStrap_Resources, 'css/visualstrap'+themeName+'.css')}" />
+    
+    
+    <apex:includeScript value="{!$Resource.JSRender}"/>
+    
+    <apex:includeScript value="{!URLFOR($Resource.SyntaxHighlighter, 'scripts/xregexp-min.js')}"/>
+    <apex:includeScript value="{!URLFOR($Resource.SyntaxHighlighter, 'src/shCore.js')}"/>
+    <apex:includeScript value="{!URLFOR($Resource.SyntaxHighlighter, 'scripts/shBrushJava.js')}"/>
+    <apex:stylesheet value="{!URLFOR($Resource.SyntaxHighlighter, 'styles/shCore.css')}"/>
+    <apex:stylesheet value="{!URLFOR($Resource.SyntaxHighlighter, 'styles/shThemeDefault.css')}"/>
+    <script>
+        var coverageResults =[];
+        function getCodeCoverage(){                       
+            var rBtn = $('#refreshBtn').button('loading');
+            Visualforce.remoting.Manager.invokeAction(
+                '{!$RemoteAction.ApexCodeCoverageList_Con.fetchCodeCoverage}',
+                function(result,event){
+                    if(event.status){
+                        //console.log(result);                        
+                        var parsedResult = jQuery.parseJSON(result);
+                        coverageResults = parsedResult.records;
+                        /*render html using jsrender and attach it to the table*/
+                        $('#coverageTableBody').html($( "#coverageRowTemplate" ).render( parsedResult.records ));
+                    }
+                    else{
+                        alert(event.message);
+                    }
+                    rBtn.button('reset');
+                },
+                {escape: false}
+            );            
+        }
+        
+        function getOrgCoverage(){
+           
+            Visualforce.remoting.Manager.invokeAction(
+                '{!$RemoteAction.ApexCodeCoverageList_Con.fetchOrgCoverage}',
+                function(result,event){
+                   
+                    if(event.status){
+                          var parsedResult = jQuery.parseJSON(result);
+                          $('#orgCoverage').html(parsedResult.records[0].PercentCovered);
+                        //$('#orgCoverage').html("71");
+                    }
+                    else{
+                        alert(event.message);
+                    }
+                    
+                },
+                {escape: false}
+            );       
+        }
+        
+        function getCoverage(){
+            getOrgCoverage();
+            getCodeCoverage();
+        }
+        
+        /*JSrender helper methods*/
+        function initHelperMethods(){
+            $.views.helpers({
+                calculatePercentage: function(NumLinesUncovered,NumLinesCovered){
+                    return ((NumLinesCovered/(NumLinesCovered+NumLinesUncovered))*100).toFixed(2);
+                },
+                totalLines:function(NumLinesUncovered,NumLinesCovered){
+                    return NumLinesUncovered + NumLinesCovered;
+                },
+                rowStatusClass: function(NumLinesUncovered,NumLinesCovered){
+                    var sclass='danger';
+                    var percentG = ((NumLinesCovered/(NumLinesCovered+NumLinesUncovered))*100).toFixed(2);
+                    if(percentG >= 90){
+                        sclass = 'success'
+                    }
+                    else if(percentG >= 75){
+                        sclass = 'warning';
+                    }
+                    
+                    return sclass;
+                }
+            });
+        }
+        
+        function showCoverage(classId){
+            Visualforce.remoting.Manager.invokeAction(
+                '{!$RemoteAction.ApexCodeCoverageList_Con.fetchClassOrTriggerById}',classId,
+                function(result,event){
+                    if(event.status){
+                        $('#coverageDetail').html("<pre class='brush: java'>"+result+"</pre>");
+                        $('#codeCoveragePopup').modal('show');
+                        $.each(coverageResults,function(){
+                            console.log(result);
+                            if(this.ApexClassOrTriggerId == classId){
+                                console.log(this.Coverage.coveredLines);
+                                SyntaxHighlighter.defaults['highlight'] = this.Coverage.coveredLines;
+                                SyntaxHighlighter.highlight();
+                            }
+                        })
+                        
+                    }
+                    else{
+                        alert(event.message);
+                    }
+                    
+                },
+                {escape: false}
+            );     
+        }
+        
+        $(function(){
+            initHelperMethods();
+            getCoverage();
+        })
+
+    </script>
+    <!-- JS render template -->
+    <script id="coverageRowTemplate" type="text/x-jsrender">
+        <tr class="{{:~rowStatusClass(NumLinesUncovered,NumLinesCovered)}}">
+            <td width="20px">
+                <a href="#" class="btn btn-xs btn-{{:~rowStatusClass(NumLinesUncovered,NumLinesCovered)}}" onclick="showCoverage('{{>ApexClassOrTriggerId}}');return false;"> <span class="glyphicon glyphicon-export"/> coverage </a>
+            </td>
+            <td>
+                <a href="/{{>ApexClassOrTriggerId}}" target="_blank" style="color:black;font-weight:bold;font-size:10pt;" >{{>ApexClassOrTrigger.Name}}</a>
+            </td>
+            <td>
+                {{>NumLinesUncovered}}
+            </td>
+            <td>
+                {{>NumLinesCovered}}
+            </td>
+            <td>
+                {{:~totalLines(NumLinesUncovered,NumLinesCovered)}}
+            </td>            
+            <td>
+                {{:~calculatePercentage(NumLinesUncovered,NumLinesCovered )}}
+            </td>
+        </tr>
+    </script>
+    
+    <style>
+        .modal-dialog{
+            width:90%!important;
+        }
+    </style>
+    
+    
+    <apex:outputPanel styleClass="visualstrap visualstrap-flatly visualstrap-superhero" layout="block">
+     
+             <center>
+
+    <div class="page-header " style="">  
+        <h2>
+
+   <!-- <span class="glyphicon glyphicon-cog " style=""></span> --> Apex Code Coverage <small> All Classes </small>  
+        </h2>  
+    </div>
+              <!-- <div class="text-muted" style="position:absolute;top:20px;right:20px">Using Tooling API, JS Remoting, JSRender and VisualStrap</div>
+            -->
+            
+            </center>
+            <apex:outputPanel layout="block" styleClass="well well-sm">
+                <center>
+                    <button id="refreshBtn" onclick="getCoverage();return false;" class="btn btn-success" data-loading-text="Refreshing...">
+                        <span class="glyphicon glyphicon-refresh " style=""></span> Refresh
+                    </button>
+                </center>
+            </apex:outputPanel>
+            
+            <apex:form >
+     <apex:commandButton style="font-color:black;" action="{!startLocalTests}" value="Start local tests" />
+     </apex:form>
+     
+     
+            <apex:outputPanel layout="block" styleClass="row">
+                
+                <apex:outputPanel layout="block" styleClass="col-md-10">
+                    <table class="table table-bordered table-striped table-hover table-condensed">
+                        <thead>
+                            <tr>
+                                <th>
+                                    Action
+                                </th>
+                                <th>
+                                    Apex Class/ Trigger
+                                </th>
+                                <th>
+                                    Lines Not Covered
+                                </th>
+                                <th>
+                                    Lines Covered
+                                </th>
+                                <th>
+                                    Total Lines
+                                </th>
+                                <th>
+                                    Coverage Percentage
+                                </th>
+                            </tr>
+                        </thead>
+                        <tbody id="coverageTableBody">
+                        
+                        </tbody>
+                    </table>
+                </apex:outputPanel>
+                <apex:outputPanel layout="block" styleClass="col-md-2">
+                    
+                        <center>
+                            <h2 style="font-size:54"><span id="orgCoverage"/> %</h2>
+                            <p class="text-muted infolabel">Across all apex classes and triggers</p> 
+                        </center>
+                    
+                </apex:outputPanel>
+                
+            </apex:outputPanel>
+        
+        
+            <div id="coverageDetail"/>
+            <apex:outputPanel layout="block" styleClass="modal-footer">
+                <button class="btn btn-danger" data-dismiss="modal">Close</button>
+          </apex:outputPanel>
+        </apex:outputPanel>   
+</apex:page>

@@ -1,0 +1,70 @@
+<!--/***************************************************************************
+** Ameriprise Phase-2
+****************************************************************************
+** VF Page Name: ActivityProductsForTaskRelatedList
+** Description:ActivityProductsForTaskRelatedList
+** Built By: Deloitte
+** Current Version: 1.0
+**--------------------------------------------------------------------
+**Modification Log:
+**----------------
+**Developer                  Date              Version         Description
+**-------------------------------------------------------------------------------------------------
+**Divya                   6-Jan-2014          1.0             Created
+*****************************************************************************/-->
+
+
+<apex:page id="page"  standardController="Task" extensions="ActivityProductsForTaskRelatedList" showHeader="False" sidebar="False">
+     <style type="text/css">
+    table.result{
+        border: none;
+        -moz-border-radius: 1px;
+    }
+    table.result tr.evenrow td {
+        background-color: rgb(231,243,244);
+        border: 1px solid white;
+    }
+    table.result tr.oddrow td {
+        background-color: rgb(243,249,250);
+    border: 1px solid white;
+    font: arial(body);
+    }
+    
+    table.result tr.buttonsection td {
+        background-color: solid white;
+    border: 1px solid white;
+    font: arial(body);
+    }
+   
+    table.result tr.header th {
+        background-color: rgb(187,224,227);
+    border: 1px solid white;
+    position: right;
+    
+     }
+     
+    
+    </style>
+    
+   
+    
+    <apex:form id="formid">
+
+       <html>
+
+              
+      <apex:pageBlock title="Products Discussed"> 
+         <apex:outputlabel rendered="{!not(ProductsCompleteList.size>0)}" value="No associated Products"/>
+                <apex:pageBlockTable value="{!ProductsCompleteList}" rendered="{!(ProductsCompleteList.size>0)}" var="ab">                
+                <apex:column width="2%" headervalue="Portfolio Name" ><apex:outputLink value="/{!ab.id}" target="new tab">{!ab.name}</apex:outputLink></apex:column>                          
+                <apex:column width="1%" headervalue="Short Name" style="text-align:left;"><apex:outputText value="{!ab.Fund_Short_Name__c}"></apex:outputText></apex:column> 
+                <apex:column width="1%" headervalue="Product Type" style="text-align:left;"><apex:outputText value="{!ab.product_type__c}"></apex:outputText></apex:column> 
+                <apex:column width="1%" headervalue="Morningstar Category" style="text-align:left;"><apex:outputText value="{!ab.Morningstar_Category__c}" ></apex:outputText></apex:column> 
+                </apex:pageBlockTable> 
+         </apex:pageBlock> 
+         
+        
+       </html>
+       
+      </apex:form>  
+</apex:page>

@@ -1,0 +1,1982 @@
+<apex:page id="oppPage" applyBodyTag="false" applyHtmlTag="false" showChat="false" showHeader="false" sidebar="false" showQuickActionVfHeader="false" standardStylesheets="false" controller="CS_AROpportunityCC"  extensions="CS_ARCCExtension" docType="html-5.0">
+
+    <apex:composition template="ARtemplate">
+        <apex:define name="bodyContent"> 
+        
+            <!-- <script src="https://d3js.org/d3.v4.min.js"></script> -->
+            <!-- <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/3.5.3/d3.js"></script> -->
+            <!-- <script src="{!$Resource.D3PieJS}"></script> -->
+            <script src="https://d3js.org/d3.v3.min.js"></script>
+            <script src="https://cdn.rawgit.com/jakezatecky/d3-funnel/v0.7.5/dist/d3-funnel.js"></script>
+            
+            
+            
+            <style>
+                    /* Changing the modal overflow to fix the issue with scrolling issue when 2 modals are present*/
+                .modal {
+                  /* overflow-y:auto; */
+                } 
+                #opportunity-edit-modal .modal-dialog,
+                #opportunity-edit-modal .modal-content,
+                #opportunity-case-modal .modal-dialog,
+                #opportunity-case-modal .modal-content {
+                    /* 80% of window height 
+                    height: 90%; */
+                }
+                
+                #opportunity-edit-modal .modal-body,
+                #opportunity-case-modal .modal-body {
+                /* 100% = dialog height, 120px = header + footer */
+                    max-height: calc(100% - 120px);
+                    overflow-y: scroll;
+                }
+                .border_top_2{
+                    border-top-width: 2px; 
+                }
+                
+                .border_top_none{
+                    border-top-width: 0px; 
+                }
+                
+                .light_border_top_bottom{
+                    border-top: thin solid lightgrey;
+                    border-bottom: thin solid lightgrey;
+                }
+                
+                .grey_border_right{
+                    border-right: thin solid grey;
+                }
+                
+                .menu_btn{
+                    width: 140px;
+                }
+                
+                .font-large {
+                    font-size: large;
+                }
+            
+                .chart_table {
+                    border-top: thin solid lightgrey;
+                }
+                
+                .chart_table tbody tr, .chart_table tfoot tr {
+                    text-align: left;
+                    height: 30px;
+                }
+                /* .ibox{
+                    background-color: white;
+                } */
+                .ibox_border{
+                    border: 1px solid lightgrey;
+                }
+                
+                .ct-series-a .ct-bar {
+                      /* Colour of your bars 
+                      stroke: teal;*/
+                      /* The width of your bars */
+                      stroke-width: 20px;
+                }
+                
+                .fa-2x {
+                
+                    width: 50px;
+                    text-align: center;
+                }
+                
+                
+                
+                /*
+                    From reports
+                */
+                div.stat h4, div.stat h2, div.stat p {
+                    margin: 0px;
+                    font-weight: bold;
+                }
+                h2.cat-title {
+                    margin: 15px;
+                }
+                div.stat > div {
+                    padding: 10px;
+                }
+
+                div.chart {
+                    font-size: 1rem;
+                }
+
+                .text-blue {
+                    color: #325996;
+                }
+                .ct-blue {
+                    stroke: #325996;
+                }
+                .ct-red {
+                    stroke: #ed5565;
+                }
+                .ct-green {
+                    stroke: #9cc984;
+                }
+                .ct-gray {
+                    stroke: #D3D3D3;
+                }                
+
+                div.donut-ytd-quota, div.donut-mtd-quota {
+                    text-align: center;
+                    position: relative;
+                    font-size: 2rem;
+                }
+
+                div.donut-divider-container {
+                    height: 2px;
+                }
+                div.donut-divider-container > div.donut-divider {
+                    background-color: #325996;
+                    padding:0px;
+                    margin:0px;
+                    width:50px; /* this must be the same as the stroke-width for the chart */
+                    height:4px;
+                    float:right
+                }
+                div.donut-divider > div.donut-divider-text {
+                    color: #325996;
+                    width:25px;
+                    text-align:center;
+                    padding: 0px;
+                    margin: 0px;
+                    position: relative; 
+                    left: -26px; 
+                    top: -7px;
+                    font-weight: bold;
+                    font-size: 1.25em;
+                }
+
+                /* .ct-label {
+                    font-size: 2rem;
+
+                } */
+                
+                .readonly-control{
+                    border: lightgray thin solid;
+                    padding-left: 10px;
+                }
+                
+                .related-table{
+                    border: thin solid lightgrey;
+                }
+                
+                .related-table td, .related-table th {
+                    border:none
+                }
+                
+                .related-table caption{
+                    padding-bottom: 0px;
+                    padding-top: 20px;
+                }
+                
+                .muted_label{
+                    padding-top: 0px;
+                    color: #9c9a9a; /*lightgrey;*/
+                    min-height: 25px !important;
+                }
+                
+                .detail_div{
+                    margin-bottom: 25px !important;
+                }
+                
+                .GGrid-content {
+                    border-top-color: #151516 !important;
+                    height: inherit !important;
+                }
+                
+                .subsection_header{
+                    font-size: 18px;
+                    margin-left: 15px;
+                }
+                
+                .fa-border{
+                    background-color: #545454;
+                }
+                .fa-meeting-background{
+                    background-color: #a94442 !important;
+                }
+                .fa-meeting-task{
+                    background-color: #3c763d !important;
+                }
+                .fa-meeting-surgicalcase{
+                    background-color: #337ab7 !important;
+                }
+                .fa-meeting-note{
+                    background-color: #ed5565 !important;
+                }
+                .fa-meeting-log{
+                    background-color: #f8ac59 !important;
+                }
+                
+                .nav-tabs { border-bottom: 2px solid #DDD; }
+                .nav-tabs > li.active > a, .nav-tabs > li.active > a:focus, .nav-tabs > li.active > a:hover { border-width: 0; }
+                .nav-tabs > li > a { border: none; color: #666; }
+                    .nav-tabs > li.active > a, .nav-tabs > li > a:hover { border: none; color: #4285F4 !important; background: transparent; }
+                    .nav-tabs > li > a::after { content: ""; background: #4285F4; height: 2px; position: absolute; width: 100%; left: 0px; bottom: -1px; transition: all 250ms ease 0s; transform: scale(0); }
+                .nav-tabs > li.active > a::after, .nav-tabs > li:hover > a::after { transform: scale(1); }
+                .tab-nav > li > a::after { background: #21527d none repeat scroll 0% 0%; color: #fff; }
+                .tab-pane { padding: 15px 0; }
+                .tab-content{padding:20px}
+                
+               
+                    /*  CSS for breadcrumbs */
+                .breadcrumbs_side{
+                    padding: 5px;
+                }  
+                ul {
+                  list-style: none;
+                  margin: 0px;
+                  padding-left: 0px;
+                }
+                
+                .cf:before, .cf:after {
+                  content: ' ';
+                  display: table;
+                }
+                .cf:after {
+                  clear: both;
+                }
+                .inner {
+                  max-width: 820px;
+                  margin: 0 auto;
+                }
+                
+                .breadcrumbs {
+                  background-color: white;  /*#f5f5f5*/
+                }
+                
+                .breadcrumbs ul {
+                    border: 1px solid #ddd;
+                    border-top-left-radius: 20px;
+                    border-bottom-left-radius: 20px;
+                    border-top-right-radius: 20px;
+                    border-bottom-right-radius: 20px;
+                }
+                
+                .breadcrumbs li {
+                  float: left;
+                  width: 20%;
+                }
+                .breadcrumbs li:first-child a{border-top-left-radius: 20px; border-bottom-left-radius: 20px;  }
+                .breadcrumbs li:last-child a{border-top-right-radius: 20px; border-bottom-right-radius: 20px;  }
+                
+                .breadcrumbs a {
+                  position: relative;
+                  display: block;
+                  padding: 5px;
+                  padding-right: 0 !important;
+                  /* important overrides media queries */
+                  font-size: 12px;
+                  font-weight: bold;
+                  text-align: center;
+                  color: #aaa;
+                  cursor: pointer;
+                  white-space: nowrap;
+                  /*overflow: hidden;*/
+                  text-overflow: clip;
+                }
+                
+                .breadcrumbs a:hover {
+                  background: #eee; /*TODO: need to change*/
+                }
+                .breadcrumbs a.active {
+                  color: white;
+                  background-color: rgb(75, 202, 129);
+                }
+                
+                .breadcrumbs a.current {
+                  color: white;
+                  background-color: rgb(0, 112, 210);
+                }
+                
+                .breadcrumbs a.won {
+                  color: white;
+                  background-color: rgb(4, 132, 75);
+                }
+                
+                .breadcrumbs a.lost {
+                  color: white;
+                  background-color: rgb(212, 80, 76);
+                }
+          
+                .breadcrumbs a.active span:first-child {
+                    display: inline-block;
+                    width: 22px;
+                    height: 22px;
+                    padding: 2px;
+                    margin-right: 5px;
+                    color: white;
+                    border: none;
+                    background-color: rgb(75, 202, 129);
+                }
+                
+                .breadcrumbs a.current span:first-child {
+                    display: inline-block;
+                    height: 22px;
+                    padding: 2px;
+                    /*width: 22px;
+                    margin-right: 5px;
+                    color: white;
+                    border: none;
+                    background-color: rgb(0, 112, 210);*/
+                }
+                
+                .breadcrumbs a.won span:first-child {
+                    display: inline-block;
+                    /*width: 22px;*/
+                    height: 22px;
+                    padding: 2px;
+                    margin-right: 5px;
+                    color: white;
+                    border: none;
+                    background-color: rgb(4, 132, 75);
+                }
+                
+                .breadcrumbs a.lost span:first-child {
+                    display: inline-block;
+                    /* width: 22px; */
+                    height: 22px;
+                    padding: 2px;
+                    margin-right: 5px;
+                    color: white;
+                    border: none;
+                    background-color: rgb(212, 80, 76);
+                }
+                
+                .breadcrumbs a:before,
+                .breadcrumbs a:after {
+                  content: '';
+                  position: absolute;
+                  top: 0;
+                  left: 100%;
+                  z-index: 1;
+                  display: block;
+                  width: 0;
+                  height: 0;
+                  border-top: 16px solid transparent;
+                  border-bottom: 16px solid transparent;
+                  border-left: 8px solid transparent;
+                }
+                
+                .breadcrumbs a:before {
+                  margin-left: 1px;
+                  border-left-color: #d5d5d5;
+                }
+                
+                .breadcrumbs a:after {
+                  border-left-color: white;
+                }
+                
+                .breadcrumbs a:hover:after {
+                  border-left-color: #eee;
+                }
+                
+                .breadcrumbs a.active:after {
+                  border-left-color: rgb(75, 202, 129);
+                }
+                
+                .breadcrumbs a.current:after {
+                  border-left-color: rgb(0, 112, 210);
+                }
+                
+                .breadcrumbs a.won:after {
+                  border-left-color: rgb(4, 132, 75);
+                }
+                
+                .breadcrumbs a.lost:after {
+                  border-left-color: rgb(212, 80, 76);
+                }
+                
+                .breadcrumbs li:last-child a:before,
+                .breadcrumbs li:last-child a:after {
+                  display: none;
+                }
+              
+                @media (max-width: 520px) {
+                    .breadcrumbs_side{
+                        padding: 5px;
+                    } 
+                  .breadcrumbs a {
+                    padding: 5px;
+                  }
+                
+                  .breadcrumbs a:before,
+                  .breadcrumbs a:after {
+                    border-top-width: 16px;
+                    border-bottom-width: 16px;
+                    border-left-width: 8px;
+                  }
+                
+                  .breadcrumbs li a span:first-child {
+                    display: block;
+                    margin: 0 auto;
+                  }
+                
+                  .breadcrumbs li a span:last-child {
+                    display: none;
+                  }
+                }
+                
+                /*
+                    Dependent list table style
+                */
+                .filterable {
+                    margin-top: 15px;
+                }
+                .filterable .panel-heading .pull-right {
+                    margin-top: -20px;
+                }
+                .filterable .filters input[disabled] {
+                    background-color: transparent;
+                    border: none;
+                    cursor: auto;
+                    box-shadow: none;
+                    padding: 0;
+                    padding-top: 11px;
+                    height: auto;
+                }
+                .filterable .filters input[disabled]::-webkit-input-placeholder {
+                    color: #333;
+                }
+                .filterable .filters input[disabled]::-moz-placeholder {
+                    color: #333;
+                }
+                .filterable .filters input[disabled]:-ms-input-placeholder {
+                    color: #333;
+                }
+            </style>
+            
+            <script type="text/javascript">
+                var OPPORTUNITY_LIST;
+                var LINKED_CASES_LIST;
+                var LINKED_OPPS_LIST;
+                var TOTAL_OPPORTUNITIES_WON;
+                var NO_OF_ROWS_TO_DISPLAY=8;
+                var OPP_STAGE_CLOSED_WON = "Closed - Won";
+                var OPP_STAGE_CLOSED_LOST = "Closed - Lost";
+                var DASHBOARD_FILTER_SELECTION=[];
+                var MAP_TERRITORY_ID_CHILD_IDS={};
+                
+                
+                $(document).ready(function() { 
+                        
+                    // set Opportunity related UI status
+                    $('#opportunities').addClass('active');
+                    $("h2.title-icon-container i").removeClass().addClass("fa fa-line-chart"); 
+                    
+                    $("#oppDashboardBtn").hide();
+                    
+                    //added by srinivas sattoor 3.1.2 Apr.15.2017
+                    $(".clickable-row").click(function() {
+                        console.log('##--clicking a row');
+                        window.location = $(this).data("href");
+                    });
+                     
+                    // creating a list of IDs from the 2 drop downs so that they can be used when we create slides
+                    $("select.opportunity-type-select option").each(function(){
+                        oppType = $(this).val();
+                        $("select.opportunity-team-select option").each(function(){
+                            DASHBOARD_FILTER_SELECTION.push(oppType+'-'+$(this).val());
+                        }); //  end of for-each team selector
+                    }); //  end of for-each opp type select
+                    
+                    Visualforce.remoting.Manager.invokeAction("CS_AROpportunityCC.retrieveMapParentTerritoryAndListTerritoryIds",
+                        function(result, event) {
+                        MAP_TERRITORY_ID_CHILD_IDS = result;
+                        
+                        loadOpportunityData(); 
+                        populateCompetitiveConversion();
+                       
+                        //populate competitive company picklist values
+                        populateCompetitiveCompanies();
+                        
+                        //populate opportunity picklist values
+                         //populateOppotunityType();
+                    }); //  end of remote call
+                    
+                    // navigates to the slide when the select changes
+                    $("select.opportunity-type-select, select.opportunity-team-select").on("change", function() {
+                        slideDashboard(true);   //  arg: Animate
+                    });
+
+                    // keeps the select in sync in case the user changes slides with a swipe
+                    // instead of using the select
+                    $("div.reports").on("afterChange", function(e, slick, currentSlide) {
+                        selection = DASHBOARD_FILTER_SELECTION[currentSlide].split('-');
+                        $("select.opportunity-type-select").val(selection[0]);
+                        $("select.opportunity-team-select").val(selection[1]);
+                    });
+                     $("#opportunity-modal button.opportunity-type-cancel-btn").on("click", function() {
+               
+                        $("#cancel-new-opportunity-modal").modal("show");                   
+                    }); //  end of opp type modal.cancel click
+                    
+                     $("#cancel-new-opportunity-modal button.btn-cancel-opportunity-card").on("click", function(e) {                     
+                        $("#cancel-new-opportunity-modal").modal('hide');
+                        $("#opportunity-modal").modal('hide');
+                    }); //  end of opp type modal.cancel click 
+                        
+                    $('.filterable .btn-filter').click(function(){
+                        var $panel = $(this).parents('.filterable'),
+                        $filters = $panel.find('.filters input[type="text"]'),
+                        $tbody = $panel.find('.table tbody');
+                        if ($filters.prop('disabled') == true) {
+                            $filters.prop('disabled', false);
+                            $filters.first().focus();
+                            
+                            $('input.dependent-filter').keyup(function(e){
+                                performFilter(e);
+                            });
+                            
+                        } else {
+                            $filters.val('').prop('disabled', true);
+                            $tbody.find('.no-result').remove();
+                            $tbody.find('tr').show();
+                        }
+                        
+                    }); 
+                     
+                }); //  end of ready fn
+                
+                function loadOpportunityData(){
+                    //$('#dashboardLoading').show();
+                    $("i.oppDashboard-busy").show();
+                    $("#oppListBtn").prop('disabled', true);
+                    $("#oppAddBtn").prop('disabled', true);
+                    
+                    Visualforce.remoting.Manager.invokeAction("{!$RemoteAction.CS_AROpportunityCC.retrieveOpportunitiesInMyTeamTerritory}",
+                        function(opportuityWrapper, event) {
+                            
+                            OPPORTUNITY_LIST = opportuityWrapper;
+                            //console.log('Opportunity Data: ' + JSON.stringify(OPPORTUNITY_LIST));
+                            TOTAL_OPPORTUNITIES_WON = calculateAllOpportunitiesWonRatio(OPPORTUNITY_LIST);
+                            
+                            console.log('Before loading Dashboard Filters');
+                            
+                            loadDashboardFilters(OPPORTUNITY_LIST);
+                            
+                            console.log('After Loading dashboard filter');
+                            
+                            //setting the dashboard filters to default team.
+                            Visualforce.remoting.Manager.invokeAction("{!$RemoteAction.CS_AROpportunityCC.retrieveDefaultTerritory}",
+                                function(defaultTeam, event){
+                                
+                                console.log('##--defaultTeam: '+ defaultTeam);
+                                console.log('##--option contains: '+ $("select.opportunity-team-select option:contains(defaultTeam)"));
+                                selectEle = $("select.opportunity-team-select option:contains(defaultTeam)");
+                                //$("select.opportunity-team-select option:contains(defaultTeam)").prop('selected',true);
+                                if(defaultTeam != ''){
+                                    $("select.opportunity-team-select").find("option[data-value='"+defaultTeam+"']").attr("selected",true);
+                                    slideDashboard(false);  //  arg: animate
+                                }
+                                
+                            });
+                            
+                            $("#oppListBtn").prop('disabled', false);
+                            $("#oppAddBtn").prop('disabled', false);
+                            $("i.oppDashboard-busy").hide();
+                            
+                            //setupCreateOppModal();
+                            
+                        }); //  end of remote call
+                }   //  end of loadOpportunityData()
+                
+                function slideDashboard(animate){
+                    oppType = $("select.opportunity-type-select").val();
+                    oppTeam = $("select.opportunity-team-select").val();
+                    
+                    setDashboardOnSlide();
+                    
+                    $("div.reports").slick("slickGoTo", DASHBOARD_FILTER_SELECTION.indexOf(oppType +'-'+ oppTeam), !animate);
+                }   //  end of slideDashboard
+                
+                
+                
+                function setDashboardOnSlide(){
+                    oppType = $("select.opportunity-type-select").val();
+                    oppTeam = $("select.opportunity-team-select").val();
+                    
+                    oppTypeVal = $("select.opportunity-type-select option:selected").attr('data-value');
+                    teamVal = $("select.opportunity-team-select option:selected").attr('data-value');
+                    
+                    var groupByOppType = {};
+                    $.each(OPPORTUNITY_LIST, function(i, v){
+                        var key = v.opportunityType;
+                        
+                        if(! groupByOppType[key]){
+                            groupByOppType[key] = [];
+                            groupByOppType[key].push(v);
+                        } else {
+                            groupByOppType[key].push(v);
+                        }
+                        
+                    }); //  end of for-each
+                    
+                    chartLabel = oppTypeVal=='0' ? "All Opportunities" : oppTypeVal;
+                     //console.log('##--oppTypeVal: '+ oppTypeVal);
+                    // console.log('Opp Type Val: ' + JSON.stringify(groupByOppTyp));
+                     //console.log('##--groupByOppType: '+ JSON.stringify(groupByOppType[oppTypeVal]));
+                    oppData = oppTypeVal=='0' ? filterOppDataForTeam(OPPORTUNITY_LIST, teamVal) : filterOppDataForTeam(groupByOppType[oppTypeVal], teamVal);
+                     
+                     
+                    createAllChartsForDashboard("div[data-dash-num='"+ oppType +'-'+ oppTeam +"']", oppData, true, chartLabel);
+                }   //  end of setDashboardOnSlide()
+                
+                
+                function checkAll(ele, name){
+                    if(ele.checked){
+                        $('#table-dependents input[name="'+name+'"]').attr('checked', true);
+                    } else {
+                        $('#table-dependents input[name="'+name+'"]').removeAttr('checked');
+                    }
+                }   //  end of checkAll
+                
+                function performFilter(e){
+                    /* Ignore tab key */
+                        var code = e.keyCode || e.which;
+                        if (code == '9') return;
+                        /* Useful DOM data and selectors */
+                        //var $input = $(this),
+                        var $input = $("#"+e.currentTarget.id),
+                        inputContent = $input.val().toLowerCase(),
+                        $panel = $input.parents('.filterable'),
+                        column = $panel.find('.filters th').index($input.parents('th')),
+                        $table = $panel.find('.table'),
+                        $rows = $table.find('tbody tr');
+                        /* Dirtiest filter function ever ;) */
+                        var $filteredRows = $rows.filter(function(){
+                            var value = $(this).find('td').eq(column).text().toLowerCase();
+                            return value.indexOf(inputContent) === -1;
+                        });
+                        /* Clean previous no-result if exist */
+                        $table.find('tbody .no-result').remove();
+                        /* Show all rows, hide filtered ones (never do that outside of a demo ! xD) */
+                        $rows.show();
+                        $filteredRows.hide();
+                        /* Prepend no-result row if all rows are filtered */
+                        if ($filteredRows.length === $rows.length) {
+                            $table.find('tbody').prepend($('<tr class="no-result text-center"><td colspan="'+ $table.find('.filters th').length +'">No result found</td></tr>'));
+                        }
+                }   //  end of performFilter
+                
+                function loadDashboardFilters(OPP_DATA){
+                    var nextCategoryMarkup;
+                    var oppType = [];
+                    var oppTeam = [];
+                    var groupByOppType = {};
+                    var groupByTeam = {};
+                    //console.log('Opp Data before sort: ' + JSON.stringify(OPP_DATA));
+                    //$("select.opportunity-type-select").empty();
+                    try {
+                        $("div.reports").slick('unslick');
+                    }
+                    catch(err) {
+                        console.log('Could not Unslick the Dashboard');
+                    }
+                    $("div.reports").empty();
+                    $("select.opportunity-type-select").val('0');
+                    //$("select.opportunity-team-select").val($("select.opportunity-team-select option:first").val());
+                    
+                    
+                    var groupByOppType = {};
+                    $.each(OPP_DATA, function(i, v){
+                        var key = v.opportunityType;
+                        
+                        if(! groupByOppType[key]){
+                            groupByOppType[key] = [];
+                            groupByOppType[key].push(v);
+                        } else {
+                            groupByOppType[key].push(v);
+                        }
+                        
+                    }); //  end of for-each
+                    
+                    onlyFirst=true;
+                    
+                    $.each(DASHBOARD_FILTER_SELECTION, function(i, v){
+                        
+                        oppTypeTeam = v.split('-');
+                        //console.log('Opp Type Val: ' + JSON.stringify(oppTypeTeam));
+                        
+                        oppTypeVal = $("select.opportunity-type-select option[value='"+oppTypeTeam[0]+"']").attr('data-value');
+                        teamVal = $("select.opportunity-team-select option[value='"+oppTypeTeam[1]+"']").attr('data-value');
+                        
+                        nextCategoryMarkup = $("div.report-category-template").clone();
+                        
+                        $(nextCategoryMarkup).removeClass("report-category-template");
+                        $(nextCategoryMarkup).addClass("report-category");
+                        $(nextCategoryMarkup).attr('data-dash-num', v);
+                        
+                        $("div.reports").append(nextCategoryMarkup);
+                        
+                        /*
+                        if(onlyFirst){
+                            onlyFirst=false;
+                            console.log('loading Dashboard for : ' +  v)
+                        
+                            chartLabel = oppTypeVal=='0' ? "All Opportunities" : oppTypeVal;
+                            //console.log('##--oppTypeVal: '+ oppTypeVal);
+                           // console.log('Opp Type Val: ' + JSON.stringify(groupByOppTyp));
+                            //console.log('##--groupByOppType: '+ JSON.stringify(groupByOppType[oppTypeVal]));
+                            oppData = oppTypeVal=='0' ? filterOppDataForTeam(OPP_DATA, teamVal) : filterOppDataForTeam(groupByOppType[oppTypeVal], teamVal);
+                            
+                            
+                            createAllChartsForDashboard("div[data-dash-num='"+v+"']", oppData, true, chartLabel);
+                        }*/
+                    });
+                    
+                    
+                        //  Set the div.reports as swippable
+                    $("div.reports").slick({arrows:false});
+                    $('div.reports').on('afterChange', function(event, slick, currentSlide){
+                        //console.log(currentSlide);
+                        setDashboardOnSlide();
+                    });
+                }   //  end of loadDashboardFilters
+                
+                function filterOppDataForTeam(oppData, teamId){
+                    var filteredData=[];
+                    //console.log('##--oppData: '+ oppData);
+                    //console.log('##--teamId: '+ teamId);
+                    if(! oppData){
+                        return filteredData;
+                    }
+                    if(teamId == 0 ){
+                        return oppData;
+                    }
+                    
+                    $.each(oppData, function(i, v){
+                        //Release 3.1.3 Modified by Srinivas Sattoor 4.15.2017
+                        if(v.accountTerritoryId == teamId || inArray(v.accountTerritoryId, MAP_TERRITORY_ID_CHILD_IDS[teamId])){
+                            filteredData.push(v);
+                        }
+                    }); //  end of for-each
+                    
+                    return filteredData;
+                    
+                }   //  end of filterOppDataForTeam 
+                
+                function createAllChartsForDashboard(chartSelector, data, setFinalOppTotals, chartLabel){
+                
+                    Highcharts.setOptions({
+                        chart: {
+                            style: {
+                                fontFamily: '"open sans", "Helvetica Neue", Helvetica, Arial, sans-serif'
+                            }
+                        }
+                    });
+                    createTotalOpportunityTable(chartSelector, data, setFinalOppTotals, chartLabel);
+                    setOpportunitiesWon(chartSelector, data);
+                    createPieChart(chartSelector, data);
+                    createFunnelChart(chartSelector, data, chartLabel);
+                    
+                    createClosingOpp(chartSelector, data);
+                    createTopAmountOpp(chartSelector, data);
+                    
+                }   //  end of createSwippableDashboard
+                
+                function createTotalOpportunityTable(chartSelector, data, setFinalTotals, chartLabel){
+                    var tableData = {};
+                    var totalOpenCases=0;
+                    var totalClosedCases=0;
+                    var totalClosedWonCases=0;
+                    var totalClosedLostCases=0;
+                    var totalAllCases=0;
+                    var oppTypes = [];
+                    var openCases = [];
+                    var closedCases = [];
+                    var closedWonCases = [];
+                    var closedLostCases = [];
+                    var sosOpenCases=0;
+                    var sosClosedCases=0;
+                    var sosClosedWonCases=0;
+                    var sosClosedLostCases=0;
+                    var maxCasesCount=5;
+                    
+                    
+                    
+                    $.each(data, function(i,v){
+                        if(! tableData[v.opportunityType || "Not Mentioned"]){
+                            tableData[v.opportunityType] = {};
+                            tableData[v.opportunityType].name = v.opportunityType || "Not Mentioned";
+                            tableData[v.opportunityType].openCases = v.isClosed ? 0 : 1;
+                            tableData[v.opportunityType].closedCases = v.isClosed ? 1 : 0;
+                            tableData[v.opportunityType].closedWonCases = v.isClosedWon ? 1 : 0;
+                            tableData[v.opportunityType].closedLostCases = v.isClosedLost ? 1 : 0;
+                            tableData[v.opportunityType].totalCases = 1;
+                        } else{
+                            tableData[v.opportunityType].totalCases++;
+                            if(v.isClosed){
+                                tableData[v.opportunityType].closedCases++;
+                            }else {
+                                tableData[v.opportunityType].openCases++;
+                            } 
+                            
+                            if(v.isClosedWon){
+                                tableData[v.opportunityType].closedWonCases++;
+                            }else if(v.isClosedLost){
+                                tableData[v.opportunityType].closedLostCases++;
+                            }
+                        }
+                        
+                        totalOpenCases = totalOpenCases + (v.isClosed ? 0 : 1);
+                        totalClosedCases = totalClosedCases + (v.isClosed ? 1 : 0);
+                        totalClosedWonCases = totalClosedWonCases +(v.isClosedWon ? 1 : 0);
+                        totalClosedLostCases = totalClosedLostCases +(v.isClosedLost ? 1 : 0);
+                        
+                        totalAllCases++;
+                        
+                    });
+                    
+                    $.each(tableData, function(i, v){
+                        if(v.name == "SOS"){
+                             sosOpenCases = v.openCases;
+                             sosClosedCases = v.closedCases;
+                             sosClosedWonCases = v.closedWonCases;
+                             sosClosedLostCases = v.closedLostCases;
+                             
+                        }else{
+                            oppTypes.push(v.name || "Not Mentioned");
+                            openCases.push(v.openCases);
+                            closedCases.push(v.closedCases);
+                            closedWonCases.push(v.closedWonCases);
+                            closedLostCases.push(v.closedLostCases);
+                        }
+                        maxCasesCount = Math.max(maxCasesCount, Math.max(v.openCases, v.closedCases));
+                    });
+                        //  Since "SOS" is supposed to be at the end
+                    if(chartLabel == 'SOS' || ((chartLabel == 'All Opportunities') && (sosOpenCases>0 || sosClosedCases>0))){
+                        
+                        oppTypes.push("SOS");
+                        openCases.push(sosOpenCases);
+                        closedCases.push(sosClosedCases);
+                        closedWonCases.push(sosClosedWonCases);
+                        closedLostCases.push(sosClosedLostCases);
+                    }
+                    
+                    //console.log('##--closedWonCases: '+ closedWonCases);
+                    //console.log('##--closedLostCases: '+ closedLostCases);
+                    $(chartSelector + ' .allOppTypes').highcharts({
+                        title: {
+                            align: 'left',
+                            text: 'All Opportunities - FY 2017'
+                        },
+                        subtitle: {
+                            text: 'All Opportynity Types',
+                            floating: true,
+                            align: 'right',
+                            y: 50
+                        },
+                        credits: {
+                            enabled: false
+                        },
+                        xAxis: {
+                            categories: oppTypes
+                        },
+                        yAxis: {
+                            max: maxCasesCount * 1.20,
+                            tickInterval: 1
+                        },
+                        /*labels: {
+                            items: [{
+                                html: 'All Opportynity Types',
+                                style: {
+                                    left: '150px',
+                                    top: '0px',
+                                    color: (Highcharts.theme && Highcharts.theme.textColor) || 'black'
+                                }
+                            }]
+                        },*/
+                        
+                        series: [{
+                            type: 'column',
+                            name: 'Open',
+                            data: openCases,
+                            color: '#003399'
+                        }, {
+                            type: 'column',
+                            name: 'Closed Won',
+                            data: closedWonCases,
+                            color: '#99CC66'
+                        }, {
+                            type: 'column',
+                            name: 'Closed Lost',
+                            data: closedLostCases,
+                            color: '#CC0033'
+                        },{
+                            type: 'pie',
+                            name: 'Combined Total',
+                            data: [{
+                                name: 'Open',
+                                y: totalOpenCases,
+                                color: '#003399'
+                            }, {
+                                name: 'Closed Won',
+                                y: totalClosedWonCases,
+                                color: '#99CC66'
+                            }, {
+                                name: 'Closed Lost',
+                                y: totalClosedLostCases,
+                                color: '#CC0033'
+                            }],
+                            center: ['85%', '25%'],
+                            size: '40%',
+                            showInLegend: false,
+                            dataLabels: {
+                                enabled: false
+                            }
+                        }]
+                    }); //  end of High chart
+                    
+                    
+                }   //  end of createTotalOpportunityTable
+                
+                function calculateAllOpportunitiesWonRatio(OPP_DATA){
+                    var casesWon = 0;
+                    var totalCases = 0;
+                    
+                    $.each(OPP_DATA, function(i, v){
+                        if(v.currentStage == 'Closed - Won'){
+                            casesWon++;
+                        }
+                        totalCases++;
+                    });
+                    
+                    return (casesWon / totalCases) * 100;
+                }   //  end of calculateAllOpportunitiesWonRatio
+                
+                function setOpportunitiesWon(chartSelector, data){
+                    var oppData = new Object();
+                    var barData = new Object();
+                    
+                    $.each(data, function(i,v){
+                        if(! oppData[v.opportunityType]){
+                            oppData[v.opportunityType] = new Object();
+                            oppData[v.opportunityType].name = v.opportunityType;
+                            oppData[v.opportunityType].wonCases = v.currentStage == 'Closed - Won' ? 1 : 0;
+                            oppData[v.opportunityType].totalCases = 1;
+                        } else{
+                            oppData[v.opportunityType].totalCases++;
+                            if(v.currentStage == 'Closed - Won'){
+                                oppData[v.opportunityType].wonCases++;
+                            }
+                        }
+                        oppData[v.opportunityType].wonPercent = (oppData[v.opportunityType].wonCases / oppData[v.opportunityType].totalCases) * 100;
+                    });
+                    
+                    
+                    barData.labels = [];
+                    barData.series = [];
+                    barData.series.push([]);
+                    
+                        //  Set All Opportunities Won ration first
+                    barData.labels.push("All Opportunities");
+                    barData.series[0].push(calculateAllOpportunitiesWonRatio(data));//3.1.3 fixed by srinivas on 4.21.2017
+                    
+                    $.each(oppData, function(i,v){
+                        barData.labels.push(v.name || "Not Mentioned");
+                        barData.series[0].push(v.wonPercent);
+                    });
+                    
+                    
+                    $(chartSelector + ' .ct-chart').highcharts({
+                                                        chart: {
+                                                            type: 'bar'
+                                                        },
+                                                        title: {
+                                                            align: 'left',
+                                                            text: 'Win Percentage Opportunities'
+                                                        },
+                                                        credits: {
+                                                            enabled: false
+                                                        },
+                                                        legend:{
+                                                            enabled: false
+                                                        },
+                                                        xAxis: {
+                                                            categories: barData.labels,
+                                                            title: {
+                                                                text: null
+                                                            }
+                                                        },
+                                                        yAxis: {
+                                                            min: 0,
+                                                            max: 100,
+                                                            title: {
+                                                                text: null
+                                                            },
+                                                            labels: {
+                                                                format: '{value:,.1f}%',
+                                                                overflow: 'justify'
+                                                            }
+                                                        },
+                                                        tooltip: {
+                                                            //valueSuffix: ''
+                                                            pointFormat: '<b>{point.y:,.1f}%</b>'
+                                                        },
+                                                        plotOptions: {
+                                                            bar: {
+                                                                dataLabels: {
+                                                                    enabled: true,
+                                                                    inside: true,
+                                                                    format: '{point.y:,.1f}%'
+                                                                }
+                                                            }
+                                                        },
+                                                        series: [{
+                                                            data: barData.series[0],
+                                                            color:'#003399'
+                                                        }]
+                                                    });
+                    
+                }   //  end of setOpportunitiesWon
+                
+                function createFunnelChart(chartSelector, data, chartLabel){
+                    var oppData = new Object();
+                    var funnelData = [];
+                    var chartTitle ='';
+                    var funnelColor = [];
+                    var oppDataToBeSorted=[];
+                    
+                    $.each(data, function(i,v){
+                        var key = v.currentStage;
+                        
+                        if(! v.isClosed && v.opportunityType != "Synergy Installation" && v.opportunityType != "SOS"){
+                            colVal = v.currentFYRevenue || "0";
+                            colVal = colVal.replace("$","");
+                            colVal = colVal.replace("$","");
+                            colVal = colVal.replace("$","");
+                            colVal = colVal.replace(/,/g,"");
+                            
+                            if(! oppData[key]){
+                                oppData[key] = new Object();
+                                oppData[key].name = v.opportunityType;
+                                oppData[key].stage = globalDecodeEntities(key);
+                                oppData[key].totalAmount = parseFloat(colVal);
+                                oppData[key].probability = parseFloat(v.probability) || 0;
+                            } else{
+                                oppData[key].totalAmount += parseFloat(colVal);
+                            }
+                        }   //  end of outer if
+                    });
+                    
+                    //console.log('Opp Data before sort: ' + JSON.stringify(oppData));
+                    
+                    $.each(oppData, function(i,v){
+                        oppDataToBeSorted.push(v);
+                    });
+                    //Swetha Penmethsa - Jan12th
+                    oppDataToBeSorted.sort(function(a, b) {
+                        return parseFloat(a.probability) - parseFloat(b.probability);
+                    });
+                    
+                    //console.log('Oppdate after SOrt: ' + JSON.stringify(oppDataToBeSorted));
+                    
+                    $.each(oppDataToBeSorted, function(i,v){
+                        var funnelColorCode = retrieveFunnelColor(v.stage);
+                        funnelData.push([v.stage, v.totalAmount]);
+                        funnelColor.push([retrieveFunnelColor(v.stage)]);
+                    });
+                    
+                    //console.log('Funnel Chart data: ' + JSON.stringify(funnelData));
+                    
+                    //console.log('##--funnelColor: '+ funnelColor);
+                    if(chartLabel == "All Opportunities"){
+                        chartTitle = chartLabel + ' Pipeline';
+                    } else {
+                        chartTitle = chartLabel + ' Opportunity Pipeline'
+                    }
+                    funnelCOlorStr=["#003399", "#FFCC00", "#336600", "#FF6600", "#660066", "#66CCFF"];
+                    Highcharts.setOptions({
+                                          lang: {
+                                           thousandsSep: ','
+                                          }
+                                         });
+     
+                    $(chartSelector+ " #funnel").highcharts({
+                            chart: {
+                                type: 'funnel',
+                                marginRight: 50
+                            },
+                            title: {
+                                align: 'left',
+                                text: chartTitle
+                            },
+                            tooltip: {
+                            
+                                pointFormat: '<b>${point.y:,.0f}</b>'
+                            },
+                            plotOptions: {
+                                series: {
+                                    dataLabels: {
+                                        enabled: false,
+                                        distance: -100,
+                                        inside: true,
+                                        crop: false,
+                                        overflow: "none",
+                                        format: '<b>{point.name}</b>',
+                                        //colorByPoint: true,
+                                        //colors: funnelColor,
+                                        //colors: ["#2A94D6", "#4AB471", "#F3AE4E", "#717ECD", "#FFC50D", "#86D4EA"],
+                                        //color: (Highcharts.theme && Highcharts.theme.contrastTextColor) || 'black',
+                                        softConnector: true
+                                    },
+                                    neckWidth: '10%',
+                                    neckHeight: '0%',
+                                    showInLegend: true
+                                }
+                            },
+                            legend: {
+                                enabled: true
+                            },
+                            credits: {
+                                enabled: false
+                            },
+                            series: [{
+                                data: funnelData,
+                                //colors: ["#2A94D6", "#4AB471", "#F3AE4E", "#717ECD", "#FFC50D", "#86D4EA", "#D96383"]
+                                colors: funnelCOlorStr
+                            }]
+                        });
+                    
+                    
+                }   //  end of createFunnelChart
+                
+                function createPieChart(chartSelector, data){
+                
+                    var oppData = new Object();
+                    var pieData = {};
+                    
+                    $.each(data, function(i,v){
+                        var key = v.productCategory;
+                    
+                        colVal = v.currentFYRevenue || "0";
+                        colVal = colVal.replace("$","");
+                        colVal = colVal.replace("$","");
+                        colVal = colVal.replace("$","");
+                        colVal = colVal.replace(/,/g,"");
+                        if(! v.isClosed && v.opportunityType != 'SOS'){//updated by srinivas sattoor on 07.15.2017
+                        //if(! v.isClosed ){
+                            if(! oppData[key]){
+                                oppData[key] = new Object();
+                                oppData[key].name = v.opportunityType;
+                                oppData[key].category = key;
+                                oppData[key].totalAmount = parseFloat(colVal);
+                            } else{
+                                oppData[key].totalAmount += parseFloat(colVal);
+                            }
+                        }
+                        
+                    });
+                    
+                    pieData.series=[];
+                    
+                    
+                    
+                    $.each(oppData, function(i,v){ 
+                        
+                        pieKey = i == "undefined" ? "Not Mentioned" : globalDecodeEntities(i);
+                        //console.log('##--pieKey: '+ pieKey);
+                        var colorCode = retrievePieColor(pieKey);
+                        //console.log('##--colorCode: '+ colorCode);
+                        pieData.series.push({name: pieKey, y: v.totalAmount, color: colorCode});
+                    });
+                    pieData.series.sort();
+                    
+                    $(chartSelector + ' .ct-pie').highcharts({
+                                                chart: {
+                                                    type: 'pie'
+                                                },
+                                                title: {
+                                                    align: 'left',
+                                                    text: 'Current FY Revenue by Product Category'
+                                                },
+                                                tooltip: {
+                                                    pointFormat: '<b>${point.y:,.0f}</b>'
+                                                },
+                                                credits: {
+                                                    enabled: false
+                                                },
+                                                plotOptions: {
+                                                    pie: {
+                                                        allowPointSelect: false,
+                                                        cursor: 'pointer',
+                                                        dataLabels: {
+                                                            enabled: false,
+                                                            distance: -40,
+                                                            color: (Highcharts.theme && Highcharts.theme.contrastTextColor) || 'black',
+                                                            inside: true,
+                                                            format: '<b>${point.y:,.1f}</b>',
+                                                        },
+                                                        showInLegend: true
+                                                    }
+                                                },
+                                                series: [{
+                                                    data: pieData.series
+                                                }]
+                                            });
+                    
+                }   //  end of createPieChart
+                
+                //Date Format Modified to MM-DD-YYYY format in Release 2.2(CID:-000045) by Mimansha Samal
+                function createClosingOpp(chartSelector, data){
+                
+                    var tableData = [];
+                    var today = moment().startOf('day');
+                    
+                    $.each(data, function(i, v){
+                        tmpDate = moment(v.closeDate);
+                        
+                        if(tmpDate.isSameOrAfter(today)){
+                            tableData.push(v);
+                        }
+                        
+                    });
+                    
+                    if(tableData.length == 0){
+                    
+                        $( "<p class='text-centered'>No data to be displayed</p>" ).insertBefore(chartSelector + " #top5ClosingTable");
+                        $(chartSelector + " #top5ClosingTable").remove();
+                        
+                        return false;
+                    }
+                    
+                    var sortedData = tableData.sort(dateSortFn);
+                    
+                    var counter=0;
+                    
+                    $("#top5ClosingTable tbody").empty();
+                    
+                    $.each(sortedData, function(i,v){
+                        
+                        if(v.currentStage != 'Closed - Won' && v.currentStage != 'Closed - Lost'){
+                            console.log('##--counter: '+counter);
+                            console.log('##--NO_OF_ROWS_TO_DISPLAY: '+NO_OF_ROWS_TO_DISPLAY);
+                            if(counter > NO_OF_ROWS_TO_DISPLAY){
+                                return false;
+                            }
+                            
+                            //Swetha P 
+                            if(v.currentFYRevenue != undefined){
+                                v.currentFYRevenue = v.currentFYRevenue.replace('$','');
+                                v.currentFYRevenue = v.currentFYRevenue.replace(',','');
+                                 v.currentFYRevenue = v.currentFYRevenue.replace(',','');
+                                  v.currentFYRevenue = v.currentFYRevenue.replace(',','');
+                                v.currentFYRevenue = Math.round(v.currentFYRevenue);
+                                v.currentFYRevenue = numberWithCommas(v.currentFYRevenue);
+                                v.currentFYRevenue = '$'+v.currentFYRevenue;
+                            }
+                            //Swetha P
+                            //modified by srinivas sattoor for 3.1.2 CID-000180
+                            var detailURL ='/apex/AROpportunityDetail?id='+v.opportunityId;
+                            $(chartSelector + " #top5ClosingTable tbody").append("<tr>"+
+                                                          "    <td> <a href='"+detailURL+"'>"+ v.opportunityName +"</a></td>"+
+                                                          "    <td>"+(v.currentFYRevenue || 0)+"</td>"+
+                                                          "    <td>"+moment(v.closeDate).format('MM-DD-YYYY')+"</td>"+
+                                                          "</tr>");
+                            counter ++;
+                        }
+                    });
+                    
+                }   //  end of createClosingOpp
+                
+                
+                //Date Format Modified to MM-DD-YYYY format in Release 2.2(CID:-000045) by Mimansha Samal
+                function createTopAmountOpp(chartSelector, data){
+                    
+                    var sortedData = sortJSON(data, 'currentFYRevenue', false);
+                    
+                    var counter=0;
+                   
+                    $("#top5PricedOppTable tbody").empty();
+                    $.each(sortedData, function(i,v){
+                        if(v.currentStage != 'Closed - Won' && v.currentStage != 'Closed - Lost'){
+                            if(counter > NO_OF_ROWS_TO_DISPLAY){
+                            
+                                return false; 
+                                
+                            }
+                            if(v.currentFYRevenue != undefined){
+                                v.currentFYRevenue = v.currentFYRevenue.replace('$','');
+                                v.currentFYRevenue = v.currentFYRevenue.replace(',','');
+                                v.currentFYRevenue = v.currentFYRevenue.replace(',','');
+                                v.currentFYRevenue = v.currentFYRevenue.replace(',','');
+                                v.currentFYRevenue = Math.round(v.currentFYRevenue);
+                                v.currentFYRevenue = numberWithCommas(v.currentFYRevenue);
+                                v.currentFYRevenue = '$'+v.currentFYRevenue;
+                            }
+                            //modified by srinivas sattoor for 3.1.2 CID-000180
+                            var detailURL ='/apex/AROpportunityDetail?id='+v.opportunityId;
+                            $(chartSelector + " #top5PricedOppTable tbody").append("<tr>"+
+                                                      "    <td> <a href='"+detailURL+"'>"+ v.opportunityName +"</a></td>"+
+                                                      "    <td>"+(v.currentFYRevenue || 0)+"</td>"+
+                                                      "    <td>"+moment(v.closeDate).format('MM-DD-YYYY')+"</td>"+
+                                                      "</tr>"); 
+                            counter ++;
+                        }
+                    });
+                    
+                }   //  end of createTopAmountOpp
+                
+                function numberWithCommas(x) {
+                    return x.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+                }
+        
+                // load in the competitive conversion type list
+                function populateCompetitiveConversion(){
+                  Visualforce.remoting.Manager.invokeAction("{!$RemoteAction.CS_AROpportunityCC.retrieveCompetitiveConversionValues}",
+                    function(result, event) { 
+                      for ( var i=0; i < result.length; i++) {
+                          var txt = globalDecodeEntities(result[i]);
+                          $("#opportunity-modal select.competitive-conversion").append("<option value='"+txt+"'>"+txt+"</option>");
+                      }
+                  });
+                  
+                }
+                
+                // load in the close lost reasons
+                function populateCloseLostReasons(opportunityType){
+                  var selectList = $("#opportunity-stage-close-modal select.opportunity-closed-lost-reason");
+                  selectList.find("option:gt(0)").remove();
+                  //console.log('##--opportunityType: '+opportunityType);
+                  Visualforce.remoting.Manager.invokeAction("{!$RemoteAction.CS_AROpportunityCC.retrieveOpportunityCloseLostReasons}", 
+                    opportunityType, function(result, event) { 
+                      for ( var i=0; i < result.length; i++) {
+                          var txt = globalDecodeEntities(result[i]);
+                          $("#opportunity-stage-close-modal select.opportunity-closed-lost-reason").append("<option value='"+txt+"'>"+txt+"</option>");
+                      }
+                  });
+                  
+                }
+                
+                function removeCloseLostReasonsOnEditModal(opportunityType, closedLostReasonToBeSelected){
+                    
+                    var selectList = $("#opportunity-edit-modal select.opp-edit-closed-lost-reason");
+                    selectList.find("option:gt(0)").remove();
+                    
+                    populateCloseLostReasonsOnEditModal(opportunityType, closedLostReasonToBeSelected);
+                }
+                
+                // load in the opportunity Product Category list
+                function populateCloseLostReasonsOnEditModal(opportunityType, closedLostReasonToBeSelected){
+                  //console.log('##--opportunityType: '+ opportunityType+'\t##--closedLostReasonToBeSelected: ' + closedLostReasonToBeSelected);
+                  Visualforce.remoting.Manager.invokeAction("{!$RemoteAction.CS_AROpportunityCC.retrieveOpportunityCloseLostReasons}",
+                     opportunityType, function(result, event) { 
+                      for ( var i=0; i < result.length; i++) {
+                          var txt = globalDecodeEntities(result[i]);
+                          console.log('##--closedLostReasonToBeSelected.txt: '+ txt);
+                          if(closedLostReasonToBeSelected && (globalDecodeEntities(closedLostReasonToBeSelected) == txt)){
+                              $("#opportunity-edit-modal select.opp-edit-closed-lost-reason").append("<option value='"+txt+"' selected='true'>"+txt+"</option>");
+                          } else{
+                              $("#opportunity-edit-modal select.opp-edit-closed-lost-reason").append("<option value='"+txt+"'>"+txt+"</option>");
+                          }
+                      }
+                  });
+                  
+                }  
+                
+                function retrievePieColor(key){
+                    
+                    if(key == "Shoulder"){
+                        return "#003399";
+                    }else if (key == "Knee/Hip"){
+                        return "#FFCC00";
+                    }else if (key == "Distal Extremities"){
+                        return "#336600";
+                    }else if (key == "Biologics"){
+                        return "#999999";
+                    }else if (key == "Capital Consumables"){
+                        return "#FF6600";
+                    }else if (key == "Arthroplasty"){
+                        return "#66CCFF";
+                    }else if (key == "Synergy"){
+                        return "#990000";
+                    }else if (key == "Other"){
+                        return "#660066";
+                    }else if(key == "Not Mentioned"){
+                        return "#666666";
+                    }
+                
+                }// end of retrievePieColor
+                
+                function retrieveFunnelColor(key){
+                    
+                    if(key == "Qualified"){
+                        return "#2A94D6";
+                    }else if (key == "Initial Appointment"){
+                        return "#4AB471";
+                    }else if (key == "Demonstration"){
+                        return "#F3AE4E";
+                    }else if (key == "Surgical Evaluation"){
+                        return "#717ECD";
+                    }else if (key == "Verbal Commitment"){
+                        return "#FFC50D";
+                    }else if (key == "Facility Approval"){
+                        return "#D96383";
+                    }else if (key == "Cancelled"){
+                        return "#D96383";
+                    }
+                    
+                }// end of retrieveFunnelColor
+                
+                function dateSortFn(a, b) {
+                    return new Date(a.closeDate).getTime() - new Date(b.closeDate).getTime();
+                }   //  end of dateSortFn
+                
+                
+                function sortJSON(data, prop, asc) {
+                    sortedData = data.sort(function(a, b) {
+                        if (asc) {
+                            return (toNumber(a[prop]) > toNumber(b[prop])) ? 1 : ((toNumber(a[prop]) < toNumber(b[prop])) ? -1 : 0);
+                        } else {
+                            return (toNumber(b[prop]) > toNumber(a[prop])) ? 1 : ((toNumber(b[prop]) < toNumber(a[prop])) ? -1 : 0);
+                        }
+                        
+                    });
+                    return sortedData;
+                }   //  end of sortJSON
+                
+                function toNumber(currency){
+                    if(! currency)
+                        return 0;
+                        
+                    return Number(currency.replace(/[^0-9\.]+/g,""));
+                    
+                }   //  end of toNumber
+                
+                function setupCreateOppModal(){
+                    console.log('##--setupCreateOppModal');
+                    populateSurgeonTypeahead();
+                    populateAccounts();
+                    /*
+                    Commented by srinivas on 1/23/2017 to resolve the prod issue for duplicating picklist values.
+                    */
+                    //populateOppotunityType();
+                    //populateCompetitiveCompanies();
+                    //populateCompetitiveConversion();
+                    
+                }   //  end of setupCreateOppModal
+                
+                
+                  var currentUserId = "{!$User.Id}";
+
+                  /*
+                    Moved the function to ARTemplate by srinivas sattoor on 6.26.2017
+                    */
+                  /*function populateOppOwner(){
+                      
+                      var ownerId = $("#hidden-opportunity-owner").val() || currentUserId;
+                      var selectedTeam = ''; 
+                      selectedTeam = $("#divTeamFacet div#treeTeam input[name='rdTeamTree']:checked").val() || '';
+                  
+                      Visualforce.remoting.Manager.invokeAction("{!$RemoteAction.CS_ARCCExtension.retrieveUsersInMyTeamTerritory}",
+                      selectedTeam,
+                      function(result, event) {
+                          
+                          $('.opportunity-owner').empty();
+                          $('.opportunity-owner')
+                                   .append($("<option></option>")
+                                              .attr("value","")
+                                              .text(""));
+                          
+                          $.each(result, function(key, value) {
+                               $('.opportunity-owner')
+                                   .append($("<option></option>")
+                                              .attr("value",value.Id)
+                                              .text(globalDecodeEntities(value.Name))); 
+                          });
+                      
+                          if($(".opportunity-owner option[value='"+ownerId+"']").length > 0){
+                              $('.opportunity-owner').val(ownerId);
+                          } else{
+                              $('.opportunity-owner').val("");
+                          }
+                      
+                      }); //  end of remote call
+                  } */  //  end of populateOppOwner 
+                  
+                  /* function populateAccounts(){
+                      
+                      $("#opportunity-modal i.account-busy").show();
+                      Visualforce.remoting.Manager.invokeAction("CS_ARCCExtension.retrieveProviders",
+                      function(result, event) {
+
+                          // setup the account type ahead options object
+                          var accountTypeAheadOptions = {
+                              minLength: 0,
+                              items: 50,
+                              source: result,
+                              showHintOnFocus: false,
+                              displayText: function(item) {
+                                  return globalDecodeEntities(item.Preferred_Name__c);
+                              },
+                              afterSelect: function(item) {
+                                  $("#opportunity-modal input.account").val(globalDecodeEntities(item.Preferred_Name__c));
+                                  $("#opportunity-modal input.account").attr("data-record-id", item.Id);
+                                  
+                                  $("#opportunity-edit-modal input.account").val(globalDecodeEntities(item.Preferred_Name__c));
+                                  $("#opportunity-edit-modal input.account").attr("data-record-id", item.Id);
+                                  $("#opportunity-edit-modal input#accountId").val(item.Id);
+                                  //Release 3.1.3 added by Srinivas Sattoor 4.15.2017
+                                  populateAccountTeam(item.Id);
+                                  
+                              }
+                          };
+                          // init the provider type ahead
+                          $("#opportunity-modal input.account-typeahead").typeahead(accountTypeAheadOptions);   
+                          $("#opportunity-edit-modal input.account-typeahead").typeahead(accountTypeAheadOptions);  
+
+                          $("#opportunity-modal i.account-busy").hide();
+                      });
+                  }   //  end of populateAccounts
+                   */
+                  
+                  function assignSalesRepsTypeahead(){
+                      
+                      $("#opportunity-modal .add-sales-rep-typeahead").typeahead({
+                          // typeahead setup for case participants
+                          minLength: 1,
+                          items: 50,
+                          source: function(query, onSuccess) {
+                              search(query, "CS_ARCCExtension.searchUsers", onSuccess);                                    
+                          },
+                          displayText: function(item) {
+                              return globalDecodeEntities(item.Name); 
+                          },
+                          afterSelect: function(item) {
+              
+                              if ( (item.Id != currentUserId) && ($("#opportunity-modal span[data-record-id="+item.Id+"].ctag").length === 0) ) {
+                                  // no duplicates and can't add yourself
+                                  $("#opportunity-modal div.ctag-list.sales-reps").append(obj2ctag(item));
+                              }
+                              $("#opportunity-modal .add-sales-rep-typeahead").val("");
+              
+                          }
+                      });
+                      
+                      $("#opportunity-edit-modal .add-sales-rep-typeahead").typeahead({
+                          // typeahead setup for case participants
+                          minLength: 1,
+                          items: 50,
+                          source: function(query, onSuccess) {
+                              search(query, "CS_ARCCExtension.searchUsers", onSuccess);                                    
+                          },
+                          displayText: function(item) {
+                              return globalDecodeEntities(item.Name);
+                          },
+                          afterSelect: function(item) {
+              
+                              if ( (item.Id != currentUserId) && ($("#opportunity-edit-modal span[data-record-id="+item.Id+"].ctag").length === 0) ) {
+                                  // no duplicates and can't add yourself
+                                  $("#opportunity-edit-modal div.ctag-list.sales-reps").append(obj2ctag(item));
+                              }
+                              $("#opportunity-edit-modal .add-sales-rep-typeahead").val("");
+              
+                          }
+                      });
+                      
+                  }   //  end of assignSalesRepsTypeahead
+                  
+
+                  function assignProcedureTypeahead(){
+                      $("#opportunity-edit-modal input.procedure-typeahead").typeahead({
+                          // typeahead setup for prefcards
+                          minLength: 0,
+                          items: 50,
+                          source: function(query, onSuccess) {
+                              search(query, "CS_ARCCExtension.searchProcedures", onSuccess);
+                          },
+                          displayText: function(item) {
+                              return globalDecodeEntities(item.Name);
+                          },
+                          afterSelect: function(item) {                
+                              /* if ( $("#opportunity-modal span[data-record-id="+item.Id+"].ctag").length === 0 ) {
+                                  // no duplicates
+                                  $("#opportunity-modal div.ctag-list.procedures").append(obj2ctag(item));
+                              }
+                              $("#opportunity-modal .procedure-typeahead").val(""); */
+                              $("#opportunity-modal input.procedure").val(globalDecodeEntities(item.Name));
+                              $("#opportunity-edit-modal input.procedure").attr("data-record-id", item.Id);
+                            
+                          }
+                      });
+                  }   //  end of assignProcedureTypeahead
+                  
+                  
+                  function assignProductsTypeahead(){
+                      $("#opportunity-modal input.products-typeahead").typeahead({
+                          // typeahead setup for case products
+                          minLength: 3,
+                          items: 50,
+                          source: function(query, onSuccess) {
+                              search(query, "CS_ARCCExtension.searchProducts", onSuccess);                                    
+                          },
+                          displayText: function(item) {
+                              return globalDecodeEntities(item.Name+" "+item.Material_Number__c);
+                          },
+                          afterSelect: function(item) {
+              
+                              if ( $("#opportunity-modal span[data-record-id="+item.Id+"].ctag").length === 0 ) {
+                                  // no duplicates
+                                  item.Name += " "+item.Material_Number__c;
+              
+                                  $("#opportunity-modal div.ctag-list.products").append(obj2ctag(item));
+                              }
+                              $("#opportunity-modal .products-typeahead").val("");
+              
+                          }
+                      });
+                  }   //  end of assignProductsTypeahead 
+                  
+                  function setCompetitiveComapny(val){
+                  
+                      if(val == "Yes"){
+                          $("#divCompetitiveCompany").show();
+                          $("div#divCompetitiveCompany").show();
+                      } else {
+                          $("#divCompetitiveCompany").hide();
+                          $("div#divCompetitiveCompany").hide();
+                      }
+                  }   //  end of setCompetitiveComapny
+                  
+                  function setCloseLostReasons(val){
+                      if(val == "Closed - Lost"){
+                          $("#divClosedLostReason").show();
+                          $("#divOppEditClosedLostReason").show();
+                          
+                      } else {
+                          $("#divClosedLostReason").hide();
+                          $("#divOppEditClosedLostReason").hide();
+                      }
+                  }   //  end of setCloseLostReasons
+                  
+                  
+                  //hide competitive conversion if it sos or synergy installation
+                  function setCompetitiveConversion(val){
+                      
+                      $("#divCompetitiveCompany").hide();
+                      $("div#divCompetitiveCompany").hide();
+                      $("#opportunity-modal select.competitive-conversion").val("No");
+                      if(val == "SOS" || val == "Synergy Installation"){
+                          $("#opportunity-modal div#divCompetitiveConversion").hide();
+                      } else {
+                          $("#opportunity-modal div#divCompetitiveConversion").show();
+                      }
+                  
+                  }// end of setCompetitiveConversion
+                  
+                   
+                   
+                function inArray(value, array){
+                    if(! array){
+                        return false;
+                    }
+                    return ($.inArray(value, array) >= 0);
+                }   //  end of inArray
+                
+                function switchOpportunityView(eleType){
+                    
+                    if(eleType == "ListView"){
+                        
+                        window.location = "/AROpportunityLV";
+                        
+                    } else if(eleType == "Dashboard"){
+                       
+                       window.location = "/AROpportunityDB";
+                        
+                    } else if(eleType == 'DetailView'){
+                    
+                        $("#oppListing").hide();
+                        $("#listingFilter").hide();
+                        $("#listingHeader").hide();
+                        $("#detailHeader").show();
+                        $("#dashboardFilter").hide();
+                        $("#divOppListingFilters").hide();
+                        $("#oppDashboard").hide();
+                        
+                        $("#oppListBtn").show();
+                        $("#oppDashboardBtn").show();
+                        $("#oppDetailsView").show();
+                    }
+                }   //  end of switchOpportunityView
+                
+                // load in the competitive conversion type list
+                function populateCompetitiveConversion(){
+                  Visualforce.remoting.Manager.invokeAction("{!$RemoteAction.CS_AROpportunityCC.retrieveCompetitiveConversionValues}",
+                    function(result, event) { 
+                      for ( var i=0; i < result.length; i++) {
+                          var txt = globalDecodeEntities(result[i]);
+                          $("#opportunity-modal select.competitive-conversion").append("<option value='"+txt+"'>"+txt+"</option>");
+                          $("#opportunity-edit-modal select.competitive-conversion").append("<option value='"+txt+"'>"+txt+"</option>");
+                      }
+                  });
+                  
+                }
+                
+                // load in the competitive conversion type list
+                function populateCompetitiveCompanies(){
+                  Visualforce.remoting.Manager.invokeAction("{!$RemoteAction.CS_AROpportunityCC.retrieveCompetitiveCompanyValues}",
+                    function(result, event) { 
+                      //console.log('##--populateCompetitiveCompanies: '+JSON.stringify(result));
+                      for ( var i=0; i < result.length; i++) {
+                          var txt = globalDecodeEntities(result[i]);
+                          $("#opportunity-modal select.competitive-company").append("<option value='"+txt+"'>"+txt+"</option>");
+                          $("#opportunity-edit-modal select.competitive-company").append("<option value='"+txt+"'>"+txt+"</option>");
+                      }
+                  });
+                  
+                }
+                
+                // load in the close lost reasons
+                function populateCloseLostReasons(opportunityType){
+                  var selectList = $("#opportunity-stage-close-modal select.opportunity-closed-lost-reason");
+                  selectList.find("option:gt(0)").remove();
+                  //console.log('##--opportunityType: '+opportunityType);
+                  Visualforce.remoting.Manager.invokeAction("{!$RemoteAction.CS_AROpportunityCC.retrieveOpportunityCloseLostReasons}", 
+                    opportunityType, function(result, event) { 
+                      for ( var i=0; i < result.length; i++) {
+                          var txt = globalDecodeEntities(result[i]);
+                          $("#opportunity-stage-close-modal select.opportunity-closed-lost-reason").append("<option value='"+txt+"'>"+txt+"</option>");
+                      }
+                  });
+                  
+                } 
+                
+                function setCompetitiveComapny(val){
+                    
+                   if(val == "Yes"){
+                       $("#divCompetitiveCompany").show();
+                       $("div#divCompetitiveCompany").show();
+                   } else {
+                       $("#divCompetitiveCompany").hide();
+                       $("div#divCompetitiveCompany").hide();
+                   }
+               }   //  end of setCompetitiveComapny 
+            /*
+            added by srinivas sattoor 4.24.2017 3.1.2 release
+            New methods that need to be moved to ARTemplate/OpportunityJS modal*/
+            
+            
+                  
+                 
+            </script>
+            
+             <div class="wrapper wrapper-content">
+                <div class="row">
+                    <div class="col-xs-12">
+                        <div class="ibox float-e-margins">
+                            <div class="ibox-title">
+                                <div class="clearfix">
+                                    <div class="pull-left">
+                                        <div id="dashboardFilter">
+                                            <div class="text-pull-left">
+                                                <!--  <i class="fa fa-pie-chart fa-2x"></i>  -->
+                                                <h2>
+                                                    <b><span class="font-large">{!$Label.AROpportunity_OppoDashboard}</span></b>
+                                                     <i class="oppDashboard-busy fa fa-refresh fa-spin" style="display:none"></i> 
+                                                </h2>
+                                            </div>
+                                        </div>
+                                        <div id="listingHeader" style="display: none;">
+                                            <div class="text-pull-left">
+                                             <h2>
+                                                    <b><span class="font-large">{!$Label.AROpportunity_OppoListView}</span></b>
+                                                    <i class="oppListView-busy fa fa-refresh fa-spin" style="display:none"></i>
+                                                </h2>
+                                            </div>
+                                        </div>
+                                        <div id="detailHeader" style="display: none;">
+                                            <div class="text-pull-left">
+                                             <h2>
+                                                    <b><span class="font-large">{!$Label.AROpportunity_OppoDetailView}</span></b>
+                                                    <i class="oppDetail-busy fa fa-refresh fa-spin" style="display:none"></i>
+                                                </h2>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="pull-right">
+                                        <button type="button" class="btn btn-primary menu_btn" tabindex="-1" id="oppAddBtn" onclick="createNewOpportunity()" ><i class="fa fa-plus"></i> Opportunity</button>
+                                        <button type="button" class="btn btn-primary menu_btn btnViewSwitch"  tabindex="-1" id="oppListBtn" style="margin-right: 5px" onclick="switchOpportunityView('ListView')"><i class="fa fa-list"></i> List View</button>
+                                        <button type="button" class="btn btn-primary menu_btn btnViewSwitch"  tabindex="-1" id="oppDashboardBtn" style="margin-right: 5px; display: none;" onclick="switchOpportunityView('Dashboard')"><i class="fa fa-pie-chart"></i> Dashboard</button>
+                                    </div>
+                                </div>
+                            </div>  <!-- End of ibox-title -->
+                            
+                            <div class="row">
+                                <div class="col-xs-12">
+                                    <div class="ibox">
+                                        <div class="ibox-content box border_top_2">
+                                            <div class="clearfix">
+                                                
+                                                <div id="listingFilter" style="display: none">
+                                                    <div class="row"> 
+                                                        <div class="col-sm-12">
+                                                            <div class="pull-right">
+                                                                <button type="button" class="btn btn-xs btn-primary" onclick="clearAllFilters()"><i class="fa fa-times"></i> Clear Filters</button>
+                                                            </div>
+                                                        </div>
+                                                    </div> 
+                                                </div>
+                                            
+                                            </div>
+                                        </div>
+                                    </div>
+                                    
+                                </div>
+                            </div>  <!-- End of the row -->
+                            
+                            <div id="oppDashboard">
+                                <div class="row ibox">
+     
+                                    <div class="col-sm-6">
+                                        <div class="report-category-chooser text-center">
+                                            <select class="form-control opportunity-type-select">
+                                                <option value="0" data-value="0">{!$Label.AROpportunity_AllOppoType}</option>
+                                                <apex:variable value="{! 1}" var="index"/>
+                                                <apex:repeat value="{! opportunityTypeValues}" var="r">
+                                                     <option value="{! index}" data-value="{! r.value}">{! r.value}</option>
+                                                     <apex:variable var="index" value="{! index+1}"/>
+                                                 </apex:repeat>
+                                            </select>
+                                        </div> 
+                                    </div>
+                                    
+                                    <div class="col-sm-6">
+                                        <div class="report-category-chooser text-center">
+                                            <select class="form-control opportunity-team-select"> 
+                                                <!-- Release 3.1.3 added by Srinivas Sattoor 4.15.2017 -->
+                                                <option value="0" data-value="0" style="display: {! IF(assingedToMultipleTerritories, 'block', 'none;')}">All Teams</option>
+                                                 <apex:variable value="{! 1}" var="index"/>
+                                                 <apex:repeat value="{! SubAgencyOrTeamDropDown}" var="r">
+                                                    <option value="{! index}" data-value="{! r.Id}">{! r.Name}</option>
+                                                    <apex:variable var="index" value="{! index+1}"/>
+                                                 </apex:repeat>             
+                                            </select>
+                                        </div> 
+                                    </div>
+            
+                                </div> <!-- End of row iboxs -->
+                                
+                                
+                                <div class="row">
+
+                                    <div class="reports">
+                                    
+                                        
+                                    </div>
+                                </div>  <!-- End of row of charts -->
+                                
+                                
+                                <div style="display: none;">
+                                
+                                    <div class="no-data-template">
+                                        <div class="row">
+                                            <div class="col-xs-10 col-xs-offset-1" style="border: thin solid lightgrey;height: 100px;padding-top: 35px;font-size: large;">{!$Label.AROpportunity_NoData}</div>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="report-category-template">
+                                    
+                                        <div class="row"> <!-- Begining of first row in dashboard -->
+                                        
+                                            <div class="col-sm-4 chart">
+                                                <div class="ibox stat">
+                                                    <div class="ibox-content" style="height: 423px">
+                                                        <div style="padding: 5px">
+                                                            <div class="chart-title" style="font-size: 18px; color: #333333;">{!$Label.AROpportunity_TopValuedOpportunities}</div>
+                                                            <br/>
+                                                      
+                                                              <table id="top5PricedOppTable" class="table table-striped chart_table" style="width:100%">
+                                                                  <thead>
+                                                                      <tr>
+                                                                          <th class="text-left">{!$Label.AROpportunity_OPPNAME}</th>
+                                                                          <th class="text-left">{!$Label.AROpportunity_CURRENTFYREV}</th>
+                                                                          <th class="text-left">{!$Label.AROpportunity_CLOSEDDATE}</th>
+                                                                      </tr>
+                                                                  </thead>
+                                                                  <tbody>
+                                                                      
+                                                                  </tbody>
+                                                              </table>
+                                                        </div>  
+                                                    </div>  <!-- End of ibox-content -->
+                                                </div>
+                                            </div> <!--  end of col-sm-4 chart -->
+                                            
+                                            
+                                            <div class="col-sm-4 chart">
+                                                <div class="ibox stat">
+                                                    <div class="ibox-content" >
+                                                        
+                                                        <div class="allOppTypes"></div>
+                                                        
+                                                    </div> 
+                                                </div>
+                                            </div>  <!-- End of "col-sm-4 chart" -->
+                                            
+                                            
+                                            <div class="col-sm-4 chart">
+                                                <div class="ibox stat">
+                                                    <div class="ibox-content" style="height: 423px">
+                                                        <div style="padding: 5px">
+                                                            <div class="chart-title" style="font-size: 18px; color: #333333;">{!$Label.AROpportunity_NextToClose}</div>
+                                                            <br/>
+                                                      
+                                                              <table id="top5ClosingTable" class="table table-striped chart_table" style="width:100%">
+                                                                  <thead>
+                                                                      <tr>
+                                                                          <th class="text-left">{!$Label.AROpportunity_OPPNAME}</th>
+                                                                          <th class="text-left">{!$Label.AROpportunity_CURRENTFYREV}</th>
+                                                                          <th class="text-left">{!$Label.AROpportunity_CLOSEDDATE}</th>
+                                                                      </tr>
+                                                                  </thead>
+                                                                  <tbody>
+                                                                      
+                                                                  </tbody>
+                                                              </table>
+                                                        </div>  
+                                                    </div>  <!-- End of ibox-content -->
+                                                </div>
+                                            </div>
+                                            
+                                        </div>  <!-- End of firstd row in dashboard -->
+                                        
+                                        <div class="row"> <!-- Begining of seconf row in dashboard -->
+                                            <div class="col-sm-4 chart">
+                                                <div class="ibox stat">
+                                                    <div class="ibox-content" > 
+                                                        <div >
+                                                            <div id="funnel"></div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="col-sm-4 chart">
+                                                <div class="ibox stat">
+                                                    <div class="ibox-content" > 
+                                                        <div class="ct-pie"></div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="col-sm-4 chart">
+                                                <div class="ibox stat">
+                                                    <div class="ibox-content" > 
+                                                        <div class="ct-chart"></div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>  <!-- End of second row in dashboard -->
+                                    </div> <!-- End of report-category-template -->
+                                </div>
+                            </div> <!-- End of oppDashboard --> 
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </apex:define>
+    </apex:composition>
+
+</apex:page>

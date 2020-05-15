@@ -1,0 +1,81 @@
+<apex:page controller="accountReportController">
+    <script>
+            
+            
+        $(document).ready(function () {        
+            populateInitialData();
+        });
+        function populateInitialData(){ 
+            Visualforce.remoting.Manager.invokeAction("{!$RemoteAction.accountReportController.fetchAccounts}",
+            function(result, event){ 
+                               
+                new agGrid.Grid(gridDiv, gridOptions);
+                gridOptions.api.setRowData(result);
+            }); 
+        }
+        
+        var columnDefs = [
+                    {headerName: "Account Name", field: "Name", width:300, colId: "accName", headerClass: ['axis-grid-header'], cellClass: ['axis-grid-cell-href'],
+                        filterParams: {
+                            textFormatter: replaceAccents
+                        }
+                    },
+                    {headerName: "Billing Street", field: "BillingStreet", headerClass: ['axis-grid-header'], cellClass: ['axis-grid-cell']
+                       , cellRenderer: cellHeight, filter: multiValuedColanSepFilter, filterData: lstDesignations,                        
+                        filterParams: {
+                            textFormatter: replaceAccents
+                        }
+                    },
+                   
+                    {headerName: "City", field: "BillingCity", headerClass: ['axis-grid-header'], cellClass: ['axis-grid-cell'],
+                        cellRenderer: cellHeight,
+                        filterParams: {
+                            textFormatter: replaceAccents
+                        }
+                    },
+                    {headerName: "Province", field: "BillingState", headerClass: ['axis-grid-header'], cellClass: ['axis-grid-cell'],
+                        cellRenderer: cellHeight,
+                        filterParams: {
+                            textFormatter: replaceAccents
+                        }
+                    },                    
+                    {headerName: "Number of employees", field: "NumberOfEmployees ", headerClass: ['axis-grid-header'], cellClass: ['axis-grid-cell'],
+                        cellRenderer: cellHeight,
+                        filterParams: {
+                            textFormatter: replaceAccents
+                        }
+                    }
+                   ]; 
+                   
+                   
+                   var gridOptions = {
+                    suppressRowClickSelection: false,
+                    enableFilter: true,
+                    columnDefs: columnDefs,
+                    rowData: null,
+                    animateRows: true,
+                    groupUseEntireRow: true,
+                    enableColResize: true,
+                    //autoSizeColumns: true,
+                    enableSorting: true,
+                    paginationPageSize: 20,
+                    pagination: true,
+                    suppressPaginationPanel: true,
+                    getRowHeight: function(params) {                       
+                        
+                        console.log('##--height: '+params.data.rowHeight);
+                        return params.data.rowHeight;
+                        
+                       //return 40 * ((params.data.match(/,/g) || []).length);
+                    },
+                    icons: { 
+                            menu: '<i class="fa fa-sort-desc" ></i>' 
+                    },
+                    
+                    onFilterChanged: savedFilterHasChanged,
+                    onSortChanged: savedFilterHasChanged
+                   
+                };
+                
+    </script>
+</apex:page>

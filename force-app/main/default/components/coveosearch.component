@@ -1,0 +1,68 @@
+<apex:component ><div id="search" class="CoveoSearchInterface" data-enable-history="true">
+<span class="CoveoAnalytics"></span>
+<span class="CoveoTopAnalyticsSuggestions"></span>
+
+<div class="coveo-tab-section">
+  <a class="CoveoTab" data-id="All" data-caption="All Content" data-icon="coveo-sprites-tab-all-content"></a>
+</div>
+
+<div class="coveo-search-section">
+  <div class="coveo-logo-column">
+    <div class="coveo-logo"></div>
+  </div>
+
+  <div class="coveo-searchBox-column">
+    <div class="coveo-search-section-wrapper">
+      <div class="CoveoSettings" data-include-in-menu=".CoveoShareQuery,.CoveoPreferencesPanel"></div>
+      <div class="CoveoSearchBox" data-activate-omnibox="true"></div>
+    </div>
+  </div>
+</div>
+
+<div class="coveo-results-section">
+  <div class="coveo-facet-column">
+    <div class="CoveoBreadcrumb"></div>
+    <div class="CoveoFacet" data-title="Type" data-field="@objecttype" data-allow-toggling-operator="true" data-show-icon="true" data-tab="All"></div>
+<div class="CoveoFacet" data-title="FileType" data-field="@sysfiletype" data-tab="All"></div>
+<div class="CoveoFacet" data-title="Author" data-field="@sysauthor" data-tab="All"></div>
+<div class="CoveoFacet" data-title="Year" data-field="@sysyear" data-tab="All"></div>
+<div class="CoveoFacet" data-title="Month" data-field="@sysmonth" data-tab="All"></div>
+  </div>
+
+  <div class="coveo-results-column">
+    <div class="CoveoShareQuery"></div>
+
+    <div class="CoveoPreferencesPanel">
+      <div class="CoveoResultsPreferences"></div>
+      <div class="CoveoResultsFiltersPreferences"></div>
+    </div>
+
+    <div class="coveo-results-header">
+      <div class="coveo-summary-section">
+        <span class="CoveoQuerySummary"></span>
+        <span class="CoveoQueryDuration"></span>
+      </div>
+      <div class="coveo-sort-section">
+        <span class="CoveoSort" data-sort-criteria="relevancy" data-caption="Relevance"></span>
+<span class="CoveoSort" data-sort-criteria="date descending,date ascending" data-caption="Date"></span>
+      </div>
+      <div class='coveo-clear'></div>
+    </div>
+
+    <div class="CoveoHiddenQuery"></div>
+    <div class="CoveoDidYouMean"></div>
+    <div class="CoveoErrorReport" data-pop-up='false'></div>
+
+    <div class="CoveoResultList" data-wait-animation="fade">
+      <script class="result-template" type="application/json">
+        {
+          "fields":[
+            { "field": "@sysauthor", "caption": "Author" }
+          ]
+        }
+      </script>
+    </div>
+    <div class="CoveoPager"></div>
+  </div>
+</div>
+</div></apex:component>

@@ -1,0 +1,3 @@
+<apex:page showHeader="false" sidebar="false">
+    <apex:iframe src="https://www.108ideaspace.com/category/blog/"/>
+</apex:page>

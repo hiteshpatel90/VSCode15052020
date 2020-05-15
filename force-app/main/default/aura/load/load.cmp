@@ -1,0 +1,6 @@
+<aura:component >
+    <aura:attribute name="filesInSeries" type="String[]"/>
+    <aura:attribute name="filesInParallel" type="String[]"/>
+	<aura:handler name="init" value="{!this}" action="{!c.init}"/>
+    <aura:registerEvent name="staticResourcesLoaded" type="c:staticResourcesLoaded"/>
+</aura:component>

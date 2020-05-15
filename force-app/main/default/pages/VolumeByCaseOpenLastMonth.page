@@ -1,0 +1,10 @@
+<apex:page controller="ctrlVolumeByCaseOpenLastMonth" showHeader="false" sidebar="false">
+    <apex:form >
+        <apex:chart height="250" width="350" data="{!pieData}">
+            <apex:pieSeries dataField="data" labelField="name">
+                <apex:chartLabel display="none"/>
+            </apex:pieSeries>            
+            <apex:legend position="right"/>            
+        </apex:chart>        
+    </apex:form>
+</apex:page>

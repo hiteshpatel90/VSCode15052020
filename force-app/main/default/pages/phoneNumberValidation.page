@@ -1,0 +1,38 @@
+<apex:page >    
+    <apex:form >
+    <script src="//ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>
+    <script>
+        function isNumberCommaDot(evt) {
+             var theEvent = evt || window.event;
+             var key = theEvent.keyCode || theEvent.which;
+        
+             if (key === 9 ) { //TAB was pressed
+             phoneFormate($('#pPersonMobilePhone').val(),theEvent );
+             init();
+                return;
+             }
+        
+             key = String.fromCharCode(key);
+             if (key.length == 0) return;
+             var regex = /^[0-9,\9\b]*\.?[0-9]*$/;
+             if (!regex.test(key)) {
+                 theEvent.returnValue = false;
+                 if (theEvent.preventDefault) theEvent.preventDefault();
+             }
+         }
+         
+         function validateForm(){
+             if(document.getElementById('pPersonMobilePhone').value.length != 10){
+                 $("#spnPhoneStatus").html("Invalid Phone Number<br> It should be 10 digits.").show().css("color", "red").css("font-size", "12px");
+             }else{
+                 $("#spnPhoneStatus").html("validated").show().css("color", "black").css("font-size", "12px");
+             }
+             return false;
+         }
+    </script>
+    <input type='text' id="pPersonMobilePhone" maxlength='10' onkeypress='return isNumberCommaDot(event)'/>
+    <span id="spnPhoneStatus"></span>
+    
+    <apex:commandButton value="Validate Phone" onclick="return validateForm();"/> 
+    </apex:form>         
+</apex:page>

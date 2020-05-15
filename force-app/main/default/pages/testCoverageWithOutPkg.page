@@ -1,0 +1,5 @@
+<apex:page controller="AdministrationTools">
+    <apex:form >
+        <apex:commandButton action="{!startLocalTests}" value="Start local tests" />
+    </apex:form>
+</apex:page>

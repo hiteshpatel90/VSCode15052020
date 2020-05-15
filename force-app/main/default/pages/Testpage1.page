@@ -1,0 +1,18 @@
+<apex:page sidebar="false" showHeader="true" tabStyle="Account">
+    <apex:includeLightning />
+    <apex:includeScript value="/lightning/lightning.out.js" />
+    <div id="lightning" />
+
+    <script>
+        var accIdValue = "{!$CurrentPage.parameters.Id}";
+       
+        $Lightning.use("c:inlineEditTableApp", function() {
+          $Lightning.createComponent("c:inlineEditTable",
+          { "accId" : accIdValue },
+          "lightning",
+          function(cmp) {
+            // do some stuff
+          });
+        });
+    </script>
+</apex:page>

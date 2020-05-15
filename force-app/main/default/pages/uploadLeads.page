@@ -1,0 +1,33 @@
+<apex:page controller="uploadLeadsController" title="Lead Converter">
+    <style>
+        .controlPanel td{
+            width:200px;
+        }
+        .controlPanel{
+            margin-top:20px;
+        }
+    </style>    
+    <apex:form >                    
+        <apex:pageBlock id="controlPanel">                        
+            <table class="controlPanel fromFile">
+                <tr>
+                    <td colspan="2"><b>Upload a CSV file for Lead Convert.</b></td>
+                </tr>
+                <tr>
+                    <td>Upload CSV file</td><td><apex:inputFile value="{!csvFileBody}" accept="csv" contentType="text/csv" /></td>
+                </tr>
+                <tr>
+                    <td>&nbsp;</td><td><apex:commandButton value="Upload CSV" action="{!readFromFile}"/></td>
+                </tr>
+            </table>                                                             
+        </apex:pageBlock>
+        <apex:pageBlock id="dataPanel">
+            <apex:pagemessages />
+            <apex:outputPanel rendered="{!readSuccess}">
+            <apex:outputLabel value="Total Leads: {!intTotalLeadCount}"></apex:outputLabel>
+            <br/>
+            <apex:commandButton value="Convert Lead" action="{!convertLead}" rendered="{!readSuccess}" />
+            </apex:outputPanel>
+        </apex:pageBlock>
+    </apex:form>        
+</apex:page>

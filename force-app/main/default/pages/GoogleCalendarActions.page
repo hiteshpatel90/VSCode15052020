@@ -1,0 +1,20 @@
+<apex:page controller="GoogleCalendarActionsController">
+    <apex:form >
+        <apex:pageMessages ></apex:pageMessages>
+        
+        <apex:pageblock >
+            <apex:outputLabel value="Calendar Title"></apex:outputLabel>
+            <apex:inputText value="{!Summary}"/>
+            <br/> <br/>
+            <apex:commandButton value="Create New Calendar" action="{!doCreateNewCalendar}"/>
+            <br/> <br/>
+            <apex:commandButton value="Create New Calendar Event" action="{!doCreateNewCalendarEvent}"/>
+        </apex:pageblock>
+        
+        <apex:pageblock >
+            <apex:commandButton value="List All Calendars" action="{!doListAllCalendar}"/>
+            {!allCalendars}
+        </apex:pageblock>
+    </apex:form>
+  
+</apex:page>

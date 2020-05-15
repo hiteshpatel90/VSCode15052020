@@ -1,0 +1,2617 @@
+<apex:page id="thePage" applyBodyTag="false" applyHtmlTag="false" showChat="false" showHeader="false" sidebar="false" showQuickActionVfHeader="false" standardStylesheets="false" controller="CS_ARTasksCC"  extensions="CS_ARCCExtension" docType="html-5.0">
+    <apex:composition template="ARtemplate">
+        <apex:define name="bodyContent">  
+                    
+            <style>
+
+                .ag-bootstrap {
+                    font-family: "open sans", "Helvetica Neue", Helvetica, Arial, sans-serif !important;
+                    color: #676a6c;
+                }
+                .header-left{
+                    text-align: left;
+                    vertical-align: text-top !important;
+                    background-color: #f5f5f5 !important;
+                    font-weight: bold !important;
+                    font-size: 13px !important;
+                    line-height: 24px !important;
+                    height: 200px;
+                }
+                .ag-header-row{
+                    height: 40px !important;
+                }
+                .ag-cell{
+                
+                    vertical-align: middle !important;
+                }
+                .ag-header-cell-text{
+                    height: 40px !important;
+                    vertical-align: top !important;
+                }
+                .ag-paging-panel{
+                
+                    font-family: "open sans", "Helvetica Neue", Helvetica, Arial, sans-serif !important;
+                    font-size: 13px !important;
+                    color: #676a6c !important;
+                }
+                .ag-header-cell-menu-button{  
+                    opacity:1 !important;
+                }
+
+                .ag-bootstrap .ag-cell-focus {
+                    border: 0px !important;
+                }
+                .muted_label {
+                    padding-top: 0px;
+                    color: #9c9a9a;
+                    min-height: 25px !important;
+                }                
+
+                i.task-checkbox {
+                    position:relative;
+                    top:0px;
+                    font-size: 2em;
+
+                }
+
+                i.task-checkbox.completed {
+                    color: green;
+                }
+
+                span.up {
+                    position:relative;
+                    top: -3px;
+                }
+                span.down, div.down {
+                    top: 5px;
+                }
+                
+                .btn-custom {
+                    background-color: hsl(0, 0%, 94%) !important;
+                    background-repeat: repeat-x;
+                    filter: progid:DXImageTransform.Microsoft.gradient(startColorstr="#F9F9F9",
+                        endColorstr="#E5E5E5");
+                    background-image: -khtml-gradient(linear, left top, left bottom, from(#F9F9F9),
+                        to(#E5E5E5));
+                    background-image: -moz-linear-gradient(top, #F9F9F9, #E5E5E5);
+                    background-image: -ms-linear-gradient(top, #F9F9F9, #E5E5E5);
+                    background-image: -webkit-gradient(linear, left top, left bottom, color-stop(0%, #F9F9F9),
+                        color-stop(100%, #E5E5E5));
+                    background-image: -webkit-linear-gradient(top, #F9F9F9, #E5E5E5);
+                    background-image: -o-linear-gradient(top, #F9F9F9, #E5E5E5);
+                    background-image: linear-gradient(#F9F9F9, #E5E5E5);
+                    border-color: #c9c9c9 #c9c9c9 hsl(0, 0%, 68.5%);
+                    color: #333 !important;
+                    text-shadow: 0 1px 1px rgba(255, 255, 255, 0.69);
+                    -webkit-font-smoothing: antialiased;
+                    font-size: 15px;
+                    font-family: "Verdana";
+                }
+
+                table.opportunities tbody tr {
+                    cursor:pointer;
+                }
+
+            </style>
+
+            <script type="text/javascript">
+
+                
+                        
+                // needs to be global scope 
+                function onTaskCheckClick(e, elem, taskId) {
+                    e.stopPropagation();
+                    e.preventDefault();
+                    document.activeElement.blur();
+                    
+
+                    var openCount = parseInt($("span.open-task-count").text());
+                    var newStatus = null;
+
+                        if ( $(elem).hasClass('completed') ) {
+                            // was completed now mark as in progress
+                            newStatus = "In Progress";
+                            openCount++;
+
+                        } else {
+                            // was not in progress, mark as completed
+                            newStatus = "Completed";
+                            openCount--;
+                            
+                        }
+
+                    if ( openCount > 0 ) {
+                        $("span.open-task-count").text(openCount);
+                    }
+
+                    var itemsToUpdate=[];
+                    var oldStatus;
+                    taskGridOptions.api.forEachNodeAfterFilterAndSort( function(rowNode, index) {
+                                
+                        var data = rowNode.data;
+                        if(data.id == taskId){
+                            oldStatus = data.status;
+                            data.status =  newStatus;
+                            
+                            itemsToUpdate.push(data);
+                            return;
+                        }
+                        
+                    });
+
+                    // update the grid with the new value but save the old value first
+                    /*var row = null;
+                    taskGridOptions.api.forEachNode( function(node) {
+                        if ( node.data.id == taskId ) {
+                            row = node;
+                        }
+                    });
+
+                    var oldStatus = row.data.status;
+                    row.data.status =  newStatus;
+                    taskGridOptions.api.refreshRows([row]);*/
+                    taskGridOptions.api.updateRowData({update: itemsToUpdate});
+
+                    Visualforce.remoting.Manager.invokeAction("CS_ARTasksCC.updateTaskStatus", taskId, newStatus,
+                    function(result, event) {
+                        $(".task-error").text("");
+
+
+                        if ( !event.status ) {
+                            
+                            // don't show error on the screen because permissions will prevent non-owners from changing status
+                            console.log(event.message);
+
+                            /*var itemsToUpdate=[];
+                            taskGridOptions.api.forEachNodeAfterFilterAndSort( function(rowNode, index) {
+                                
+                                var data = rowNode.data;
+                                if(data.objConferenceMember.Id == result.objConferenceMember.Id){
+                                    data.objConferenceMember = result.objConferenceMember;
+                                    itemsToUpdate.push(data);
+                                    return;
+                                }
+                                
+                            });*/
+                            
+                            row.data.status =  oldStatus;
+                            taskGridOptions.api.refreshRows([row]);
+                            itemsToUpdate[0].status=oldStatus;
+                            taskGridOptions.api.updateRowData({update: itemsToUpdate});
+                            
+                            /*
+                            $(".task-error").text(event.message);
+                            */
+
+                        }
+                    });
+
+                    
+                }
+                
+                // Added by Swetha -- Export as CSV functionality -- START 
+                    function getBooleanValue(cssSelector) {
+                        return false;
+                        //return document.querySelector(cssSelector).checked === true;
+                    }
+                    
+                    function onBtExport() {
+                        var params = {
+                            skipHeader: getBooleanValue('#skipHeader'),
+                            columnGroups: getBooleanValue('#columnGroups'),
+                            skipFooters: getBooleanValue('#skipFooters'),
+                            skipGroups: getBooleanValue('#skipGroups'),
+                            skipPinnedTop: getBooleanValue('#skipPinnedTop'),
+                            skipPinnedBottom: getBooleanValue('#skipPinnedBottom'),
+                            allColumns: getBooleanValue('#allColumns'),
+                            onlySelected: getBooleanValue('#onlySelected'),
+                            suppressQuotes: getBooleanValue('#suppressQuotes'),
+                            fileName: 'Exported List view.csv',
+                            columnSeparator: ','
+                        };
+                
+                    if (getBooleanValue('#skipGroupR')) {
+                        params.shouldRowBeSkipped = function (params) {
+                            return params.node.data.country.charAt(0) === 'R'
+                        };
+                    }
+                
+                
+                    if (getBooleanValue('#useCellCallback')) {
+                        params.processCellCallback = function (params) {
+                            if (params.value && params.value.toUpperCase) {
+                                return params.value.toUpperCase();
+                            } else {
+                                return params.value;
+                            }
+                        };
+                    }
+                
+                    if (getBooleanValue('#useSpecificColumns')) {
+                        params.columnKeys = ['country', 'bronze'];
+                    }
+                
+                    if (getBooleanValue('#processHeaders')) {
+                        params.processHeaderCallback = function (params) {
+                            return params.column.getColDef().headerName.toUpperCase();
+                        };
+                    }
+                
+                    if (getBooleanValue('#customHeader')) {
+                        params.customHeader = '[[[ This ia s sample custom header - so meta data maybe?? ]]]\n';
+                    }
+                    if (getBooleanValue('#customFooter')) {
+                        params.customFooter = '[[[ This ia s sample custom footer - maybe a summary line here?? ]]]\n';
+                    }
+                
+                    taskGridOptions.api.exportDataAsCsv(params);
+                }
+                
+                // Added by Swetha -- Export as CSV functionality -- END
+                
+                $(document).ready(function(){
+                    
+                    var aggridLicenseKey = 'Arthrex_Inc_Site_1Devs17_January_2018__MTUxNjE0NzIwMDAwMA==f78a3bf17fb3daeb78acd7ced888139e';
+                    agGrid.LicenseManager.setLicenseKey(aggridLicenseKey);
+
+                    //set the tasks "tab" as the active link
+                    $('#tasks').addClass('active'); 
+                    $("h2.title-icon-container i").removeClass().addClass("fa fa-tasks fa-rotate-180");
+                    
+
+                    // start task data grid call back functions
+
+                    function onSelectionChanged(event) {
+
+                        var row = taskGridOptions.api.getSelectedRows()[0];
+                        var col = taskGridOptions.api.getFocusedCell().column;  
+
+                        
+                        // onSelectionChange can get triggered programmatically, if there's no focused cell
+                        // then just return, the event wasn't trigger by the user clicking
+                        if ( typeof col === "undefined" || typeof row === "undefined") { return; }
+                        
+                        /*
+                        if ( col.colId == "surgeonId" || col.colId == "sourceId" ) {
+                            // surgeon ane source column clicks are handled by the link in the cell defined by the 
+                            // cell renderer in the gird config. So if hte user clicks on the these columns
+                            // then do nothing becuase the <a> will then take care of changing documents
+
+                            return;
+
+                        }
+                        */
+
+                        // figre out what was clicked and show the detail view
+
+                        document.activeElement.blur();
+
+                        $("div.task-list-container").removeClass("col-sm-12").addClass("col-sm-8");
+                        $("div.task-detail").show();
+
+                        // making these both hidden here gets rid of annoying flashing on the scren
+                        $("#divTaskDetails .visible-leads-app").hide();
+                        $("#divTaskDetails .hidden-leads-app").hide();
+
+                        $(".task-detail-busy").show();
+                        Visualforce.remoting.Manager.invokeAction("{!$RemoteAction.CS_ARTasksCC.getTaskDetail}", row.id, 
+                        function(result, event) {
+                            console.log(result);
+
+                            if ( event.status ) {
+
+                                window.currentTask = result;
+                                populateTaskDetailViewWithTask(window.currentTask);
+
+
+                            } else {
+
+                                $("span.filter-error").text(event.message);
+                                $("span.filter-success").text("");
+                            }
+                            
+                            
+                            $(".task-detail-busy").hide();
+                        });
+
+                 
+                    }
+
+                                       
+                    function savedFilterHasChanged() {
+
+                        // filters
+                        var newFilter = {
+                            filterModel: taskGridOptions.api.getFilterModel(),
+                            sortModel: taskGridOptions.api.getSortModel(),
+                            columnState: taskGridOptions.columnApi.getColumnState()
+                        };
+
+                        var newFilterJSON = JSON.stringify(newFilter);
+
+                        if ( typeof window.currentFilterJSON != "undefined" && ( window.currentFilterJSON != newFilterJSON ) ) {
+                            $("span.filter-has-changed").show();
+                        } else {
+                            $("span.filter-has-changed").hide();
+
+
+                        }
+                        
+                        $(".filter-error").text("");
+                        $(".filter-success").text("");
+
+                        window.currentFilterJSON = newFilterJSON;
+
+                    }   
+
+                    function searchAgGrid(q) {
+                        oppGridOptions.api.setQuickFilter(q);
+                    }
+
+                    
+
+                    function onGridReady() {
+
+                        var currentFilter = {
+                            filterModel: taskGridOptions.api.getFilterModel(),
+                            sortModel: taskGridOptions.api.getSortModel(),
+                            columnState: taskGridOptions.columnApi.getColumnState()
+                        };
+
+                        window.currentFilterJSON = JSON.stringify(currentFilter);
+
+                        // autoSizeAll();
+
+                    }
+                        
+                    function onPaginationPageLoaded() {                        
+
+                        var currPage = taskGridOptions.api.paginationGetCurrentPage(); 
+                        setText('#lbPageSize', taskGridOptions.api.paginationGetRowCount());
+                        setText('#lbFirstRow', (taskGridOptions.api.paginationGetPageSize() * currPage) + 1);
+                        
+                        
+                        var allRowsCount = Number(taskGridOptions.api.getModel().getRowCount()); 
+                        var currentPaginationsize = taskGridOptions.api.paginationGetPageSize() * (currPage+1); 
+                        setText('#lbLastRow', currentPaginationsize > allRowsCount ? allRowsCount: currentPaginationsize );
+                        
+                    }
+
+                    function setText(selector, text) {
+                    
+                        $(selector).html(text);
+                    }
+                   
+                    function gridDateFormat(node) {
+                        
+                        return moment(node.value).format("M/D/YYYY");                
+                    }
+                    
+                    function replaceAccents(s) {
+                        var r = s.toLowerCase();
+                        r = r.replace(new RegExp('[àáâãäå]', 'g'), 'a');
+                        r = r.replace(new RegExp('æ', 'g'), 'ae');
+                        r = r.replace(new RegExp('ç', 'g'), 'c');
+                        r = r.replace(new RegExp('[èéêë]', 'g'), 'e');
+                        r = r.replace(new RegExp('[ìíîï]', 'g'), 'i');
+                        r = r.replace(new RegExp('ñ', 'g'), 'n');
+                        r = r.replace(new RegExp('[òóôõøö]', 'g'), 'o');
+                        r = r.replace(new RegExp('œ', 'g'), 'oe');
+                        r = r.replace(new RegExp('[ùúûü]', 'g'), 'u');
+                        r = r.replace(new RegExp('[ýÿ]', 'g'), 'y');
+                        r = r.replace(new RegExp('\\W', 'g'), '');
+                        return r;
+                    }
+                    // setup the task data grid column definitions
+        
+                    var taskGridColDef = [
+
+                        {headerName: "Status", field: "status", headerClass: "header-left", cellClass: "bootstrap-font ", colId: "status", width: 120, cellStyle: {cursor: 'pointer'}, 
+                            cellRenderer: function(params) {
+                                    
+                                    var cellHtml = '';
+
+                                    var status = params.node.data.status
+                                    var id = params.node.data.id;
+                                    if( status == 'Closed' || status == 'Completed' ) {
+                                        cellHtml += '<i class="fa fa-check-circle task-checkbox completed" onclick="onTaskCheckClick(event, this, \''+id+'\')"></i>';
+                                    } else {
+                                        cellHtml += '<i class="fa fa-check-circle task-checkbox" onclick="onTaskCheckClick(event, this, \''+id+'\')"></i>';
+                                    }
+                                    cellHtml += '<span class="up">&nbsp;&nbsp;&nbsp;'+ params.value+'</span>';
+                                    
+                                   
+                                    return cellHtml;
+                            },
+                            filterParams: {
+                                textFormatter: replaceAccents
+                            }
+                        },
+                        {headerName: "Source", field: "source", suppressSizeToFit: "true", headerClass: "header-left", cellClass: "bootstrap-font down", colId: "sourceId", 
+                            cellRenderer: function(params) { 
+                                var style = {};
+
+                                var sourceHtml = params.value;
+                                if ( typeof params.data.sourceId !== "undefined" ) {
+                                    
+                                    var hrefStr = "#";
+                                    if ( params.data.sourceId.startsWith("001") && !params.data.isPersonAccount ) {
+                                        // this is an account but not a surgeon
+                                        hrefStr = "/ARAccountDetail?id="+params.data.sourceId;
+                                        
+                                    } else if ( params.data.sourceId && params.data.sourceId.startsWith("001") && params.data.isPersonAccount ) {
+                                        // this is an account but a surgeon
+                                        hrefStr = "/ARSurgeonDetail?id="+params.data.sourceId;   
+                                        
+                                    } else if ( params.data.sourceId && params.data.sourceId.startsWith("006") ) {
+                                        // this is an opportunity
+                                        hrefStr = "/AROpportunityDetail?id="+params.data.sourceId;
+                                        
+                                    } else if ( params.data.sourceId ) {
+                                        // must be a case
+                                        hrefStr = "/ARCaseDetail?id="+params.data.sourceId;
+                                       
+                                    }
+
+                                    sourceHtml = "<a target='_blank' href='"+hrefStr+"'>"+globalDecodeEntities(params.value)+"</a>";
+                                }
+
+                                if ( typeof sourceHtml == "undefined" ) { sourceHtml = ""; }
+                                
+                                return sourceHtml;
+                            },
+                            filterParams: {
+                                textFormatter: replaceAccents
+                            }
+                        },
+                        {headerName: "Task Type", field: "sourceTaskType", headerClass: "header-left", cellClass: "bootstrap-font down", colId: "taskType", width: 150, cellStyle: {cursor: 'pointer'}, cellRenderer: function(p) { return globalDecodeEntities(p.value); },
+                            filterParams: {
+                                textFormatter: replaceAccents
+                            }                       
+                        },
+                        
+                        {headerName: "Description", field: "subject", headerClass: "header-left", cellClass: "bootstrap-font down", colId: "subject", width: 100, cellStyle: {cursor: 'pointer'}, 
+                            cellRenderer: function(p) { 
+                                if ( typeof p.value !== "undefined") {
+                                    return globalDecodeEntities(p.value);    
+                                } else {
+                                    return "";
+                                }
+                                
+                            },
+                            filterParams: {
+                                textFormatter: replaceAccents
+                            }
+                        }, 
+                        {              
+                            headerName: "Surgeon", 
+                            field: "surgeon", 
+                            filter:SurgeonFilter, 
+                            headerClass: "header-left",
+                            cellClass: "bootstrap-font down", 
+                            width: 120,  
+                            colId: "surgeon",
+                            getQuickFilterText: function(params) {
+                                var lstTaskRelations = params.data.lstTaskRelations;
+                                var searchText='';
+                                if ( typeof lstTaskRelations != "undefined") {
+                                    for ( var i=0; i < lstTaskRelations.length; i++ ) {
+                                        searchText += lstTaskRelations[i].Relation.Name;
+                                    }
+                                }
+                                return searchText;
+                            },
+                            /*comparator: function(a, b, nodeA, nodeB, isInverted) {
+
+                                var surgA = nodeA.data.surgeon;
+                                if ( typeof surgA == "undefined" || surgA == null) {
+                                    if ( nodeA.data.additionalSurgeons.length > 0 ) {
+                                        surgA = nodeA.data.additionalSurgeons[0].name;
+                                    } else {
+                                        surgA = "AAA";
+                                    }
+                                }
+
+                                var surgB = nodeB.data.surgeon;
+                                if ( typeof surgB == "undefined" || surgB == null ) {
+                                    if ( nodeB.data.additionalSurgeons.length > 0 ) {
+                                        surgB = nodeB.data.additionalSurgeons[0].name;
+                                    } else {
+                                        surgB = "AAA";
+                                    }
+                                }
+
+                                var cmp = 0;
+                                if ( surgA.toLowerCase() > surgB.toLowerCase() ) {
+                                    
+                                    cmp = 1;
+
+                                } else if ( surgA.toLowerCase() < surgB.toLowerCase() ) {
+                                    
+                                    cmp = -1;
+
+                                }
+                                return cmp;
+                                
+
+                            },*/
+                                cellRenderer: function(params) {
+                                    
+
+                                    var surgHtml = "";
+                                    //Added by Srinivas Sattoor on 8.3.2017
+                                    /*if ( typeof params.value !== "undefined") {
+                                        // primary surgeon in the "surgeon" field
+
+                                        var surgeonId = params.data.surgeonId;
+                                        var surgeonRecordType = params.data.surgeonRecordType;
+
+                                        if ( params.data.taskType === "Surgeon" ) {
+                                            // surgeon task type has the surgeon id as the source id
+                                            surgeonId = params.data.sourceId;
+                                        }
+
+                                        if ( typeof surgeonRecordType == "undefined" || surgeonRecordType == 'Surgeons') {
+                                            surgHtml = "<div><a href='/ARSurgeonDetail?id="+surgeonId+"'><span class='surgeon-name'>"+globalDecodeEntities(params.value)+"</span></a></div>";
+                                        } else {
+                                            surgHtml = "<div class='surgeon-name'>"+globalDecodeEntities(params.value)+"</div>";
+                                        }
+                                    }
+
+                                    // now check for additional surgeons like in an opportunity
+                                    var moreSurgeons = params.data.additionalSurgeons;  
+                                    if ( typeof moreSurgeons !== "undefined") {
+                                        for ( var i=0; i < moreSurgeons.length; i++) {
+                                            var surgeon = moreSurgeons[i];
+                                            surgHtml += "<div><span class='surgeon-name'><a href='/ARSurgeonDetail?id="+surgeon.id+"'>"+globalDecodeEntities(surgeon.name)+"</a></span></div>";
+                                        }
+                                    }*/
+
+                                    //  Vishnu Release 4.4: Made changes to show the Link only for Surgeons
+                                    console.log('##--params.data.lstTaskRelations: '+ JSON.stringify(params.data));
+                                    var lstTaskRelations = params.data.lstTaskRelations;
+                                    if ( typeof lstTaskRelations != "undefined") {
+                                        for ( var i=0; i < lstTaskRelations.length; i++ ) {
+                                            if ( params.data.taskType == "Leads App" &&
+                                                (! params.data.surgeonRecordType || params.data.surgeonRecordType != "Surgeons")){
+                                                surgHtml += "<div><span class='surgeon-name'>"+globalDecodeEntities(lstTaskRelations[i].Relation.Name)+"</span></div>";
+                                            } else {
+                                                surgHtml += "<div><span class='surgeon-name'><a target='_blank' href='/ARSurgeonDetail?id="+lstTaskRelations[i].Relation.Id+"'>"+globalDecodeEntities(lstTaskRelations[i].Relation.Name)+"</a></span></div>";
+                                                
+                                            }
+                                        }
+                                    }
+                                    
+                                    return surgHtml;
+                                    
+                                },
+                                filterParams: {
+                                    textFormatter: replaceAccents
+                                }
+                                
+                        },
+                        
+                        {headerName: "Team", field: "teamName", headerClass: "header-left", colId: "teamId", cellStyle: {cursor: 'pointer'}, cellClass: "bootstrap-font down", cellRenderer: function(p) { return globalDecodeEntities(p.value); },
+                            filterParams: {
+                                textFormatter: replaceAccents
+                            }                       
+                        },
+                        {headerName: "Priority", field: "priority", headerClass: "header-left", width: 100, cellClass: "bootstrap-font down", colId: "priority", cellStyle: {cursor: 'pointer'},cellRenderer: function(p) { return globalDecodeEntities(p.value); }},
+                        {headerName: "Due Date", 
+                            field: "s_dueDate", 
+                            filter:TimeFrame, 
+                            headerClass: "header-left ", 
+                            colId: "dueDate", 
+                            cellStyle: {cursor: 'pointer'}, 
+                            cellFormatter: gridDateFormat, 
+                            width: 100, 
+                            cellClass: "bootstrap-font down",
+                            comparator: function(a,b) {
+                                if ( typeof a == "undefined" ) { return -1; }
+                                if ( typeof b == "undefined" ) { return 1; }
+
+                                return moment(a).diff(moment(b),"minutes");
+
+                            },
+                            cellRenderer: function(params) {
+                                
+                                if ( params.value ) {
+                                    var dueDate = moment(params.value, "M/D/YYYY");
+                                    if ( dueDate.isBefore(new Date(), 'day')) {
+                                        return "<span class='text-danger'>"+globalDecodeEntities(params.value)+"</span>";                                        
+                                    } else {
+                                        return "<span>"+globalDecodeEntities(params.value)+"</span>";       
+                                    }
+                                } else {
+                                    return "";
+                                }
+
+                            },
+                            filterParams: {
+                                textFormatter: replaceAccents
+                            }
+                        }, 
+                        {headerName: "Task Owner", field: "taskOwner", headerClass: "header-left", width: 150, colId: "taskOwner", cellStyle:{cursor: 'pointer'},
+                            cellClass: function(params) {
+                                if (params.value=='Unassigned') { 
+                                    return "bootstrap-font down text-danger";
+                                } else {
+                                    return "bootstrap-font down";
+                                }
+                            },
+                            cellRenderer: function(p) { return globalDecodeEntities(p.value); 
+                            },
+                            filterParams: {
+                                textFormatter: replaceAccents
+                            }
+                        },
+                        {headerName: "Comments", field: "description", headerClass: "header-left", hide: "true", cellClass: "bootstrap-font down", colId: "description", width: 100, cellStyle: {cursor: 'pointer'},cellRenderer: function(p) { return globalDecodeEntities(p.value); },
+                            filterParams: {
+                                textFormatter: replaceAccents
+                            }                       
+                        },
+                        {headerName: "Created By", field: "createdBy", headerClass: "header-left", hide: "true", cellClass: "bootstrap-font down", colId: "createdBy", width: 100, cellStyle: {cursor: 'pointer'},cellRenderer: function(p) { return globalDecodeEntities(p.value); }},
+                        {
+                            headerName: "Date Created", 
+                            field: "s_dateCreated", 
+                            filter: TimeFrame, 
+                            headerClass: "header-left", 
+                            hide: "true", 
+                            colId: "dateCreated", 
+                            cellStyle: {cursor: 'pointer'}, 
+                            cellFormatter: gridDateFormat, 
+                            cellClass: "bootstrap-font down",
+                            width: 100
+                        },
+                        {
+                            headerName: "Date Modified", 
+                            field: "s_dateModified", 
+                            filter: TimeFrame, 
+                            headerClass: "header-left", 
+                            hide: "true", 
+                            colId: "dateCreated", 
+                            cellStyle: {cursor: 'pointer'}, 
+                            cellFormatter: gridDateFormat, 
+                            cellClass: "bootstrap-font down",
+                            width: 100
+                        },
+                        filterParams: {
+                            textFormatter: replaceAccents
+                        }
+                    ];
+
+                    //autoSizeAll();
+                    // setup the task data grid options
+                    window.taskGridOptions = {
+                        enableSorting: true,
+                        enableFilter: true,
+                        //debug: true,
+                        rowSelection: 'single',
+                        enableColResize: true,
+                        columnDefs: taskGridColDef,
+                        pagination: true,
+                        paginationPageSize: 20,
+                        suppressPaginationPanel: true,
+                        icons: { 
+                                menu: '<i class="fa fa-sort-desc" ></i>' 
+                        },
+                        onPaginationChanged: onPaginationPageLoaded,
+                        
+                        onFilterChanged: savedFilterHasChanged,
+                        onSortChanged: savedFilterHasChanged,
+                        onDisplayedColumnsChanged: savedFilterHasChanged,
+
+                        onGridReady: onGridReady,
+                        onModelUpdated: autoSizeAll,
+                        getRowHeight: function(params) {
+                            // rowheight = 40 + 40 * number of additional surgeons
+                            return 40 + ( params.data.additionalSurgeons.length * 10 );
+                        },
+                        getRowNodeId: function(data) { 
+                            return data.id; 
+                        },
+                        onSelectionChanged: onSelectionChanged
+                        //onCellClicked: onCellClicked                        
+                    }
+                    // define the task grid
+                    window.taskGrid = new agGrid.Grid($("#taskGrid")[0], taskGridOptions );
+                    
+                    
+                     
+
+                    // end case grid
+                    
+                    function autoSizeAll() {
+
+                        var autoSizeTimer = setInterval(function() {
+                            var allColumnIds = [];
+                            taskGridColDef.forEach( function(taskGridColDefs) {
+                                allColumnIds.push(taskGridColDefs.field);
+                            });
+                            taskGridOptions.columnApi.autoSizeColumns(allColumnIds);
+                            clearInterval(autoSizeTimer);
+                        }, 500);
+
+                        
+                    }
+                    
+                    //autoSizeAll();
+
+
+                    // custom surgeon filter
+                    function SurgeonFilter(){
+                    }
+                
+                    SurgeonFilter.prototype.init = function (params) {
+                        this.eGui = document.createElement('div');
+                        
+                        html ='<div style="border-bottom: solid 1px lightgray"><input type="checkbox" name="selectAllSurgeons" checked="true" id="selectAllSurgeons" value="selectAllSurgeons" style="margin-right:5px"/>(Select All)<br/></div>';
+                        
+                        html += '<input type="checkbox" name="surgeonFilter" checked="true" id="zblank" value="zblank" style="margin-right:5px"/>(Blanks)<br/>';
+
+
+                        // NOTE: using recordId as an element ID, therefore we must prepend a letter since valid ID attributes must start with an alpha
+                        for (var surgeonId in window.taskSurgeons) {
+                            if (window.taskSurgeons.hasOwnProperty(surgeonId)) {
+                                var surgeon = window.taskSurgeons[surgeonId];
+                                html += '<span><input type="checkbox" name="surgeonFilter" checked="true" id="z'+ surgeon.id +'" value="'+surgeon.name +'" style="margin-right:5px"/>'+surgeon.name+'<br/></span>';
+                            }
+                        }    
+                        
+                        this.eGui.innerHTML =   '<div class="dropdownFont" style="display: inline-block; width: 200px; padding-left: 10px;">' +  html +
+                            
+                            '</div>';
+                        
+                        this.filterChangedCallback = params.filterChangedCallback;
+                        this.valueGetter = params.valueGetter;
+
+                        // default model
+                        this.model = {
+                            selected: ["selectAllSurgeons"]
+                        };
+
+                        var that = this;
+                        $(document).on("change", "input[name=selectAllSurgeons]", function() {
+                            // handles checking all or checking none of the filters, note it doesn't
+                            // trigger change which prevents the standard filter change listeners from running
+                            // this way we can display all rows or no rows quickly without having to run
+                            // each filter for each row individually
+
+                            that.model.selected = [];
+                            that.filterActive = true;
+                            if ( $(this).is(":checked") ) {
+
+                                $("input[name=surgeonFilter]").prop("checked",true);
+                                that.model.selected.push("selectAllSurgeons");
+                                that.filterActive = false;
+                            } else {
+
+                                $("input[name=surgeonFilter]").prop("checked",false);
+                                that.model.selected = [];                                
+                                
+                            }
+
+                            that.filterChangedCallback();
+
+                        });
+
+                        $(document).on("change", "input[name=surgeonFilter]", function() {
+                            // handles each individual checkbox
+                            that.filterActive = true;
+                            that.model.selected = [];
+                            $("input[name=surgeonFilter]:checked").each(function(id,obj) {
+                                that.model.selected.push( $(this).prop("id") );
+                            });
+
+                            that.filterChangedCallback();
+
+                            if ( $("input[name=surgeonFilter]").not(":checked").length > 0 ) {
+                                that.filterActive = true;
+                            } else {
+                                that.filterActive = false;
+                            }
+                            
+                        });
+                        
+                    }
+                     
+                    
+                    SurgeonFilter.prototype.getGui = function () {
+                        return this.eGui;
+                    };
+                    SurgeonFilter.prototype.afterGuiAttached = function() {
+
+                        var filters = $(this.eGui).find("input");
+
+                        var displayedSurgeonIds = [];
+                        taskGridOptions.api.forEachNodeAfterFilter( function(params, index) {
+
+                            if ( params.data.surgeonId ) {
+                                displayedSurgeonIds.push(params.data.surgeonId);
+                            } else if ( params.data.additionalSurgeons.length == 0 ) {
+                                displayedSurgeonIds.push("blank");
+                            }
+                                                    
+                            for ( var i=0; i < params.data.additionalSurgeons.length; i++) {
+                                displayedSurgeonIds.push(params.data.additionalSurgeons[i].id);
+                            }                    
+                        });
+
+
+                        for ( var k=0; k < filters.length; k++) {
+
+                            filteredId = $(filters[k]).attr("id");
+                            
+                            // always show select all surgeons
+                            if ( filteredId == 'selectAllSurgeons') { continue; }
+
+                            var surgNotDisplayed = true;
+                            for ( var j=0; j < displayedSurgeonIds.length; j++ ) {
+
+                                var surgeonId = displayedSurgeonIds[j];                         
+                                if ( filteredId == "z"+surgeonId ) {
+                                    surgNotDisplayed = false;
+                                    break;
+                                }
+                            }
+
+                            if ( surgNotDisplayed ) {
+                                $("#"+filteredId).closest("span").hide();
+                            } else {
+                                $("#"+filteredId).closest("span").show();
+                            }
+                        }
+
+                    };
+                    
+                    SurgeonFilter.prototype.doesFilterPass = function (params) {
+                        
+                        console.log("doesFilterPass");
+                        console.log(this.model);
+
+                        var selectedSurgeons = this.model.selected;
+                        if ( selectedSurgeons[0] == "selectAllSurgeons") {
+                            return true;
+                        }
+
+                        var rowSurgeons = [];
+                        if ( params.data.surgeonId ) {
+                            rowSurgeons.push(params.data.surgeonId);
+                        } else if ( params.data.additionalSurgeons.length == 0 ) {
+                            rowSurgeons.push("blank");
+                        }
+                                                
+                        for ( var i=0; i < params.data.additionalSurgeons.length; i++) {
+                            rowSurgeons.push(params.data.additionalSurgeons[i].id);
+                        }                    
+
+                        for ( var j=0; j < rowSurgeons.length; j++) {
+                            var rowSurgId = rowSurgeons[j];
+
+                            if ( selectedSurgeons.indexOf("z"+rowSurgId) != -1 ) {
+                                // to understand the "z"+ look at the init function for this filter
+                                return true;
+                            }
+                        }
+
+                        return false;             
+                    };
+                    
+                    SurgeonFilter.prototype.isFilterActive = function () {
+                        return this.filterActive;
+                    };
+                    
+
+                    
+                    SurgeonFilter.prototype.setModel = function(model) {
+                        if (typeof model == "undefined" || model == null ) {
+                            this.model = {
+                                selected: ["selectAllSurgeons"]
+                            };
+
+                        } else {
+                            this.model = model;
+                        }
+                    };
+                    
+                    SurgeonFilter.prototype.getModel = function() {
+                        return this.model;
+                    };
+
+                    window.selectSurgeon = function(ele){
+                        if(ele.name=='selectAllSurgeons' && ele.checked){
+
+                            for (var surgeonId in window.taskSurgeons) {
+                                if (window.taskSurgeons.hasOwnProperty(surgeonId)) {
+                                    var surgeon = window.taskSurgeons[surgeonId];
+                                    $("#z"+surgeon.id).prop('checked', true);
+                                }
+                            }
+                            $("#zblank").prop('checked', true);
+                        } 
+
+                        if(ele.name=='selectAllSurgeons' && ! ele.checked){
+
+                            for (var surgeonId in window.taskSurgeons) {
+                                if (window.taskSurgeons.hasOwnProperty(surgeonId)) {
+                                    var surgeon = window.taskSurgeons[surgeonId];
+                                    $("#z"+surgeon.id).prop('checked', false);
+                                }
+                            }
+                            $("#zblank").prop('checked', false);
+
+                        } else if(ele.name != 'selectAllSurgeons' && ! ele.checked){
+                            
+                            $("#selectAllSurgeons").prop('checked', false);
+
+                        } else if(ele.name != 'selectAllSurgeons' && ele.checked){
+                            
+                            for (var surgeonId in window.taskSurgeons) {
+                                if (window.taskSurgeons.hasOwnProperty(surgeonId)) {
+                                    var surgeon = window.taskSurgeons[surgeonId];
+                                    if( ! $("#z"+surgeon.id).prop("checked") || $("#zblank").prop('checked') ) {
+                                        return;
+                                    }
+                                }
+                            }
+                            $("#selectAllSurgeons").prop('checked', true);
+                        }
+                        
+                    };
+
+                    // custom date range filtering
+                    function TimeFrame() { }
+                    
+                    TimeFrame.prototype.init = function (params) {
+                        this.valueGetter = params.valueGetter;
+
+                        this.eGui = document.createElement('div');
+                        this.eGui.innerHTML =
+                            '<div class="dropdownFont" style="display: inline-block; width: 200px; padding-left: 10px;">' +  
+                            '<input type="radio" name="TimeFrame" checked id="rbAllDays" filter-checkbox="true"/> All <br/>'+
+                            '<input type="radio" name="TimeFrame" id="rbLastMonth" filter-checkbox="true"/> Last 30 Days <br/>'+
+                            '<input type="radio" name="TimeFrame" id="rbLast7Days" filter-checkbox="true"/> Last 7 Days <br/>'+
+                            '<input type="radio" name="TimeFrame" id="rbLast3Days" filter-checkbox="true"/> Last 3 Days <br/>'+
+                            '<input type="radio" name="TimeFrame" id="rbToday" filter-checkbox="true"/> Today <br/>'+
+                            '<input type="radio" name="TimeFrame" id="rbNext3Days" filter-checkbox="true"/> Next 3 Days <br/>'+
+                            '<input type="radio" name="TimeFrame" id="rbNext7Days" filter-checkbox="true"/> Next 7 Days <br/>'+
+                            '<input type="radio" name="TimeFrame" id="rbNextMonth" filter-checkbox="true"/> Next 30 Days <br/>'+
+                            '</div>';
+                        
+                        this.filterActive = false;
+                        this.filterChangedCallback = params.filterChangedCallback;
+                        this.valueGetter = params.valueGetter;
+
+                        this.model = {
+                            range: $("input[name=TimeFrame]:checked").prop("id")
+                        };
+
+                        var that = this;
+                        $(document).on("change","input[name=TimeFrame]", function() {
+                            that.model = {
+                                range: $(this).prop("id")
+                            };
+
+                            if ( that.model.range != "rbAllDays" ) {
+                                that.filterActive = true;
+                            } else {
+                                that.filterActive = false;
+                            }
+
+                            that.filterChangedCallback();
+
+                        });
+
+                        
+                    };
+                    
+                    TimeFrame.prototype.getGui = function () {
+                        return this.eGui;
+                    };
+                    
+                    TimeFrame.prototype.doesFilterPass = function (params) {
+                        
+                        var val = this.valueGetter(params);
+                        if ( typeof val !== "undefined" ) {
+                            
+                            var range = this.model.range;
+                            if(range == "rbLast7Days" && daysBetween(val, 7)){
+                                return true;
+                            } else if(range == "rbLast3Days" && daysBetween(val, 3)){
+                                return true;
+                            } else if(range == "rbToday" && daysBetween(val, 0)){
+                                return true;
+                            } else if(range == "rbNext3Days" && daysBetween(val, -3)){
+                                return true;
+                            } else if(range == "rbNext7Days" && daysBetween(val, -7)){
+                                return true;
+                            } else if(range == "rbNextMonth" && daysBetween(val, -30)){
+                                return true;
+                            } else if(range == "rbLastMonth" && daysBetween(val, 30)){
+                                return true;
+                            } else if ( range == "rbAllDays") { 
+                                return true;
+                            }
+                        }
+                        
+                        return false;
+                    };
+                    
+                    TimeFrame.prototype.isFilterActive = function () {
+                        return this.filterActive;
+                    };
+                    
+                    TimeFrame.prototype.getModel = function() {
+                        return this.model;
+                    };
+
+                    TimeFrame.prototype.setModel = function(model) {
+                        console.log(model);
+                        if ( typeof model == "undefined" || model == null ) {
+                            // reset
+                            this.model = {
+                                range: "rbAllDays"
+                            };
+
+                            this.filterActive = false;
+                        } else {
+                            this.model = model;
+                            this.filterActive = true;
+                        }
+
+                        this.filterChangedCallback();
+                    };
+
+                    TimeFrame.prototype.afterGuiAttached = function() {
+                        var model = this.getModel();
+                        $("#"+model.range).click();
+
+                    };                    
+
+                    function daysBetween(valStr, days){
+                        var today = moment().startOf("day");
+                        var val = moment(valStr).startOf("day");
+                        var diffDays = today.diff(val,"days");
+                        
+                        if ( days == 0 && diffDays == 0 ) {
+                            if ( diffDays == 0 ) {
+                                return true;
+                            } else {
+                                return false;
+                            }
+                        } else if ( days > 0) {
+                            if ( diffDays > 0 && diffDays <= days ) {
+                                return true;
+                            } else {
+                                return false;
+                            }
+                        } else {
+                            if ( diffDays < 0 && diffDays >= days ) {
+                                return true;
+                            } else {
+                                return false;
+                            }
+                        }
+
+                    }   //  end of daysBetween                    
+
+                    // end of custom date range filter
+                    
+                    // pull in task list
+                    $(".task-list-busy").show();
+                    Visualforce.remoting.Manager.invokeAction("{!$RemoteAction.CS_ARTasksCC.retrieveAllTasks}",
+                    function(result, event){ 
+                        
+                        window.taskList = [];
+                        window.taskSurgeons = {};                        
+
+                        $(".task-error").text("");
+                        if ( event.status ) {
+                            
+                            window.taskList = $.grep(result, function(obj) {
+                                return obj.status != "Cancelled";
+                            });
+
+                            // setup an associative array surgeonId => surgeon for the task list
+                            // needed for setting up a custom filter on aggrid
+                            for ( var i=0; i < window.taskList.length; i++) {
+                                var t = window.taskList[i];
+                                if ( t.surgeonId && t.surgeon ) {
+                                    window.taskSurgeons[t.surgeonId] = {
+                                        id: t.surgeonId,
+                                        name: t.surgeon
+                                    };
+                                }
+                                for ( var j=0; j < t.additionalSurgeons.length; j++) {
+                                    var addSurg = t.additionalSurgeons[j];
+                                    window.taskSurgeons[addSurg.id] = addSurg;
+                                }
+                            }
+
+                            taskGridOptions.api.setRowData(window.taskList);
+                            //autoSizeAll();
+
+                        } else {
+
+                            $(".task-error").text(event.message);
+                        }
+                        
+                        
+
+                        $(".task-list-busy").hide();
+                    });
+
+                    // pull in filter list
+                    Visualforce.remoting.Manager.invokeAction("CS_ARCCExtension.retrieveFiltersFor","Tasks", function(filters, event) {
+                        
+                        // store filters in a global associative list by name
+                        window.savedFilters = {};
+
+                        if ( event.status ) {
+                            $("span.filter-error").text("");
+                            $("span.filter-success").text("");
+
+                            filters = filters.sort(function(a,b) {
+                                aName = a.Name.toLowerCase();
+                                aOrdinal = a.Global_Order__c;
+
+                                bName = b.Name.toLowerCase();
+                                bOrdinal = b.Global_Order__c;
+
+                                // first order by ordinal asc then by name desc
+                                var cmp = ((aOrdinal < bOrdinal) ? 1 : ((aName > bName) ? -1 : 0));
+                                if ( cmp == 0 ) {   
+                                    // ordinals are the same, try name
+                                    cmp = ((aName < bName) ? -1 : ((aName > bName) ? 1 : 0));
+                                }
+                                return cmp;
+                            });                        
+
+                            var hasAtLeastOne = false;
+                            for ( var i=0; i < filters.length; i++) {
+
+                                var filter = filters[i];
+
+                                var filterHtml = null;
+                                if ( filter.Global__c == true ) {
+                                    // global filters are readonly
+                                    filterHtml = "<li><a href='#' class='saved-filter readonly'>"+filter.Name+"</a></li>";
+                                    var filterJson = globalDecodeEntities(filter.json__c);
+                                    window.currentFilterJSON = filterJson;
+                                    var filterObj = JSON.parse(filterJson);
+                                    window.taskGridOptions.api.setFilterModel( filterObj.filterModel );
+                                    window.taskGridOptions.api.setSortModel( filterObj.sortModel );
+                                    window.taskGridOptions.columnApi.setColumnState( filterObj.columnState );
+                                    autoSizeAll();
+                                    $("span.selected-filter").text( filter.Name );
+                                } else {
+                                    filterHtml = "<li><a href='#' class='saved-filter'>"+filter.Name+"</a></li>";
+                                }
+                                
+                                $("li[role=separator].saved-filter-list").after(filterHtml);
+
+                                window.savedFilters[filter.Name] = filter;
+                                hasAtLeastOne = true;
+                            }
+
+                            if ( hasAtLeastOne ) {
+                                $("li[role=separator].saved-filter-list").show();                                                           
+                            }
+
+                        } else {
+
+                            $("span.filter-error").text(event.message);
+                            $("span.filter-success").text("");
+                        }
+                                                          
+                    });
+
+
+                    // clears all the filtesr
+                    function clearAllGridFilters() {
+
+                        taskGridOptions.api.setFilterModel(null);
+                        taskGridOptions.api.setQuickFilter(null);
+                        taskGridOptions.api.setSortModel(null);
+                        taskGridOptions.columnApi.resetColumnState();
+                        taskGridOptions.api.onFilterChanged();
+
+                    }
+
+                    
+                    
+                
+                    // end pager callbacks
+
+                    // set and apply a filter
+                    $("ul.filter-menu").on("click", "a.saved-filter", function() {
+
+                        var filter = window.savedFilters[$(this).text()];
+
+                        $("span.selected-filter").text( filter.Name );
+                        
+                        try {
+
+                            $("span.filter-error").text("");
+                            $("span.filter-success").text("");
+
+                            var filterJson = globalDecodeEntities(filter.json__c);
+                            window.currentFilterJSON = filterJson;
+
+                            var filterObj = JSON.parse(filterJson);
+                            
+                            taskGridOptions.api.setFilterModel( filterObj.filterModel );
+                            taskGridOptions.api.setSortModel( filterObj.sortModel );
+                            taskGridOptions.columnApi.setColumnState( filterObj.columnState );
+                            
+                            $("span.filter-has-changed").hide();
+
+                            
+                        } catch (e) {
+                            console.error(e);
+                            $("span.filter-error").text("Filter corrupted, plese delete it");
+                        }
+
+                        
+
+                        // only show the save if this filter is not readonlg
+                        if ( !$(this).hasClass("readonly") ) {
+                            $("a.filter-save").closest("li").show();
+                            $("a.filter-delete").closest("li").show();
+                        }
+                                                
+                    });
+
+
+
+                    // clear all filters
+                    $("a.filter-clear").on("click", function() {
+                        
+                        clearAllGridFilters();
+
+                        $("input.search").val("");
+                        $("span.selected-filter").text("All");
+                        $("a.filter-delete").closest("li").hide();
+                        $("a.filter-save").closest("li").hide();
+                        $("span.filter-error").text("");
+                        $("span.filter-success").text("Filters reset");
+
+                    });
+
+                    $("a.filter-save").on("click", function(e) {
+                        
+                        var filterName = $("span.selected-filter").text();
+                        var filterJson = window.currentFilterJSON;
+
+                        Visualforce.remoting.Manager.invokeAction("CS_ARCCExtension.saveFilterJson", 
+                            filterName, filterJson, "Tasks",
+                            function(result, event) { 
+                                if (event.status) {
+
+                                    $("span.filter-success").text("Your filter has been saved");
+                                    $("span.filter-error").text("");
+                                    $("span.filter-has-changed").hide();
+                                    window.savedFilters[result.Name] = result;
+
+
+                                } else {
+
+                                    $("span.filter-error").text(event.message);
+                                    $("span.filter-success").text("");
+                                }
+
+                            });                    
+                    });
+
+                    $("a.filter-delete").on("click", function(e) {
+                        var filterName = $("span.selected-filter").text();
+                        Visualforce.remoting.Manager.invokeAction("CS_ARCCExtension.deleteFilterJson", 
+                            filterName, "Tasks",
+                            function(result, event) { 
+                                if (event.status) {
+
+                                    $("a.saved-filter:contains('"+filterName+"')").closest("li").remove();
+                                    clearAllGridFilters();
+
+                                    $("span.selected-filter").html("All");
+                                    $("a.filter-delete").closest("li").hide();
+                                    $("a.filter-save").closest("li").hide();
+                                    $("span.filter-success").text("Your filter has been deleted");
+                                    $("span.filter-error").text("");
+
+                                    var savedFilters = $( "li.saved-filter-list" ).nextAll();
+                                    if ( savedFilters.length == 0 ) {
+                                        $( "li.saved-filter-list" ).hide();
+                                    }
+
+                                } else {
+
+                                    $("span.filter-error").text(event.message);
+                                    $("span.filter-success").text("");
+                                }
+
+                            });
+                    });
+
+                    $("a.filter-save-as").on("click", function(e) {
+
+                        $("button.filter-menu-btn").addClass("disabled");
+                        $("div.filter-save-as").show();
+                        $("input.filter-name").focus();
+                        $("div.task-add-new").hide();
+
+                    });
+
+                    $("button.filter-cancel-save-as").on("click", function(e) {
+                        e.preventDefault();
+                        e.stopPropagation();
+
+                        $("div.filter-save-as").hide();
+                        $("button.filter-menu-btn").removeClass("disabled");
+                        $("input.filter-name").val("");
+                        $("span.filter-error").text("");
+                        $("span.filter-success").text("");
+                        $("div.task-add-new").show();
+                    });
+
+                    $("button.filter-save-as").on("click", function(e) {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        $("span.filter-error").text("");
+
+                        var filterName = $("input.filter-name").val();
+                        if ( filterName.length > 0 ) {
+
+                            filterJson = window.currentFilterJSON;
+
+                            Visualforce.remoting.Manager.invokeAction("CS_ARCCExtension.saveFilterJson", 
+                            filterName, filterJson, "Tasks",
+                            function(result, event) { 
+                                if (event.status) {
+
+                                    $("div.filter-save-as").hide();
+                                    $("button.filter-menu-btn").removeClass("disabled");
+                                    $("input.filter-name").val("");
+
+                                    $("li[role=separator].saved-filter-list").show();
+
+                                    /* Vishnu rel4.3: Added the below to avoid the multiple filter names issue*/
+                                    var existingFilterName = $('a.saved-filter').filter(function(index) { return $(this).text() === result.Name; });
+                                    console.log('##--existingFilterName: ' + existingFilterName);
+                                    if(! existingFilterName ||
+                                        existingFilterName.text() != result.Name){
+
+                                        var filterHtml = "<li><a href='#' class='saved-filter'>"+result.Name+"</a></li>";
+                                        $("li[role=separator].saved-filter-list").after(filterHtml);
+
+                                        var savedFilters = $( "li.saved-filter-list" ).nextAll();
+                                        $("li[role=separator].saved-filter-list").after(
+                                            savedFilters.detach().sort(function(a,b) {
+                                                var aName = $(a).find("a").text().toLowerCase();
+                                                var bName = $(b).find("a").text().toLowerCase();
+                                                return ((aName < bName) ? -1 : ((aName > bName) ? 1 : 0));
+                                            })
+                                        );
+
+                                    }   //  end of if
+                                    /* Vishnu rel4.3: Added the below to avoid the multiple filter names issue*/
+
+                                    $("span.selected-filter").html( result.Name );
+                                    $("a.filter-delete").closest("li").show();
+                                    $("span.filter-success").text("Your filter has been saved");
+                                    $("div.task-add-new").show();
+
+                                    window.savedFilters[result.Name] = result;
+
+                                } else {
+
+                                    $("span.filter-error").text(event.message);
+                                    $("span.filter-success").text("");
+                                }
+
+                            });
+
+                            
+
+                        } else {
+
+                            $("span.filter-error").html("Filter name cannot be blank");
+                            $("span.filter-success").text("");
+                        }
+                        
+
+                    });                    
+
+                    // clicking cancel on task detail menu
+                    $("a.task-detail-cancel").on("click", function(e) {
+                        e.stopPropagation();
+                        e.preventDefault();
+                        $("div.task-detail").hide();
+                        $("div.task-list-container").removeClass("col-sm-8").addClass("col-sm-12");
+                        
+                        taskGridOptions.api.deselectAll();
+                    
+                    });
+
+                    // search box
+                    $("input.search").on("keyup", function(e) {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        taskGridOptions.api.setQuickFilter( $(this).val() );
+                    });
+
+
+                    // add new task
+                    $("button.task-add-new").on("click", function(e) {
+                        
+                        $("#task-modal .modal-title").hide();
+                        $("#task-modal .modal-title.create").show();
+                        $("#task-modal .hide-on-create").hide();
+
+                        $("#task-modal .modal-title.edit").hide();
+                        $("#task-modal select.task-type").removeAttr("disabled");
+                        $("#task-modal .delete").hide();
+
+                        //$("#task-modal div.dueDate-container").data("DateTimePicker").clear();
+                        $("#task-modal").modal("show");
+                    });
+
+                    // editing a task
+                    $("a.task-detail-edit").on("click", function(e) {
+
+                        $("#task-modal .modal-title").hide();
+                        $("#task-modal .hide-on-create").show();
+                        $("#task-modal .modal-title.edit").show();
+                        $("#task-modal .delete").show();
+                        
+
+                        $("#task-modal").attr("data-record-id", window.currentTask.id);
+                        populateTaskModalWithTask(window.currentTask);
+                        
+                        $("#task-modal").modal("show");
+                    });
+
+                    // cloning a task
+                    $("a.task-detail-clone").on("click", function(e) {
+
+                        $("#task-modal .modal-title").hide();
+                        $("#task-modal .modal-title.clone").show();
+                        $("#task-modal .delete").hide();
+
+                        // not setting the id means this will get created as a new record
+                        // in Salesforce instead of updating an existing record
+                        // $("#task-modal").attr("data-record-id", window.currentTask.id);
+
+                        populateTaskModalWithTask(window.currentTask);
+
+                        $("#task-modal").modal("show");
+                    });
+
+                    // deleting a task ( just sets the status to complete)
+                    $("a.task-detail-delete").on("click", function(e) {
+
+                        var taskId = window.currentTask.id;
+                        Visualforce.remoting.Manager.invokeAction("CS_ARTasksCC.updateTaskStatus", taskId, "Cancelled",
+                        function(result, event) {
+                            if ( event.status ) {
+
+
+                                window.taskList = $.grep(window.taskList, function(t) {
+                                    // returns all rows except for the one deleted
+                                    return t.id != taskId;
+                                });
+
+                                taskGridOptions.api.setRowData(window.taskList);
+                                $("div.task-detail").hide();
+                                $("div.task-list-container").removeClass("col-sm-8").addClass("col-sm-12");
+                                taskGridOptions.api.deselectAll();
+
+                                $("#task-modal span.task-error").text("");
+                                
+                            } else {
+
+                                $("#task-modal span.task-error").text(event.message);
+
+                            }
+
+                            $(this).removeAttr("disabled");
+                            
+                        });
+                        
+                    });
+
+                    // this function is used for populating the detail view shown after clicking a table
+                    // row. Also used after saving the modal to update the detail view
+                    function populateTaskDetailViewWithTask(t) {
+                        console.log('##--populating task Detail view: '+ JSON.stringify(t));
+                        if ( "General" == t.taskType || "Opportunity" == t.taskType || "Surgical Case" == t.taskType ) {
+                            // clone available only on General, Opportunity, and Case
+                            $("a.task-detail-clone").show();
+                        } else {
+                            $("a.task-detail-clone").hide();
+                        }
+
+
+                        if ( t.taskType == "Leads App"  || t.isTicket === true) {
+                            // no delete on any leads app task
+                            $("a.task-detail-delete").hide();
+
+                            $("#divTaskDetails .visible-leads-app").show();
+                            $("#divTaskDetails .hidden-leads-app").hide();
+                            /*
+                                Vishnu Release 4.4: added this to fix the email and phone showing up with out details
+                                                    CDID-000666
+                            */
+                            if(t.surgeonPhone){
+                                $("#divTaskDetails div.phone").empty().append("<a href='tel:"+t.surgeonPhone+"'>"+t.surgeonPhone+"</a>");
+                                $("#divTaskDetails div.phone-container").show();
+                            } else{
+                                $("#divTaskDetails div.phone-container").hide();
+                            }
+
+                            if(t.surgeonEmail){
+                                $("#divTaskDetails div.email").empty().append("<a href='mailto:"+t.surgeonEmail+"'>"+t.surgeonEmail+"</a>");
+                                $("#divTaskDetails div.email-container").show();
+                            } else {
+                                $("#divTaskDetails div.email-container").hide();
+                            }
+
+
+                        } else {
+                            $("#divTaskDetails .visible-leads-app").hide();
+                            $("#divTaskDetails .hidden-leads-app").show();
+                            $("a.task-detail-delete").show();
+                        }
+
+                        $("span.filter-error").text("");
+                        $("span.filter-success").text("");
+
+                        $("#divTaskDetails div.taskType").html(t.sourceTaskType || "None"); //  Vishnu Release 4.4: Changed t.taskType to t.sourceTaskType
+                        $("#divTaskDetails div.team").html(t.teamName || "None");
+                        $("#divTaskDetails #hiddenTaskAccountTeamId").val(t.teamId || "");
+                        
+                                
+                        $("#divTaskDetails div.source").text("None");
+                        // determine where the source is to go if this is an axis task but not General
+                        if ( !t.isAxisTask ) {
+                                
+                            if ( t.taskType != "General" ) {
+
+                                var sHref = "#";
+                                if ( typeof t.sourceId != "undefined" && t.sourceId.startsWith("001") && !t.isPersonAccount ) { sHref = "/ARAccountDetail?id="; }
+                                else if ( typeof t.sourceId != "undefined" && t.sourceId.startsWith("001") && t.isPersonAccount ) { sHref= "/ARSurgeonDetail?id=";}
+                                else if ( typeof t.sourceId != "undefined" && t.sourceId.startsWith("006") ) { sHref = "/AROpportunityDetail?id="; }
+                                else if ( typeof t.sourceId != "undefined" && t.sourceId.startsWith("a0r") ) { sHref = "/ARCaseDetail?id="; }
+                                
+                                if ( sHref !== "#" ) {
+                                     sHref += t.sourceId;
+                                    $("#divTaskDetails div.source").append("<a href='"+sHref+"'>"+t.source+"</a>");
+                                } else {
+                                    $("#divTaskDetails div.source").text(t.source);
+                                }
+                            }
+                                
+                        } else {
+
+                            if ( typeof t.source != "undefined" && t.source.length > 0 ) {
+                                $("#divTaskDetails div.source").text(t.source);
+                            }
+
+                        }
+                                
+                        // determine how to link to surgeon                                        
+                        var surgeonLinks = [];
+                        var surgeon = "None";
+                        
+                        //Added by srinivas sattoor on 8.3.2017
+                        /*if ( t.taskType === "Surgeon" 
+                            && typeof t.sourceId != "undefined" 
+                            && ( typeof t.surgeonRecordType == "undefined" || t.surgeonRecordType == 'Surgeons') ) {
+                            // axis surgeon task                            
+                            surgeonLinks.push("<a href='/ARSurgeonDetail?id="+t.sourceId+"'>"+t.surgeon+"</a>");
+
+                        } else if ( t.additionalSurgeons.length > 0 ) {
+                            // any other kind of task
+                            $.each(t.additionalSurgeons, function(idx, s) {
+                                if (  typeof s.id != "undefined" ) {
+                                    surgeonLinks.push("<div><a href='/ARSurgeonDetail?id="+s.id+"'>"+s.name+"</a></div>");
+                                }
+                            });
+                        } else {
+                            // default
+                            if ( typeof t.surgeonId != "undefined" && ( typeof t.surgeonRecordType == "undefined" || t.surgeonRecordType == 'Surgeons') ) {
+                                surgeonLinks.push("<a href='/ARSurgeonDetail?id="+t.surgeonId+"'>"+t.surgeon+"</a>");
+                            } else {
+                                surgeon = t.surgeon;
+                            }
+                        }*/ 
+
+                        /*
+                            Vishnu Release 4.4: added this to get the Surgeon Names instead of links for Nonsurgeons
+                        */
+                        var surgeonNames = [];
+
+                        var lstTaskRelations = t.lstTaskRelations;
+                        for ( var i=0; i < lstTaskRelations.length; i++ ) {
+                            surgeonLinks.push("<div><a href='/ARSurgeonDetail?id="+lstTaskRelations[i].RelationId+"'>"+lstTaskRelations[i].Relation.Name+"</a></div>"); 
+                            surgeonNames.push("<div>"+lstTaskRelations[i].Relation.Name+"</div>");
+                        }  
+
+                        $("#divTaskDetails div.surgeon").empty();
+
+                        if ( t.taskType == "Leads App" &&
+                            (! t.surgeonRecordType || t.surgeonRecordType != "Surgeons")){
+                            $("#divTaskDetails div.surgeon").html(surgeonNames);
+                        } else{
+                            $("#divTaskDetails div.surgeon").append(surgeonLinks);
+                        }
+                        
+                        /*if ( t.surgeonRecordType && t.surgeonRecordType == "Surgeons"){
+                            if ( surgeonLinks.length > 0 ) {
+                                $("#divTaskDetails div.surgeon").append(surgeonLinks);
+                            } else {
+                                $("#divTaskDetails div.surgeon").html(surgeon);
+                            }
+                        } else {
+                            $("#divTaskDetails div.surgeon").html(surgeon);
+                        }*/
+                        
+
+                        // even though the surgeon link is fully assembled above for surgeon or general task types 
+                        // hide the surgeon link we just did
+                        if ( t.taskType === "Surgeon" ||  t.taskType === "General" ) {
+                            $("#divTaskDetails div.surgeon-container").hide();
+                        } else {
+                            $("#divTaskDetails div.surgeon-container").show();
+                        }
+                                
+                        // account is only available on non-general tasks
+                        if ( t.taskType != "General") {
+                            $("#divTaskDetails div.account").empty();
+                            var acctId = t.accountId;
+                            var acctName = t.accountName;
+                            if ( !t.isPersonAccount && typeof acctId != "undefined" && typeof acctName != "undefined" ) {
+                                $("#divTaskDetails div.account").append("<a href='/ARAccountDetail?id="+acctId+"'>"+acctName+"</a>");
+                            } else {
+                                $("#divTaskDetails div.account").text("None");
+                            }
+
+                            $("#divTaskDetails .account-container").show();
+
+                        } else {
+
+                            $("#divTaskDetails .account-container").hide();
+
+                        }
+
+
+                        $("#divTaskDetails div.createdBy").html( t.createdBy || "None");
+
+                        $("#divTaskDetails div.status").html(t.status || "None");
+                        $("#divTaskDetails div.priority").html(t.priority || "None");
+
+                        $("#divTaskDetails div.dueDate").html(t.s_dueDate || "None");
+                        $("#divTaskDetails div.taskOwner").html(t.taskOwner || "None");
+                        $("#divTaskDetails div.subject").html(t.subject || "None");
+                        $("#divTaskDetails div.description").html(globalDecodeEntities(t.description) || "None");
+
+                        var notes = t.notes;
+                        if ( typeof notes != "undefined" && notes.length > 0 ) {
+                            $("#divTaskDetails div.notes").text(globalDecodeEntities(notes));
+                        } else {
+                            $("#divTaskDetails div.notes").text("None");
+                        }
+                        
+                        // these fields are only visible to non-surgeons
+                        if ( t.surgeonRecordType && t.surgeonRecordType != "Surgeons") {
+                            $("#divTaskDetails div.surgeon-practiceName").html( globalDecodeEntities(t.accountPracticeName) || "None");
+
+                            var street = t.accountStreet || "";
+                            var city = t.accountCity || "";
+                            var state = t.accountState || "";
+                            var zip = t.accountPostalCode || "";
+
+                            var address = globalDecodeEntities(street);
+                            if ( address.length > 0 ) { address += "<br/>"; }
+                            if ( city.length > 0 ) { address += globalDecodeEntities(city); }
+                            if ( state.length > 0 ) { address += ", "+state; }
+                            if ( zip.length > 0 ) { address += "<br/>"+zip; }
+
+                            $("#divTaskDetails div.surgeon-address").html( address );
+
+                            $("#divTaskDetails div.undefined-surgeon-container").show();
+
+                            $("#divTaskDetails div.email-container").hide();
+                            if ( typeof t.surgeonEmail !== "undefined" && (t.taskType == "Leads App"  || t.isTicket === true) ) {                            
+                                $("#divTaskDetails div.email").empty().append("<a href='mailto:"+t.surgeonEmail+"'>"+t.surgeonEmail+"</a>");
+                                $("#divTaskDetails div.email-container").show();
+                            } else {
+                                // try contact if leads app but not a tikcet
+                                
+                                if ( typeof t.contactEmail !== "undefined" && (t.taskType == "Leads App"  && t.isTicket != true)  ) { 
+                                    $("#divTaskDetails div.email").empty().append("<a href='mailto:"+t.contactEmail+"'>"+t.contactEmail+"</a>");
+                                    $("#divTaskDetails div.email-container").show();
+                                }
+                                
+                            }
+
+                            $("#divTaskDetails div.phone-container").hide();
+                            if ( typeof t.surgeonPhone !== "undefined"  && (t.taskType == "Leads App"  || t.isTicket === true) ) {                            
+                                $("#divTaskDetails div.phone").empty().append("<a href='tel:"+t.surgeonPhone+"'>"+t.surgeonPhone+"</a>");
+                                $("#divTaskDetails div.phone-container").show();
+                            } else {
+                                // try contact if leads app but not a tikcet
+                                
+                                if ( typeof t.contactPhone !== "undefined" && (t.taskType == "Leads App"  && t.isTicket != true)  ) { 
+                                    $("#divTaskDetails div.phone").empty().append("<a href='tel:"+t.contactPhone+"'>"+t.contactPhone+"</a>");
+                                    $("#divTaskDetails div.phone-container").show();
+                                }
+                                
+                            }
+
+                        } else {
+
+                            $("#divTaskDetails div.undefined-surgeon-container").hide();
+
+                        }
+
+                        /*
+                            Vishnu Release 4.4: Added this part to show the Lead Interests for
+                                                Have Rep Contact me or Add to OrthoIllustrated ticket
+                        */
+                        $("#divTaskDetails .leadInterests").hide();
+                        if(t.contactId && t.taskType == "Leads App" && 
+                            (t.subject == "Have Rep Contact Me" || t.subject == "Add to OrthoIllustrated")){
+                            $("#divTaskDetails .tdLeadInterests").empty();
+                            $("#divTaskDetails .leadInterests").show();
+                            populateInterests(t.conferenceId, t.contactId, "#lead-interests-modal");
+                        }
+
+                        // the below fields are only visible if they exist
+                        //  $("#divTaskDetails div.method-of-contact-container").hide();    //  Vishnu Release 4.4: Always showing method of container
+                        $("#divTaskDetails div.method-of-contact-container").show();
+                        if ( typeof t.surgeonMethodOfContact !== "undefined" ) {                            
+                            $("#divTaskDetails div.method-of-contact").text(t.surgeonMethodOfContact);
+                            $("#divTaskDetails div.method-of-contact-container").show();
+                        }
+
+
+                        $("#divTaskDetails div.leads-app-action-container").hide();
+                        if ( typeof t.leadsAppAction !== "undefined" ) {                            
+                            $("#divTaskDetails div.leads-app-action").text(t.leadsAppAction);
+                            $("#divTaskDetails div.leads-app-action-container").show();
+                        }
+
+                    }
+
+                        // this function is used for initializing the task modal for editing and cloning 
+                        // so it will be the same for both
+                        function populateTaskModalWithTask(t) {
+
+                            
+                            if ( t.taskType == "Leads App" || t.isTicket === true) {
+                                // leads app task
+                                $("#task-modal .hidden-leads-app").hide();
+                                $("#task-modal .visible-leads-app").show();
+
+                                    /*
+                                        Vishnu Release 4.4: Added to show follow-up task
+                                    */
+
+                                $("#task-modal .source-container").show();
+                                $("#task-modal .source").val(t.conferenceName);
+                                
+                                if(t.isFollowUpTask){
+                                    $("#task-modal select.task-type").append("<option value='follow-up'>Lead Follow-up</option>");
+                                    $("#task-modal select.task-type").val("follow-up");
+                                    $("#task-modal .task-type-label").text("Lead Follow-up");
+                                    $("#task-modal input.other-subject").removeAttr("disabled");
+                                    $("#task-modal textarea.description").removeAttr("disabled");
+                                } else {
+                                    $("#task-modal select.task-type").append("<option value='leads-app'>Leads App</option>");
+                                    $("#task-modal select.task-type").val("leads-app");
+                                    $("#task-modal .task-type-label").text("Leads App");
+                                }
+
+                                $("#task-modal input.contactName").val(t.surgeon);
+                                $("#task-modal input.contactEmail").val(t.surgeonEmail);
+                                $("#task-modal input.contactPhone").val(t.surgeonPhone);
+
+                                // only visible if they exist
+                                if ( typeof t.surgeonMethodOfContact != "undefined") {
+                                    $("#task-modal input.methodOfContact").val(t.surgeonMethodOfContact);
+                                    $("#task-modal div.methodOfContact-container").show();
+                                } else {
+                                    $("#task-modal div.methodOfContact-container").hide();
+                                }
+
+                                if ( typeof t.leadsAppAction != "undefined") {
+                                    $("#task-modal input.leadsAppAction").val(t.leadsAppAction);
+                                    $("#task-modal input.leads-app-action").val(t.leadsAppAction);//added by srinivas sattoor on 8.4.2017
+                                    $("#task-modal div.leadsAppAction-container").show();
+                                    $("#task-modal div.leads-app-action-container").show();//added by srinivas sattoor on 8.4.2017
+                                } else {
+                                    $("#task-modal div.leadsAppAction-container").hide();
+                                    $("#task-modal div.leads-app-action-container").hide();//added by srinivas sattoor on 8.4.2017
+                                }
+                                
+                                if ( typeof t.notes != "undefined" && t.notes.length > 0 ) {
+                                    $("#task-modal textarea.notes").val(globalDecodeEntities(t.notes));
+                                }
+                                
+                                // subject, descrition are readonly
+                                $("#task-modal input.other-subject").attr("disabled","true");
+                                $("#task-modal textarea.description").attr("disabled","true");
+
+                            } else {
+                                // regular task
+                                $("#task-modal input.other-subject").removeAttr("disabled");
+                                $("#task-modal textarea.description").removeAttr("disabled");
+
+                                $("#task-modal select.task-type option[value='leads-app']").remove();
+                                $("#task-modal select.task-type").val( t.taskType.toLowerCase() );
+                                $("#task-modal .task-type-label").text(t.taskType);
+                                
+                                $("#task-modal .hidden-leads-app").show();
+                                $("#task-modal .visible-leads-app").hide();
+                            }
+
+                            $("#task-modal select.task-type").attr("disabled",true);
+
+                            // priority button
+                            $("#task-modal button.priority").each(function() {
+                                if ( $(this).attr("data-value") == t.priority ) {
+                                    $(this).removeClass("btn-default").addClass("btn-primary");
+                                } else if ( $(this).hasClass("btn-primary") ) {
+                                    $(this).removeClass("btn-primary").addClass("btn-default");
+                                }
+                            });
+
+                            // status button
+                            $("#task-modal button.status").each(function() {
+                                if ( $(this).attr("data-value") == t.status ) {
+                                    $(this).removeClass("btn-default").addClass("btn-primary");
+                                } else if ( $(this).hasClass("btn-primary") ) {
+                                    $(this).removeClass("btn-primary").addClass("btn-default");
+                                }
+                            });
+
+                            // subject picklist or freeform text
+                            // always use the free-form input by not populating the select pull down - chad 2017-06-22
+                            var found = false;
+                            $("#task-modal select.subject option").each(function() {
+                                
+                                var optionVal = $(this).val();
+
+                                /*
+                                if ( t.subject == optionVal ) {
+                                    $(this).attr("selected",true);
+                                    found = true;
+                                } else {
+                                    $(this).removeAttr("selected");
+                                }
+                                */
+                                
+                                
+
+                            });
+
+                            if ( !found && typeof t.subject !== 'undefined' && t.subject.length > 0 ) {
+                                // subject wasn't in picklist but it does exist show it in the freeform text
+                                $("#task-modal select.subject").hide();
+                                $("#task-modal .other-subject").show();
+                                $("#task-modal input.other-subject").val( globalDecodeEntities(t.subject) );
+                            }
+
+                            $("#task-modal .association-label").text(t.taskType);
+                            
+
+                            // opportunity and case details
+                            if ( t.taskType === "Opportunity" || t.taskType === "Surgical Case") {
+                                
+                                if ( t.taskType === "Surgical Case" ) {
+                                    // transform "Surgical Case" to "Case" 
+                                    $("#task-modal select.task-type").val("case");
+                                    $("#task-modal .association-label").text("Case");
+                                }
+                                
+                                
+                                var recordId = t.sourceId;
+                                var name = t.source;
+                                var accountName = t.accountName;
+                                var accountId = t.accountId;
+
+                                $("#task-modal .associated-object").val(name);
+                                $("#task-modal .associated-object").attr("data-record-id", recordId);                         
+                                $("#task-modal input.account").attr("data-record-id", accountId).val(accountName);
+                                
+                                $("#task-modal div.ctag-list.surgeon").empty();
+                                //Updated by srinivas sattoor on 8.3.2017
+                               /* for ( var i=0; i < t.additionalSurgeons.length; i++) {
+                                   $("#task-modal div.ctag-list.surgeon").append(obj2ctag({
+                                        Id: t.additionalSurgeons[i].id,
+                                        Name: t.additionalSurgeons[i].name
+                                    }));
+                                }*/
+                                var lstTaskRelations = t.lstTaskRelations;
+                                for ( var i=0; i < lstTaskRelations.length; i++ ) {
+                                
+                                    $("#task-modal div.ctag-list.surgeon").append(obj2ctag({
+                                      Name: globalDecodeEntities(lstTaskRelations[i].Relation.Name),
+                                      Id: lstTaskRelations[i].RelationId
+                                    }));
+                
+                                }
+                                
+
+                                // for cases the surgeon list is readonly
+                                if ( $("#task-modal select.task-type").val() === "case" ) {
+                                    $("#task-modal span[data-role=remove-tag]").remove();
+                                }
+
+                                // remove "free-form" option from subject
+                                $("#task-modal select.subject option[value=free-form]").remove;
+
+                                $("#task-modal .association-container").show();
+                                $("#task-modal button.association-button").show();
+                                $("#task-modal .account-container").show();
+                                $("#task-modal .surgeon-container").show();
+                                   
+                            } else if ( t.taskType === "Account" || t.taskType === "Surgeon" ) {
+
+                                $("#task-modal select.task-type").val( t.taskType.toLowerCase() );
+
+                                var recordId = t.sourceId;
+                                var name = t.source;                           
+
+                                $("#task-modal .associated-object").val(name);
+                                $("#task-modal .associated-object").attr("data-record-id", recordId);                         
+                                $("#task-modal .association-container").show();
+                                $("#task-modal button.association-button").hide();
+
+                            } 
+
+                            /*if ( t.teamId ) {
+                                
+                                // set the team and trigger change to update the task owner list
+
+                                // put this at the end of the task queue to try and further reduce race conditions
+                                window.setTimeout(function() {
+                                    DDTEAMTREE=true;
+                                    $("#task-modal #taskTeamButton").closest("div.dropdown").find("input[value='"+t.teamId+"']").click(); 
+                                });
+
+                            }*/
+
+                            // the other misc inputs
+                            $("#task-modal input.dueDate").val(t.s_dueDate);
+                            $("#task-modal textarea.description").val(globalDecodeEntities(t.description));
+                                                        
+                            $("#task-modal span.createdBy").text(globalDecodeEntities(t.createdBy));
+                            $("#task-modal select.task-owner").val(t.taskOwnerId);
+                            // the task owner list is built using a remoting call, we need to wait until it's finished
+                            // before setting the owner
+                            $("#task-modal #taskTeamButton").one("task.team.changed", function() {
+                                $("#task-modal select.task-owner").val(t.taskOwnerId).change();
+                            });
+
+
+                            // track changes to any values
+                            //window.originalEditTask = taskModal2TaskObj();
+
+                            
+                            //window.originalEditTask.ownerId = t.taskOwnerId;
+
+                        } // end of functin populateTaskModalWithTask                    
+
+
+                    // canceling a task
+                    /*
+                    $("#task-modal button.cancel").on("click", function(e) {
+                        e.stopPropagation();
+                        e.preventDefault();
+
+                        var id = $("#task-modal").attr("data-record-id");
+                        if ( typeof id != "undefined" && id.length > 1 ) {
+
+                            var currentEditTask = taskModal2TaskObj();
+                            // any anything has changed ask the user if htey want to save
+
+                            var currentEditTaskJson = JSON.stringify(currentEditTask);
+                            var originalEditTaskJson = JSON.stringify(window.originalEditTask);
+
+                            console.log("current = "+currentEditTaskJson);
+                            console.log("original = "+originalEditTaskJson);
+                            if ( currentEditTaskJson != originalEditTaskJson) {
+
+                                $("#cancel-confirm").modal("show");
+
+                            } else {
+                                // nothing has changed, just close the modal
+                                $("#task-modal").modal("hide");
+                            }
+
+                        }
+                        
+
+
+                    });
+                    */
+
+                    // saving a task
+                    $("#task-modal button.save").on("click", function(e) {
+                        e.stopPropagation();
+                        e.preventDefault();
+
+                        var task = taskModal2TaskObj(); /* this function is defined in ARTemplate */
+
+                        var taskType = "sftask";                       
+                        if ( window.currentTask && !window.currentTask.isAxisTask ) {
+                            taskType = "ticket"
+                        }
+                        
+                        // subject ( labeled as description on the modal ) is required
+                        if ( typeof task.subject == "undefined" || task.subject.length == 0 ) {
+                            $("#task-modal .help-text.required.subject").show();
+                            return;
+                        }
+
+                        $(this).attr("disabled", true);
+
+                        $("#task-modal .save-busy").show();
+                        console.log('##--task.whoIdList: '+ task.whoIdList);
+                        Visualforce.remoting.Manager.invokeAction("CS_ARTasksCC.saveTask",taskType, task.whatIdList, task.whoIdList, task,
+                        function(result, event) {
+                            $("#task-modal .save-busy").hide();
+                            if ( event.status ) {
+
+                                // if taskOwnerId is "noaccess", then the owner does not have access to the account
+                                if ( result.taskOwnerId == "noaccess" ) {
+                                    $("#task-modal span.task-modal-error").text("The owner does not have access to the account");
+                                    $("#task-modal button.save").removeAttr("disabled");
+                                    return;
+                                }
+
+                                if ( task.id ) {
+                                    // this was an update
+
+                                    // update the global task list
+                                    for ( var i=0; i < window.taskList.length; i++) {
+                                        if ( window.taskList[i].id === task.id ) {
+                                            window.taskList[i] = result;
+                                        }
+                                    }
+
+                                    // update the row in the grid  
+                                    /*                              
+                                    var updatedNodes = [];
+                                    taskGridOptions.api.forEachNode( function(node) {
+                                        var data = node.data;
+                                        if (data.id == task.id) {
+                                            updatedNodes.push(node);
+                                        }
+                                    });
+                                    // now tell the grid it needs refresh these rows
+                                    taskGridOptions.api.refreshRows(updatedNodes);
+                                    */
+                                    
+                                    // update the list view table
+                                    window.taskGridOptions.api.setRowData(window.taskList);
+                                    
+                                    // this resets the filter so make the filters say "all" again
+                                    $("a.filter-clear").click();
+
+                                    // update the current task
+                                    window.currentTask = result;
+
+                                    // update the detail view
+                                    populateTaskDetailViewWithTask(window.currentTask);
+
+                                    if ( (result.isAxisTask !== true || result.taskType == "Leads App" ) && result.isSurgeonAndOwnerInSameTerritory !== true) {
+                                        // leads app task (or ticket) where the owner and surgeon do not match territories
+                                        // ask the user if htey want to create a case to have the surgeon moved
+                                        $("#surgeon-rep-modal").modal("show");
+                                    }
+
+                                } else {
+                                    // this was an create
+
+                                    // add to the task list
+                                    window.taskList.push(result);
+
+                                    // update the list view table
+                                    window.taskGridOptions.api.setRowData(window.taskList);
+
+                                    // no need to update the detail view since this was a create
+                                    // and not an update
+    
+                                }
+
+                                
+                                $("#task-modal").modal("hide");
+                                $("span.task-modal-error").text("");
+
+                                
+                            } else {
+
+                                $("#task-modal span.task-modal-error").text(event.message);
+
+                            }
+                            $("#task-modal button.save").removeAttr("disabled");
+                            
+                        });                   
+                        
+                    });
+
+                    // deleting a task just set's its status to completed
+                    $("#task-modal button.delete").on("click", function(e) {
+                        e.stopPropagation();
+                        e.preventDefault();
+                        $(this).attr("disabled", true);
+
+                        var taskId = $("#task-modal").attr("data-record-id");
+
+                        $("#task-modal .delete-busy").show();
+                        Visualforce.remoting.Manager.invokeAction("CS_ARTasksCC.updateTaskStatus", taskId, "Cancelled",
+                        function(result, event) {
+                            $("#task-modal .delete-busy").hide();
+                            if ( event.status ) {
+
+                                window.taskList = $.grep(window.taskList, function(t) {
+                                    // returns all rows except for the one deleted
+                                    return t.id != taskId;
+                                });
+
+                                taskGridOptions.api.setRowData(window.taskList);
+
+                                
+                                $("#task-modal").modal("hide");
+                                $("span.task-modal-error").text("");
+
+                                
+                            } else {
+
+                                // don't show error on the screen because permissions will prevent non-owners from changing status
+                                // $("#task-modal span.task-modal-error").text(event.message);
+                                console.log(event.message);
+                            }
+
+                            $("#task-modal button.delete").removeAttr("disabled");
+                            
+                        });
+                    });
+
+                    // task list pager controls
+                    // task pager callback
+                        $("select.task-list-pager-size-change").on("change", function(e) {
+
+                            var newPageSize = $(this).val();
+                            var grid = taskGridOptions;
+
+                            if(newPageSize != 'All'){
+                                grid.api.paginationSetPageSize(Number(newPageSize));
+                            }else{
+                                grid.api.paginationSetPageSize(Number(gridOptions.api.getModel().getRowCount()));
+                            }
+
+                        });
+
+                        // task pager callbacks
+                        $("button.task-list-pager-control").on("click", function(e) {
+                            e.preventDefault();
+                            e.stopPropagation();
+                            
+                            var grid = taskGridOptions;
+
+                            if ( $(this).hasClass("first")) {
+                                grid.api.paginationGoToFirstPage();                                                                
+                            } else if ( $(this).hasClass("last")) {
+                                grid.api.paginationGoToLastPage();
+                            } else if ( $(this).hasClass("next")) {
+                                grid.api.paginationGoToNextPage();
+                            } else if ( $(this).hasClass("previous")) {
+                                grid.api.paginationGoToPreviousPage(); 
+                            }
+                        });
+
+                        $("select.task-list-pager-control.page-size-change").on("change", function(e) {
+                          
+                            var newPageSize = $(this).val();
+                            if(newPageSize != 'All'){
+                                taskGridOptions.api.paginationSetPageSize(Number(newPageSize));
+                            }else{
+                                taskGridOptions.api.paginationSetPageSize(Number(taskGridOptions.api.getModel().getRowCount()));
+                            }
+                        
+                        });
+
+                    // creates a case to have the surgeon moved to a territory matching the new owner
+                    $("#surgeon-rep-modal  button.btn-surgeon-not-assigned").on("click", function() {
+                        
+                        var ticketId = window.currentTask.id;
+                        var surgeonName = window.currentTask.surgeon;
+                        var surgeonId = window.currentTask.surgeonId;
+                        var ownerName = window.currentTask.taskOwner;
+
+                        $(this).attr("disabled", true);
+                        $("#surgeon-rep-modal .save-busy").show();
+                        Visualforce.remoting.Manager.invokeAction("CS_ARTasksCC.createCaseForSurgeonNotInSameTerritoryAsOwner", 
+                        ticketId, surgeonName, ownerName, surgeonId, function(result, event) {
+
+                            $("#surgeon-rep-modal .save-busy").hide();
+                            if ( event.status ) {
+                                
+                                $("#surgeon-rep-modal").modal("hide");
+                                $("#surgeon-rep-modal span.save-error").text("");
+
+                            } else {
+
+                                $("#surgeon-rep-modal span.save-error").text(event.message);
+
+                            }
+
+                            $("#surgeon-rep-modal  button.btn-surgeon-not-assigned").removeAttr("disabled");
+                            
+                        });
+
+                    });
+
+                }); // end document ready
+                    
+            </script>
+        
+            <div class="wrapper wrapper-content"> 
+                <div class="row">
+                    <div class="col-sm-12 task-list-container">
+                        <div class="ibox float-e-margins" style="background-color: white;margin-bottom:0px"> 
+                            <div class="ibox-title" style="background-color: white; border-bottom-color: #151516 !important; border-bottom: solid 2px; margin-bottom: 10px"> 
+                                <div class="clearfix">
+                                    <div class="pull-left">
+                                        <div id="taskListView">
+                                            <h2>
+                                                <b><span class="font-large">Task List</span>
+                                                <i class="task-list-busy fa fa-refresh fa-spin" style="display:none"></i>
+                                                <span class="text-danger task-error"></span>
+                                                </b>
+                                            </h2>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>  <!-- end of ibox-title --> 
+                            <div class="ibox-container">
+                                <div class="clearfix" style="padding: 10px">    
+
+                                    <div class="col-sm-6 col-xs-12  col-lg-3 text-left">
+                                        <input type="text" class="search form-control" placeholder="Search ..."/>
+                                    </div>
+
+                                    <div class="form-inline col-xs-12 col-sm-6 col-lg-9 text-right">
+
+                                        <div class="form-group" style="margin-right:10px">
+                                            <span class="text-danger filter-error"></span>
+                                            <span class="text-success filter-success"></span>
+                                        </div>
+
+                                        <div class="btn-group">
+                                          <button type="button" class="btn btn-primary filter-menu-btn" style="margin-bottom:0px;min-width:50px">
+                                            <span class="filter-has-changed" style="display:none">*</span><i class="fa fa-filter"></i>
+                                            <span class="selected-filter">All</span>
+                                          </button>
+                                          <button type="button" class="btn btn-primary dropdown-toggle filter-menu-btn" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" style="margin-bottom:0px">
+                                            <span class="caret"></span>
+                                            <span class="sr-only">Toggle Filter Dropdown</span>
+                                          </button>
+                                          <ul class="dropdown-menu filter-menu">
+                                            <li><a href="#" class="filter-save-as">Save As ...</a></li>
+                                            <li style="display:none"><a href="#" class="filter-save">Save</a></li>
+                                            <li><a href="#" class="filter-clear">Clear</a></li>
+                                            <li style="display:none"><a href="#" class="filter-delete">Delete</a></li>
+                                            <li role="separator" class="divider saved-filter-list" style="display:none"></li>
+
+                                          </ul>
+                                        </div>
+
+                                        
+                                        <div class="form-group filter-save-as" style="display:none">
+                                            <input type="text" class="form-control filter-name" placeholder="Filter Name..."/>
+                                            <button class="btn btn-primary filter-save-as" style="margin-bottom:0px">Save</button>
+                                            <button class="btn btn-default filter-cancel-save-as" style="margin-bottom:0px">Cancel</button>
+                                        </div>
+
+                                        
+                                        <div class="form-group task-add-new" style="margin-left:10px; display:inline-block">
+
+                                            <button class="btn btn-primary task-add-new" style="margin-bottom:0px"> Add Task </button>
+                                            <!--  Added by Swetha -- Export as CSV functionality -- START -->
+                                            <button class="btn btn-primary" onclick="onBtExport()" style="margin-bottom:0px; display:{!if(currentUserCanExportListview == true, 'inline', 'none;')}"> Export </button>
+                                           
+                                            <!--  Added by Swetha -- Export as CSV functionality -- END -->
+                                        </div>
+                                         
+                                        
+                                    </div>
+                                    <!-- end added by chad -->
+                                                          
+                                </div> 
+                            </div>
+                            
+                        </div> <!-- end of ibox float-e-margins -->
+                        <div >
+                            <div id="taskGrid" style="border:thin; border-color:gray; height: 440px;" class="ag-bootstrap"></div>
+                            <br/>
+                            <div class="row bootstrap-font">
+                                <div class ="col-sm-6">
+                                    Showing <span class="value" id="lbFirstRow">1</span> to <span class="value" id="lbLastRow">5</span> of <span class="value" id="lbPageSize"></span> rows 
+                                    <select class="task-list-pager-control page-size-change">
+                                        <option value="20">20</option>
+                                        <option value="40">40</option>
+                                        <option value="60">60</option>
+                                        <option value="80">80</option>
+                                        <option value="100">100</option>
+                                        <option value="All">All</option>
+                                    </select>
+                                    records per page
+                                </div>
+                                <div class="col-sm-6">
+                                    <div class="pull-right">
+                                        <button type="button" class="btn btn-xs btn-primary task-list-pager-control first">First</button>
+                                        <button type="button" class="btn btn-xs btn-primary task-list-pager-control previous">Previous</button>
+                                        <button type="button" class="btn btn-xs btn-primary task-list-pager-control next">Next</button>
+                                        <button type="button" class="btn btn-xs btn-primary task-list-pager-control last" >Last</button>   
+                                    </div>
+                                    
+                                </div>
+                            </div> 
+                        </div>
+                    </div>  <!-- end of first col-sm-7 -->
+                    
+                    <div class="col-sm-4 task-detail" data-record-id="" style="display:none">
+                        <div class="ibox float-e-margins" style="background-color: white;"> 
+                            <div class="ibox-title" style="background-color: white; border-bottom-color: #151516 !important; border-bottom: solid 2px; margin-bottom: 10px"> 
+                                <div class="clearfix"> 
+                                    <div class="row">
+                                        <div class="col-xs-9">
+                                            
+                                                <div id="taskListHeader">
+                                                    <h2>
+                                                        <b><span class="font-large">Task Details</span></b>
+                                                        <i class="task-detail-busy fa fa-refresh fa-spin" style="display:none"></i>
+                                                    </h2>
+                                                </div>
+                                            
+                                        </div>
+                                        <div class="col-xs-3 text-right">
+                                            <div class="dropdown">
+                                                <button class="btn btn-primary task-detail-dropdown" type="button" data-toggle="dropdown">
+                                                    <span class="caret"></span> 
+                                                </button>
+                                                <ul class="dropdown-menu">
+                                                    <li><a href="#" class="task-detail-edit">Edit</a></li> 
+                                                    <li><a href="#" class="task-detail-clone">Clone</a></li>
+                                                    <li><a href="#" class="task-detail-delete">Delete</a></li>
+                                                    <li><a href="#" class="task-detail-cancel">Close</a></li> 
+                                                </ul>
+                                            </div>
+                                        </div>
+                                    </div>                              
+                                </div> 
+                             </div> <!-- end of ibox-title -->
+                             <div class="ibox-container">
+                                <div class="clearfix" style="padding: 10px">
+                                    <div id="divTaskDetails">    
+
+
+                                        <div class="row">
+                                             
+                                            <div class="col-xs-6">  
+                                                <div class="form-group"> 
+                                                    <p class="form-control-static axis-detail-pg-field-label">Task Type</p> 
+                                                    <div class="taskType">
+                                                            
+                                                    </div>                                         
+                                                </div> 
+                                                <div class="form-group"> 
+                                                    <p class="form-control-static axis-detail-pg-field-label">Source</p> 
+                                                    <div class="source">
+                                                            
+                                                    </div>
+                                                </div>
+                                                <div class="form-group">
+                                                    <p class="form-control-static axis-detail-pg-field-label">Team</p>
+                                                    <div class="team wordwrap"></div>
+                                                    <input type="hidden" id="hiddenTaskAccountTeamId" />
+                                                </div> 
+                                                <div class="form-group account-container hidden-leads-app"> 
+                                                    <p class="form-control-static axis-detail-pg-field-label">Account</p> 
+                                                    <div class="account wordwrap">
+                                                        
+                                                    </div>
+                                                </div>
+                                                <div class="form-group surgeon-container"> 
+                                                    <p class="form-control-static hidden-leads-app axis-detail-pg-field-label">Surgeon</p> 
+                                                    <p class="form-control-static visible-leads-app axis-detail-pg-field-label">Attendee</p> 
+                                                    <div class="surgeon wordwrap">
+                                                        
+                                                    </div>
+                                                </div>
+                                                <div class="form-group visible-leads-app method-of-contact-container"> 
+                                                    <p class="form-control-static axis-detail-pg-field-label">Method of Contact</p> 
+                                                    <div class="method-of-contact wordwrap">
+                                                        
+                                                    </div>
+                                                </div>
+                                                <div class="form-group visible-leads-app email-container"> 
+                                                    <p class="form-control-static axis-detail-pg-field-label">Email</p> 
+                                                    <div class="email wordwrap">
+                                                        
+                                                    </div>
+                                                </div>
+                                                <div class="form-group visible-leads-app phone-container"> 
+                                                    <p class="form-control-static axis-detail-pg-field-label">Phone</p> 
+                                                    <div class="phone wordwrap">
+                                                        
+                                                    </div>
+                                                </div>
+                                                <div class="form-group undefined-surgeon-container" style="display:none"> 
+                                                    <p class="form-control-static axis-detail-pg-field-label">Address</p> 
+                                                    <div class="surgeon-address wordwrap"></div>
+                                                </div>
+                                            </div> 
+                                            <div class="col-xs-6"> 
+                                                <div class="form-group"> 
+                                                    <p class="form-control-static axis-detail-pg-field-label">Priority</p>
+                                                    <div class="priority wordwrap"></div>
+                                                </div> 
+                                                <div class="form-group"> 
+                                                    <p class="form-control-static axis-detail-pg-field-label">Status</p>
+                                                    <div class="status wordwrap"></div>
+                                                </div> 
+                                                <div class="form-group"> 
+                                                    <p class="form-control-static axis-detail-pg-field-label">Due Date</p> 
+                                                    <div class="dueDate wordwrap"></div>
+                                                </div>
+                                                <div class="form-group"> 
+                                                    <p class="form-control-static axis-detail-pg-field-label">Task Owner</p> 
+                                                    <div class="taskOwner wordwrap"></div>
+                                                    
+                                                </div>
+                                                <div class="form-group hide-on-create"> 
+                                                    <p class="form-control-static axis-detail-pg-field-label">Created By</p> 
+                                                    <div class="createdBy wordwrap"></div>
+                                                </div>
+                                                <div class="form-group undefined-surgeon-container" style="display:none"> 
+                                                    <p class="form-control-static axis-detail-pg-field-label">Practice Name</p> 
+                                                    <div class="surgeon-practiceName wordwrap"></div>
+                                                </div>
+                                                <div class="form-group hide-on-create leadInterests"> 
+                                                    <p class="form-control-static"><a href="#" data-toggle="modal" data-target="#lead-interests-modal">Click to view Interests</a></p> 
+                                                </div>
+
+
+                                            </div>
+                                        </div> 
+                                        <hr/>
+                                        <div class="row">
+                                            <div class="col-sm-12"> 
+                                                 <div class="form-group"> 
+                                                    
+                                                    <p class="form-control-static axis-detail-pg-field-label">Description</p>
+                                                    <div class="subject wordwrap"></div>
+                                                    
+                                                </div>
+                                            </div> 
+                                            <div class="col-sm-12 leads-app-action-container visible-leads-app"> 
+                                                 <div class="form-group"> 
+                                                    
+                                                    <p class="form-control-static axis-detail-pg-field-label">Leads App Action</p>
+                                                    <div class="leads-app-action wordwrap"></div>
+                                                    
+                                                </div>
+                                            </div>
+                                            <div class="col-sm-12"> 
+                                                <div class="form-group"> 
+                                                    
+                                                    <p class="form-control-static axis-detail-pg-field-label">Comments</p>
+                                                    <div class="description wordwrap"></div>
+                                                    
+                                                </div>
+                                            </div>
+                                            <div class="col-sm-12 leads-app-notes-container  visible-leads-app"> 
+                                                <div class="form-group"> 
+                                                    
+                                                    <p class="form-control-static axis-detail-pg-field-label">Notes</p>
+                                                    <div class="notes wordwrap"></div>
+                                                    
+                                                </div>
+                                            </div>
+                                        </div> 
+                                        
+                                    </div>
+                                </div>
+                            </div>  <!-- end of ibox-container -->
+                        </div>
+                    </div>  <!-- end of col-2 -->
+                </div>  <!-- end of row --> 
+            </div>  <!-- end of top wrapper -->
+            
+            
+            <!-- the task modal has been moved to ARTemplate - Chad -->
+                
+                <div class="modal fade  modal-authrex" id="surgeon-rep-modal" data-backdrop="static" tabindex="-1" role="dialog">
+                  <div class="modal-dialog"  style="width:450px">
+                    <div class="modal-content">
+                      <div class="modal-header">
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                        <h4 class="modal-title"><i class="fa fa-plus-square-o"></i>&nbsp;&nbsp;Task</h4>
+                      </div>
+    
+                      <div class="modal-body">
+                       <div class="row"> 
+                              <label>Surgeon not assigned to reps territory. Would you like the AXIS team to assign surgeon?</label>
+                         </div>         
+                      </div>
+                      <div class="modal-footer">
+                            <span class="text-danger save-error"></span>&nbsp;&nbsp; 
+                            <button type="button" class="btn btn-default btn-surgeon-not-assigned">Yes <i class="fa fa-refresh fa-spin save-busy" style="display:none"></i></button>
+                            <button type="button" class="btn btn-primary" data-dismiss="modal">No</button> 
+                      </div>
+                    </div><!-- /.modal-content -->
+                  </div><!-- /.modal-dialog -->
+                </div><!-- /.modal -->  
+                
+                
+                <div class="modal fade  modal-authrex" id="cancel-confirm" data-backdrop="static" tabindex="-1" role="dialog">
+                  <div class="modal-dialog"  style="width:450px">
+                    <div class="modal-content">
+                      <div class="modal-header">
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                        <h4 class="modal-title"><i class="fa fa-plus-square-o"></i>&nbsp;&nbsp;Task</h4>
+                      </div>
+    
+                      <div class="modal-body">
+                       <div class="row">
+          
+                              <label>Do you want to save the changes you made for the task? </label>
+                         </div>         
+                      </div>
+                      <div class="modal-footer">
+                        <span class="text-danger save-error"></span>&nbsp;&nbsp;
+                       
+                        <button type="button" class="btn btn-default btn-confirm-save">Yes</button>
+                        <button type="button" class="btn btn-primary btn-cancel-save">No</button>
+                        
+                      </div>
+                    </div><!-- /.modal-content -->
+                  </div><!-- /.modal-dialog -->
+                </div><!-- /.modal -->  
+
+
+                    <!-- Vishnu Release 4.4: Adding modal to show the Lead Interests in Task Details -->
+                <div class="modal fade  modal-authrex" id="lead-interests-modal" data-backdrop="static" tabindex="-1" role="dialog">
+                  <div class="modal-dialog"  style="width:450px">
+                    <div class="modal-content">
+                      <div class="modal-header">
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                        <h4 class="modal-title"><i class="fa fa-plus-square-o"></i>&nbsp;&nbsp;Lead Interests</h4>
+                      </div>
+    
+                      <div class="modal-body">
+                       <div class="row"> 
+                            <div class="col-xs-12">
+                                <div class="form-group hide-on-create leadInterests">
+                                    <div class="tdLeadInterests wordwrap" ></div>
+                                </div>
+                            </div>
+                            
+                         </div>         
+                      </div>
+                      <div class="modal-footer">
+                            <button type="button" class="btn btn-primary" data-dismiss="modal">Close</button>
+                      </div>
+                    </div><!-- /.modal-content -->
+                  </div><!-- /.modal-dialog -->
+                </div><!-- /.modal -->
+
+        </apex:define>
+    </apex:composition>
+</apex:page>

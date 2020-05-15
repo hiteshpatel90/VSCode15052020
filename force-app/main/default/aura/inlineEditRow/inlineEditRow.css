@@ -1,0 +1,9 @@
+.THIS .inputFieldWidth {
+    width:85%;
+}
+.THIS div.show{
+    visibility:visible;
+}
+.THIS div.hide{
+    visibility:hidden;
+}

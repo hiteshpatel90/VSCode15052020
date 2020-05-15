@@ -1,0 +1,6 @@
+<apex:page controller="TodayDateController">
+    <apex:form id="frm">
+        <apex:inputText value="{!strTodayDate}"/>
+        <apex:commandButton reRender="frm" action="{!displayDate}" value="Display Date"/>
+    </apex:form>
+</apex:page>

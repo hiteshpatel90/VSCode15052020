@@ -1,0 +1,5 @@
+<apex:page controller="exportAttachment">
+    <apex:form >
+    <apex:commandButton value="Export" action="{!exportQuoteattachment}"/>
+    </apex:form>
+</apex:page>

@@ -1,0 +1,5 @@
+<apex:page controller="exportValidationRuleController" contentType="text/csv#validationRuleExport.csv">"Id","Name","Created Date","Active","Description","Error Message","errorConditionFormula"
+    <apex:repeat value="{!validationRuleList}" var="vr">
+{!vr.validationruleId},{!vr.strValidationName},{!vr.validationCreateddate},{!vr.isActive},{!vr.strDescription},{!vr.strErrorMessage},{!vr.strerrorConditionFormula} 
+    </apex:repeat>
+</apex:page>

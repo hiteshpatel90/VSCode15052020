@@ -1,0 +1,93 @@
+<apex:page controller="z_DumpFrontPageCont" setup="true">
+
+	<apex:sectionHeader title="{!$Label.z_MetadataDump}"/>
+	<a href="{!URLFOR($Resource.z_doc)}" target="_blank">Complete Getting Started Guide</a>
+
+	<apex:form >
+		<apex:actionPoller rerender="filter,hidden,dumpBtn,messagepanel" interval="5" action="{!updateProgress}" status="counterStatus"/>
+       
+		<apex:outputPanel id="messagepanel">
+						
+			<apex:pageMessage summary="{!$Label.z_Message1}" severity="warning" strength="2"  rendered="{!IF(message == '',true,false)}" />
+			<apex:pageMessage summary="{!$Label.z_Message2}" severity="warning" strength="2"  rendered="{!IF(message == '',true,false)}" />
+			<apex:pageMessage summary="{!$Label.z_Message3}" severity="warning" strength="2"  rendered="{!IF(message == '',true,false)}" />		
+			<apex:pageMessage summary="{!CASE(messageCode, 0, $Label.z_SUCCESS, 1, $Label.z_FAILURE, $Label.z_Warning)}" severity="info" strength="2" rendered="{!IF(message == '',false,true)}"/>
+						
+			<!--  <apex:pageMessage summary="{!IF(errornum == 0,$Label.z_SUCCESS,$Label.z_FAILURE)}" severity="info" strength="2" rendered="{!IF(message == '',false,true)}"/>-->	
+		</apex:outputPanel>
+       
+        
+		<apex:pageBlock id="filter" rendered="{!IF(ShowStatusBlock, true, false)}">
+	    	<apex:pageBlockTable id="prog" value="{!Jobs}" var="item">
+    	    	<apex:column headerValue="{!$ObjectType.AsyncApexJob.fields.ApexClassId.label}" value="{!item.Job_Type}"/> 
+        		<apex:column headerValue="{!$ObjectType.AsyncApexJob.fields.Status.label}" >
+        			<apex:outputText value="{!item.aj.status}"/>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+        			<apex:image value="{!$Resource.z_progressbar}" id="progressbar_img1" rendered="{!ShowProgressBar}" style="visibility: {!IF(item.isCompleted,'hidden','visible')}"/>
+					<!-- <apex:image url="{!URLFOR($Resource.z_meta, 'z_progressbar.gif')}" id="progressbar_img1" rendered="{!ShowProgressBar}" style="visibility: {!IF(item.isCompleted,'hidden','visible')}"/>-->        			
+
+        		</apex:column>
+        		<apex:column headerValue="{!$Label.z_Progress}"> 
+            		<div class="prog-border" >
+                		<apex:outputPanel layout="block" styleClass="{!if(item.Percent>=100,'prog-bar-done','prog-bar')}" style="width: {!item.Percent*2}px;">
+                    		<apex:outputText value="{!item.Percent}" rendered="{!if(item.Percent!=100,true,false)}" />
+                		</apex:outputPanel> 
+            		</div>
+        		</apex:column>
+        		
+        		<apex:column headerValue="{!$ObjectType.AsyncApexJob.fields.TotalJobItems.label}" value="{!item.aj.TotalJobItems}"/>
+        		
+        		<apex:column headerValue="{!$ObjectType.AsyncApexJob.fields.JobItemsProcessed.label}" value="{!item.aj.JobItemsProcessed}"/>
+        		
+        		<apex:column headerValue="{!$ObjectType.AsyncApexJob.fields.NumberOfErrors.label}" value="{!item.aj.NumberOfErrors}"/>
+      		        		         		
+    		</apex:pageBlockTable>
+	   	</apex:pageBlock>
+
+ 		<apex:commandButton id="dumpBtn" value="{!$Label.z_DumpBtn}" action="{!executeDump}" disabled="{!DisableDumpBtn}"/>
+ 		<br/>
+
+		<apex:pageBlock id="hidden" rendered="false">
+			batch1ID: {!batch1Id} <br/>
+			batch2ID: {!batch2Id} <br/>
+			batch3ID: {!batch3Id} <br/>
+			batch1Status: {!batch1Status} <br/>
+			batch2Status: {!batch2Status} <br/>
+			batch3Status: {!batch3Status} <br/>
+			DisableDumpBtn: {!DisableDumpBtn} <br/>
+			ShowProgressBar: {!ShowProgressBar} <br/>
+	   	</apex:pageBlock>
+
+
+
+	</apex:form>
+    
+    <style>
+    .prog-bar {
+      height: 14px;
+      margin: 3px;
+      padding: 0px;
+      padding-right:3px;
+      background: #FFA037;
+      text-align:right;
+      font-size:12px;
+      font-weight:bold;
+      color:#333333;
+    }
+
+    .prog-bar-done {
+      height: 14px;
+      margin: 3px;
+      padding: 0px;
+      padding-right:3px;
+      background: #C9DDEC;
+    }
+
+    .prog-border {
+      width: 209px;
+      background: #fff;
+      border: 1px solid silver;
+      margin: 0px;
+      padding: 0px;
+    }
+    </style>
+</apex:page>

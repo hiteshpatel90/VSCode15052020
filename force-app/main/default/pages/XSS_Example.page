@@ -1,0 +1,11 @@
+<apex:page controller="XSS_ExampleController">
+    <apex:form >
+        <apex:commandButton rerender="outputIt" value="Update It"/>
+        <apex:inputText value="{!myTextField}"/>
+            
+            <apex:outputPanel id="outputIt">
+               Value of my Textfield is <apex:outputText Value="{!myTextField}" escape="false"/>
+            </apex:outputPanel>
+            
+    </apex:form>
+</apex:page>

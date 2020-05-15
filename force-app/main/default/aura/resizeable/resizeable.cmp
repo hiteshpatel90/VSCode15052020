@@ -1,0 +1,101 @@
+<aura:component implements="force:appHostable,flexipage:availableForAllPageTypes,flexipage:availableForRecordHome,force:hasRecordId" access="global" >
+    <aura:attribute name="mouseStart" type="string" />
+    <aura:attribute name="oldWidth" type="string" />
+    <table class="slds-table slds-table--bordered slds-table--fixed-layout slds-box slds-max-medium-table--stacked-horizontal" role="grid">
+        <thead>
+            <tr class="slds-line-height--reset">
+                <th class="slds-is-resizable slds-text-title--caps" scope="col">
+                    <span class="slds-truncate" title="Name">Name</span>
+                    <div class="slds-resizable">
+                        <input type="range" min="20" max="1000" class="slds-resizable__input slds-assistive-text" id="cell-resize-handle-602" tabindex="0" />
+                        <span class="slds-resizable__handle" onmousedown="{!c.calculateWidth}" ondrag="{!c.setNewWidth}">
+                            <span class="slds-resizable__divider"></span>
+                        </span>
+                    </div>
+                </th>
+             
+                <th class="slds-is-sortable slds-is-resizable slds-text-title--caps" scope="col">
+                    <span class="slds-truncate" title="Close Date">Phone</span>
+                    <div class="slds-resizable">
+                        <input type="range" min="20" max="1000" class="slds-resizable__input slds-assistive-text" id="cell-resize-handle-604" tabindex="0" />
+                        <span class="slds-resizable__handle" onmousedown="{!c.calculateWidth}" ondrag="{!c.setNewWidth}">
+                            <span class="slds-resizable__divider"></span>
+                        </span>
+                    </div>
+                </th>
+                <th class="slds-is-sortable slds-is-resizable slds-text-title--caps" scope="col">
+                    <span class="slds-truncate" title="Stage">Stage</span>
+                    <div class="slds-resizable">
+                        <input type="range" min="20" max="1000" class="slds-resizable__input slds-assistive-text" id="cell-resize-handle-605" tabindex="0" />
+                        <span class="slds-resizable__handle" onmousedown="{!c.calculateWidth}" ondrag="{!c.setNewWidth}">
+                            <span class="slds-resizable__divider"></span>
+                        </span>
+                    </div>
+                </th>
+                <th class="slds-is-sortable slds-is-resizable slds-text-title--caps" scope="col">
+                    <span class="slds-truncate" title="Confidence">Account Owner</span>
+                    <div class="slds-resizable">
+                        <input type="range" min="20" max="1000" class="slds-resizable__input slds-assistive-text" id="cell-resize-handle-606" tabindex="0" />
+                        <span class="slds-resizable__handle" onmousedown="{!c.calculateWidth}" ondrag="{!c.setNewWidth}">
+                            <span class="slds-resizable__divider"></span>
+                        </span>
+                    </div>
+                </th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr class="slds-hint-parent">
+                <th scope="row">
+                    <div class="slds-truncate" title="Acme - 1,200 Widgets"><a href="javascript:void(0);">Acme - 1,200 Widgets</a></div>
+                </th>
+                <td role="gridcell">
+                    <div class="slds-truncate" title="Acme">Acme</div>
+                </td>
+                <td role="gridcell">
+                    <div class="slds-truncate" title="4/10/15">(336) 222-7000</div>
+                </td>
+                <td role="gridcell">
+                    <div class="slds-truncate" title="Value Proposition">Value Proposition</div>
+                </td>
+                <td role="gridcell">
+                    <div class="slds-truncate" title="30%">SNani</div>
+                </td>
+            </tr>
+            <tr class="slds-hint-parent">
+                <th scope="row">
+                    <div class="slds-truncate" title="Acme - 200 Widgets"><a href="javascript:void(0);">Acme - 200 Widgets</a></div>
+                </th>
+                <td role="gridcell">
+                    <div class="slds-truncate" title="Acme">Acme</div>
+                </td>
+                <td role="gridcell">
+                    <div class="slds-truncate" title="1/31/15">(336) 333-7000</div>
+                </td>
+                <td role="gridcell">
+                    <div class="slds-truncate" title="Prospecting">Prospecting</div>
+                </td>
+                <td role="gridcell">
+                    <div class="slds-truncate" title="60%">Acm</div>
+                </td>
+            </tr>
+            <tr class="slds-hint-parent">
+                <th scope="row">
+                    <div class="slds-truncate" title="salesforce.com - 1,000 Widgets"><a href="javascript:void(0);">salesforce.com - 1,000 Widgets</a></div>
+                </th>
+                <td role="gridcell">
+                    <div class="slds-truncate" title="salesforce.com">salesforce</div>
+                </td>
+                <td role="gridcell">
+                    <div class="slds-truncate" title="1/31/15 3:45PM">(336) 233-7777</div>
+                </td>
+                <td role="gridcell">
+                    <div class="slds-truncate" title="Id. Decision Makers">Id. Decision Makers</div>
+                </td>
+                <td role="gridcell">
+                    <div class="slds-truncate" title="70%">sales</div>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+
+</aura:component>

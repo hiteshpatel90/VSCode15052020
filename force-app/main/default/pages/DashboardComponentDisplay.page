@@ -1,0 +1,38 @@
+<apex:page controller="DashboardComponentDisplayController">
+ <apex:form id="TheForm">
+   <apex:sectionHeader title="Dashboards" />
+        <apex:pageBlock >
+            <apex:pageBlockSection >
+                      <apex:OutputPanel >
+                                 <apex:selectList value="{!selected}" size="1" multiselect="false">
+                                          <apex:selectOptions value="{!Types}"/>
+                                        <apex:actionsupport event="onchange" action="{!Component}" rerender="TheForm"/>  
+                                 </apex:selectList>
+                        </apex:OutputPanel>
+          </apex:pageBlockSection>
+            <apex:pageBlockSection >
+                     <apex:OutputPanel >
+                                <apex:selectList value="{!selectedComponent}" size="1" multiselect="false">
+                                         <apex:selectOptions value="{!RecordTypes}"/>
+                                       <apex:actionsupport event="onchange" action="{!updateComponent}" rerender="TheForm"/>  
+                                </apex:selectList>
+                       </apex:OutputPanel>
+             </apex:pageBlockSection>
+         </apex:pageBlock>
+     
+     <apex:pageBlock rendered="{!showframe}" id="pageblockid">
+         <apex:iframe src="/apex/VolumeByOwner" scrolling="true" width="100%" height="500px"  id="theIframe1" rendered="{!showVolumeByOwner}"/>
+         <apex:iframe src="/apex/PieChart" scrolling="true" width="100%" height="500px"  id="theIframe2" rendered="{!showPieChart}"/>
+         <apex:iframe src="/apex/VolumeCaseStatus" scrolling="true" width="100%" height="500px"  id="theIframe3" rendered="{!showVolumeCaseStatus}"/>
+         <apex:iframe src="/apex/BarGraphType" scrolling="true" width="100%" height="500px"  id="theIframe4" rendered="{!showBarGraphType}"/>
+         <apex:iframe src="/apex/VolumeByCountry" scrolling="true" width="100%" height="500px"  id="theIframe5" rendered="{!showVolumeByCountry}"/>
+         <apex:iframe src="/apex/VolumeByLastIssuedOutcome" scrolling="true" width="100%" height="500px"  id="theIframe6" rendered="{!showVolumeByLastIssuedOutcome}"/>
+         <apex:iframe src="/apex/VolumebyLOB1" scrolling="true" width="100%" height="500px"  id="theIframe7" rendered="{!showVolumeByLOB }"/>
+         
+         <apex:iframe src="/apex/VolumeByCaseOpenLastMonth" scrolling="true" width="100%" height="500px"  id="theIframe8" rendered="{!showVolumeByCaseOpenLastMonth}"/>
+         <apex:iframe src="/apex/VolumeByLastIssuedOutcomeLastMonth" scrolling="true" width="100%" height="500px"  id="theIframe9" rendered="{!showVolumeByLastIssuedOutcomeLastMonth}"/>
+         <apex:iframe src="/apex/VolumebyOwnerLastmonth" scrolling="true" width="100%" height="500px"  id="theIframe10" rendered="{!showVolumebyOwnerLastmonth}"/>
+          
+   </apex:pageBlock>
+</apex:form>
+</apex:page>

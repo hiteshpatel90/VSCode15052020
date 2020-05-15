@@ -1,0 +1,2555 @@
+<apex:page id="oppPage" applyBodyTag="false" applyHtmlTag="false" showChat="false" showHeader="false" sidebar="false" showQuickActionVfHeader="false" standardStylesheets="false" controller="CS_AROpportunityCC"  extensions="CS_ARCCExtension" docType="html-5.0">
+
+    <apex:composition template="ARtemplate">
+        <apex:define name="bodyContent">  
+        
+            <script src="https://d3js.org/d3.v3.min.js"></script>
+            <script src="https://cdn.rawgit.com/jakezatecky/d3-funnel/v0.7.5/dist/d3-funnel.js"></script>
+            
+            
+            
+            <style>
+                 <!-- Case Redesign - List view Controls for Release 3.2(CID-000179) by Srinivas Sattoor -->
+                .header-left{
+                    text-align: left;
+                    vertical-align: text-top !important;
+                    background-color: #f5f5f5 !important;
+                    font-weight: bold !important;
+                    font-family: "open sans", "Helvetica Neue", Helvetica, Arial, sans-serif !important;
+                    font-size: 13px !important;
+                    color: #676a6c !important;
+                    line-height: 24px !important;
+                    height: 200px;
+                }
+                .ag-header-row{
+                    height: 40px !important;
+                }
+                .ag-cell{
+                
+                    vertical-align: middle !important;
+                }
+                .ag-header-cell-text{
+                    height: 40px !important;
+                    vertical-align: top !important;
+                }
+                .ag-paging-panel{
+                
+                    font-family: "open sans", "Helvetica Neue", Helvetica, Arial, sans-serif !important;
+                    font-size: 13px !important;
+                    color: #676a6c !important;
+                }   
+                
+                 .ag-header-cell-menu-button{  
+                    opacity:1 !important;
+                } 
+                
+                .bootstrap-font {
+                    font-family: "open sans", "Helvetica Neue", Helvetica, Arial, sans-serif;
+                    font-size: 13px;
+                    color: #676a6c;
+                    /*overflow: visible;*/
+                    /*text-overflow: clip;*/
+                    vertical-align: middle !important;
+                    word-wrap: break-word !important;
+                    white-space: 'normal';
+                } 
+                
+                /* Changing the modal overflow to fix the issue with scrolling issue when 2 modals are present*/
+                .modal {
+                  /* overflow-y:auto; */
+                } 
+                #opportunity-edit-modal .modal-dialog,
+                #opportunity-edit-modal .modal-content,
+                #opportunity-case-modal .modal-dialog,
+                #opportunity-case-modal .modal-content {
+                    /* 80% of window height 
+                    height: 90%; */
+                }
+                
+                #opportunity-edit-modal .modal-body,
+                #opportunity-case-modal .modal-body {
+                /* 100% = dialog height, 120px = header + footer */
+                    max-height: calc(100% - 120px);
+                    overflow-y: scroll;
+                }
+                .border_top_2{
+                    border-top-width: 2px; 
+                }
+                
+                .border_top_none{
+                    border-top-width: 0px; 
+                }
+                
+                .light_border_top_bottom{
+                    border-top: thin solid lightgrey;
+                    border-bottom: thin solid lightgrey;
+                }
+                
+                .grey_border_right{
+                    border-right: thin solid grey;
+                }
+                
+                .menu_btn{
+                    width: 140px;
+                }
+                
+                .font-large {
+                    font-size: large;
+                }
+            
+                .chart_table {
+                    border-top: thin solid lightgrey;
+                }
+                
+                .chart_table tbody tr, .chart_table tfoot tr {
+                    text-align: left;
+                    height: 30px;
+                }
+                /* .ibox{
+                    background-color: white;
+                } */
+                .ibox_border{
+                    border: 1px solid lightgrey;
+                }
+                
+                .ct-series-a .ct-bar {
+                      /* Colour of your bars 
+                      stroke: teal;*/
+                      /* The width of your bars */
+                      stroke-width: 20px;
+                }
+                
+                .fa-2x {
+                
+                    width: 50px;
+                    text-align: center;
+                }
+                
+                
+                
+                /*
+                    From reports
+                */
+                div.stat h4, div.stat h2, div.stat p {
+                    margin: 0px;
+                    font-weight: bold;
+                }
+                h2.cat-title {
+                    margin: 15px;
+                }
+                div.stat > div {
+                    padding: 10px;
+                }
+
+                div.chart {
+                    font-size: 1rem;
+                }
+
+                .text-blue {
+                    color: #325996;
+                }
+                .ct-blue {
+                    stroke: #325996;
+                }
+                .ct-red {
+                    stroke: #ed5565;
+                }
+                .ct-green {
+                    stroke: #9cc984;
+                }
+                .ct-gray {
+                    stroke: #D3D3D3;
+                }                
+
+                div.donut-ytd-quota, div.donut-mtd-quota {
+                    text-align: center;
+                    position: relative;
+                    font-size: 2rem;
+                }
+
+                div.donut-divider-container {
+                    height: 2px;
+                }
+                div.donut-divider-container > div.donut-divider {
+                    background-color: #325996;
+                    padding:0px;
+                    margin:0px;
+                    width:50px; /* this must be the same as the stroke-width for the chart */
+                    height:4px;
+                    float:right
+                }
+                div.donut-divider > div.donut-divider-text {
+                    color: #325996;
+                    width:25px;
+                    text-align:center;
+                    padding: 0px;
+                    margin: 0px;
+                    position: relative; 
+                    left: -26px; 
+                    top: -7px;
+                    font-weight: bold;
+                    font-size: 1.25em;
+                }
+
+                /* .ct-label {
+                    font-size: 2rem;
+
+                } */
+                
+                .readonly-control{
+                    border: lightgray thin solid;
+                    padding-left: 10px;
+                }
+                
+                .related-table{
+                    border: thin solid lightgrey;
+                }
+                
+                .related-table td, .related-table th {
+                    border:none
+                }
+                
+                .related-table caption{
+                    padding-bottom: 0px;
+                    padding-top: 20px;
+                }
+                
+                .muted_label{
+                    padding-top: 0px;
+                    color: #9c9a9a; /*lightgrey;*/
+                    min-height: 25px !important;
+                }
+                
+                .detail_div{
+                    margin-bottom: 25px !important;
+                }
+                
+                .GGrid-content {
+                    border-top-color: #151516 !important;
+                    height: inherit !important;
+                }
+                
+                .subsection_header{
+                    font-size: 18px;
+                    margin-left: 15px;
+                }
+                
+                .fa-border{
+                    background-color: #545454;
+                }
+                .fa-meeting-background{
+                    background-color: #a94442 !important;
+                }
+                .fa-meeting-task{
+                    background-color: #3c763d !important;
+                }
+                .fa-meeting-surgicalcase{
+                    background-color: #337ab7 !important;
+                }
+                .fa-meeting-note{
+                    background-color: #ed5565 !important;
+                }
+                .fa-meeting-log{
+                    background-color: #f8ac59 !important;
+                }
+                
+                .nav-tabs { border-bottom: 2px solid #DDD; }
+                .nav-tabs > li.active > a, .nav-tabs > li.active > a:focus, .nav-tabs > li.active > a:hover { border-width: 0; }
+                .nav-tabs > li > a { border: none; color: #666; }
+                    .nav-tabs > li.active > a, .nav-tabs > li > a:hover { border: none; color: #4285F4 !important; background: transparent; }
+                    .nav-tabs > li > a::after { content: ""; background: #4285F4; height: 2px; position: absolute; width: 100%; left: 0px; bottom: -1px; transition: all 250ms ease 0s; transform: scale(0); }
+                .nav-tabs > li.active > a::after, .nav-tabs > li:hover > a::after { transform: scale(1); }
+                .tab-nav > li > a::after { background: #21527d none repeat scroll 0% 0%; color: #fff; }
+                .tab-pane { padding: 15px 0; }
+                .tab-content{padding:20px}
+                
+               
+                    /*  CSS for breadcrumbs */
+                .breadcrumbs_side{
+                    padding: 5px;
+                }  
+                ul {
+                  list-style: none;
+                  margin: 0px;
+                  padding-left: 0px;
+                }
+                
+                .cf:before, .cf:after {
+                  content: ' ';
+                  display: table;
+                }
+                .cf:after {
+                  clear: both;
+                }
+                .inner {
+                  max-width: 820px;
+                  margin: 0 auto;
+                }
+                
+                .breadcrumbs {
+                  background-color: white;  /*#f5f5f5*/
+                }
+                
+                .breadcrumbs ul {
+                    border: 1px solid #ddd;
+                    border-top-left-radius: 20px;
+                    border-bottom-left-radius: 20px;
+                    border-top-right-radius: 20px;
+                    border-bottom-right-radius: 20px;
+                }
+                
+                .breadcrumbs li {
+                  float: left;
+                  width: 20%;
+                }
+                .breadcrumbs li:first-child a{border-top-left-radius: 20px; border-bottom-left-radius: 20px;  }
+                .breadcrumbs li:last-child a{border-top-right-radius: 20px; border-bottom-right-radius: 20px;  }
+                
+                .breadcrumbs a {
+                  position: relative;
+                  display: block;
+                  padding: 5px;
+                  padding-right: 0 !important;
+                  /* important overrides media queries */
+                  font-size: 12px;
+                  font-weight: bold;
+                  text-align: center;
+                  color: #aaa;
+                  cursor: pointer;
+                  white-space: nowrap;
+                  /*overflow: hidden;*/
+                  text-overflow: clip;
+                }
+                
+                .breadcrumbs a:hover {
+                  background: #eee; /*TODO: need to change*/
+                }
+                .breadcrumbs a.active {
+                  color: white;
+                  background-color: rgb(75, 202, 129);
+                }
+                
+                .breadcrumbs a.current {
+                  color: white;
+                  background-color: rgb(0, 112, 210);
+                }
+                
+                .breadcrumbs a.won {
+                  color: white;
+                  background-color: rgb(4, 132, 75);
+                }
+                
+                .breadcrumbs a.lost {
+                  color: white;
+                  background-color: rgb(212, 80, 76);
+                }
+          
+                .breadcrumbs a.active span:first-child {
+                    display: inline-block;
+                    width: 22px;
+                    height: 22px;
+                    padding: 2px;
+                    margin-right: 5px;
+                    color: white;
+                    border: none;
+                    background-color: rgb(75, 202, 129);
+                }
+                
+                .breadcrumbs a.current span:first-child {
+                    display: inline-block;
+                    height: 22px;
+                    padding: 2px;
+                    /*width: 22px;
+                    margin-right: 5px;
+                    color: white;
+                    border: none;
+                    background-color: rgb(0, 112, 210);*/
+                }
+                
+                .breadcrumbs a.won span:first-child {
+                    display: inline-block;
+                    /*width: 22px;*/
+                    height: 22px;
+                    padding: 2px;
+                    margin-right: 5px;
+                    color: white;
+                    border: none;
+                    background-color: rgb(4, 132, 75);
+                }
+                
+                .breadcrumbs a.lost span:first-child {
+                    display: inline-block;
+                    /* width: 22px; */
+                    height: 22px;
+                    padding: 2px;
+                    margin-right: 5px;
+                    color: white;
+                    border: none;
+                    background-color: rgb(212, 80, 76);
+                }
+                
+                .breadcrumbs a:before,
+                .breadcrumbs a:after {
+                  content: '';
+                  position: absolute;
+                  top: 0;
+                  left: 100%;
+                  z-index: 1;
+                  display: block;
+                  width: 0;
+                  height: 0;
+                  border-top: 16px solid transparent;
+                  border-bottom: 16px solid transparent;
+                  border-left: 8px solid transparent;
+                }
+                
+                .breadcrumbs a:before {
+                  margin-left: 1px;
+                  border-left-color: #d5d5d5;
+                }
+                
+                .breadcrumbs a:after {
+                  border-left-color: white;
+                }
+                
+                .breadcrumbs a:hover:after {
+                  border-left-color: #eee;
+                }
+                
+                .breadcrumbs a.active:after {
+                  border-left-color: rgb(75, 202, 129);
+                }
+                
+                .breadcrumbs a.current:after {
+                  border-left-color: rgb(0, 112, 210);
+                }
+                
+                .breadcrumbs a.won:after {
+                  border-left-color: rgb(4, 132, 75);
+                }
+                
+                .breadcrumbs a.lost:after {
+                  border-left-color: rgb(212, 80, 76);
+                }
+                
+                .breadcrumbs li:last-child a:before,
+                .breadcrumbs li:last-child a:after {
+                  display: none;
+                }
+              
+                @media (max-width: 520px) {
+                    .breadcrumbs_side{
+                        padding: 5px;
+                    } 
+                  .breadcrumbs a {
+                    padding: 5px;
+                  }
+                
+                  .breadcrumbs a:before,
+                  .breadcrumbs a:after {
+                    border-top-width: 16px;
+                    border-bottom-width: 16px;
+                    border-left-width: 8px;
+                  }
+                
+                  .breadcrumbs li a span:first-child {
+                    display: block;
+                    margin: 0 auto;
+                  }
+                
+                  .breadcrumbs li a span:last-child {
+                    display: none;
+                  }
+                }
+                
+                /*
+                    Dependent list table style
+                */
+                .filterable {
+                    margin-top: 15px;
+                }
+                .filterable .panel-heading .pull-right {
+                    margin-top: -20px;
+                }
+                .filterable .filters input[disabled] {
+                    background-color: transparent;
+                    border: none;
+                    cursor: auto;
+                    box-shadow: none;
+                    padding: 0;
+                    padding-top: 11px;
+                    height: auto;
+                }
+                .filterable .filters input[disabled]::-webkit-input-placeholder {
+                    color: #333;
+                }
+                .filterable .filters input[disabled]::-moz-placeholder {
+                    color: #333;
+                }
+                .filterable .filters input[disabled]:-ms-input-placeholder {
+                    color: #333;
+                }
+                
+            </style>
+            
+            <script type="text/javascript">
+                var OPPORTUNITY_LIST;
+                var LINKED_CASES_LIST;
+                var LINKED_OPPS_LIST;
+                var TOTAL_OPPORTUNITIES_WON;
+                var NO_OF_ROWS_TO_DISPLAY=8;
+                var OPP_STAGE_CLOSED_WON = "Closed - Won";
+                var OPP_STAGE_CLOSED_LOST = "Closed - Lost";
+                var DASHBOARD_FILTER_SELECTION=[];
+                var MAP_TERRITORY_ID_CHILD_IDS={}; 
+                var currentUserId;
+                var SURGEON_LIST=[];
+                
+                function replaceAccents(s) {
+                    var r = s.toLowerCase();
+                    r = r.replace(new RegExp('[àáâãäå]', 'g'), 'a');
+                    r = r.replace(new RegExp('æ', 'g'), 'ae');
+                    r = r.replace(new RegExp('ç', 'g'), 'c');
+                    r = r.replace(new RegExp('[èéêë]', 'g'), 'e');
+                    r = r.replace(new RegExp('[ìíîï]', 'g'), 'i');
+                    r = r.replace(new RegExp('ñ', 'g'), 'n');
+                    r = r.replace(new RegExp('[òóôõøö]', 'g'), 'o');
+                    r = r.replace(new RegExp('œ', 'g'), 'oe');
+                    r = r.replace(new RegExp('[ùúûü]', 'g'), 'u');
+                    r = r.replace(new RegExp('[ýÿ]', 'g'), 'y');
+                    r = r.replace(new RegExp('\\W', 'g'), '');
+                    return r;
+                }
+                
+                var oppGridColDef = [ 
+                        {headerName: "Name", field: "opportunityName", headerClass: "header-left", cellClass: "bootstrap-font", colId: "oppName",
+                            cellStyle: {color: '#3A9DDB', cursor: 'pointer'},
+                            cellRenderer: cellHeight,
+                            filterParams: {
+                                textFormatter: replaceAccents
+                            }
+                        },  
+                        {headerName: "Team", field: "accountTerritory", headerClass: "header-left", cellClass: "bootstrap-font", 
+                            cellRenderer: cellHeight,
+                            filterParams: {
+                                textFormatter: replaceAccents
+                            }
+                        },
+                        {headerName: "Owner", field: "owner", headerClass: "header-left", 
+                            //cellClass: "bootstrap-font",
+                            // Added by srinivas sattoor on 9.28.2017 for 4.4 CID-000497 
+                            cellClass: function(params) {
+                                if (params.value == 'Unassigned') { 
+                                    return "text-danger";
+                                } else {
+                                    return "bootstrap-font down";
+                                }
+                            },
+                            cellRenderer: cellHeight,
+                            filterParams: {
+                                textFormatter: replaceAccents
+                            }
+                        }, 
+                        {headerName: "Surgeon", field: "opportunitySurgeonNames", filter: OpportunitySurgeonFilter, filterParams: { apply: true }, headerClass: "header-left", 
+                            cellClass: "bootstrap-font", cellRenderer: cellHeight,
+                            filterParams: {
+                                textFormatter: replaceAccents
+                            }
+                        },
+                        {headerName: "Account", field: "account", headerClass: "header-left", cellClass: "bootstrap-font", colId: "accName",
+                            cellStyle: {color: '#3A9DDB', cursor: 'pointer'}, cellRenderer: cellHeight,
+                            filterParams: {
+                                textFormatter: replaceAccents
+                            }
+                        },
+                        {headerName: "Product Category", field: "productCategory", headerClass: "header-left",  cellClass: "bootstrap-font", 
+                            cellRenderer: cellHeight,
+                            filterParams: {
+                                textFormatter: replaceAccents
+                            }
+                        },
+                        {headerName: "Potential FY<br/>Revenue", field: "currentFYRevenue", headerClass: "header-left",  
+                            cellClass: "bootstrap-font",  cellRenderer: cellHeight,
+                            filterParams: {
+                                textFormatter: replaceAccents
+                            }
+                        },
+                        {headerName: "Opportunty Type", field: "opportunityType", headerClass: "header-left",  cellClass: "bootstrap-font", 
+                            cellRenderer: cellHeight,
+                            filterParams: {
+                                textFormatter: replaceAccents
+                            }
+                        },
+                        {headerName: "Stage", field: "currentStage", headerClass: "header-left",  cellClass: "bootstrap-font", 
+                            cellRenderer: cellHeight,
+                            filterParams: {
+                                textFormatter: replaceAccents
+                            }
+                        },
+                        {headerName: "Age (Days)", field: "createdDate", filter: OpportunityAge, headerClass: "header-left",  cellClass: "bootstrap-font", 
+                            //cellRenderer: cellHeight
+                            cellRenderer: function(params){
+                                        //return '<span style="line-height: 25px">'+ moment(params.value).toNow(true); +'</span>'; 
+                                        return '<span style="line-height: 25px">'+ moment().diff(moment(params.value), 'days')+ '</span>'; 
+                                    },
+                            filterParams: {
+                                textFormatter: replaceAccents
+                            }
+                        },
+                        {headerName: "Last Modified Date", field: "lastModifiedDate", filter: lastModifiedDateRadio, headerClass: "header-left",  cellClass: "bootstrap-font", 
+                            //cellRenderer: cellHeight
+                            cellRenderer: function(params){
+                                        return '<span style="line-height: 25px">'+ moment(params.value).format("MM-DD-YYYY") +'</span>'; 
+                                    },
+                            filterParams: {
+                                textFormatter: replaceAccents
+                            }
+                        },
+                        {headerName: "Projected Close Date", 
+                            field: "closeDate", 
+                            filter:TimeFrame, 
+                            headerClass: "header-left ", 
+                            colId: "closeDate_column", 
+                            cellStyle: {cursor: 'pointer'}, 
+                            cellFormatter: gridDateFormat, 
+                            width: 100, 
+                            cellClass: "bootstrap-font down",
+                            comparator: function(a,b) {
+                                if ( typeof a == "undefined" ) { return -1; }
+                                if ( typeof b == "undefined" ) { return 1; }
+                        
+                                return moment(a).diff(moment(b),"minutes");
+                        
+                            },
+                            cellRenderer: function(params) {    
+                                if ( params.value ) {
+                                    var dueDate = moment(params.value, "M/D/YYYY");
+                                    if ( dueDate.isBefore(new Date(), 'day')) {
+                                        return "<span>"+globalDecodeEntities(params.value)+"</span>";                                        
+                                    } else {
+                                        return "<span>"+globalDecodeEntities(params.value)+"</span>";       
+                                    }
+                                } else {
+                                    return "";
+                                }
+                        
+                            },
+                            filterParams: {
+                                textFormatter: replaceAccents
+                            }
+                        }
+                          
+                    ];
+                
+                
+                var oppGridOptions = { 
+                    enableSorting: true,
+                    enableFilter: true,
+                    //debug: true,
+                    rowSelection: 'single',
+                    enableColResize: true, 
+                    columnDefs: oppGridColDef, 
+                    paginationPageSize: 20,
+                    pagination: true,
+                    suppressPaginationPanel: true,
+                    icons: { 
+                            menu: '<i class="fa fa-sort-desc" ></i>' 
+                   },
+                   onPaginationChanged: onPaginationPageLoaded,
+                   onFilterChanged: savedFilterHasChanged,
+                   onSortChanged: savedFilterHasChanged,
+                   onDisplayedColumnsChanged: savedFilterHasChanged,
+                   onGridReady: onGridReady,
+                   suppressContextMenu: true
+                };  
+                
+                /*
+                Custom filter for surgeons
+                Added by Srinivas Sattoor on 6.30.2017 for 4.1 CID-000329
+                */ 
+                function selectSurgeon(ele){
+                    if(ele.name=='selectAllSurgeons' && ele.checked){
+                        for(key=0; key<SURGEON_LIST.length; key++){
+                            var replacedStr = globalDecodeEntities(SURGEON_LIST[key].split(' ').join('_').replace(/[.']/g,'_'));
+                            $("#"+replacedStr).prop('checked', true);
+                        }
+                    } if(ele.name=='selectAllSurgeons' && ! ele.checked){
+                        for(key=0; key<SURGEON_LIST.length; key++){
+                            var replacedStr = globalDecodeEntities(SURGEON_LIST[key].split(' ').join('_').replace(/[.']/g,'_'));
+                            $("#"+replacedStr).prop('checked', false);
+                        }
+                    } else if(ele.name != 'selectAllSurgeons' && ! ele.checked){
+                        $("#selectAllSurgeons").prop('checked', false);
+                    }else if(ele.name != 'selectAllSurgeons' && ele.checked){
+                        for(key=0; key<SURGEON_LIST.length; key++){
+                            var replacedStr = globalDecodeEntities(SURGEON_LIST[key].split(' ').join('_').replace(/[.']/g,'_'));
+                             
+                            if(! $("#"+replacedStr).prop('checked'))
+                                return;
+                            
+                        }
+                        $("#selectAllSurgeons").prop('checked', true);
+                    }
+                    
+                }   //  end of selectAllSurgeon
+                
+                
+                function OpportunitySurgeonFilter(){
+                }
+                
+                OpportunitySurgeonFilter.prototype.init = function (params) {
+                    this.eGui = document.createElement('div');
+                    
+                    html ='<div style="border-bottom: solid 1px lightgray"><input name="includesText" id="includesText" class="ag-filter-filter"placeholder="Search..." type="text"/><br/><input type="checkbox" name="selectAllSurgeons" checked="true" id="selectAllSurgeons" onclick="selectSurgeon(this)" value="selectAllSurgeons" style="margin-right:5px"/>(Select All)<br/></div>';
+                    
+                        
+                        console.log('##--OpportunitySurgeonFilter.SurgeonList: '+ SURGEON_LIST);
+                    for (i = 0; i < SURGEON_LIST.length; i++) {
+                        var replacedStr = SURGEON_LIST[i].split(' ').join('_').replace(/[.']/g,'_');
+                        html += '<input type="checkbox" name="surgeonFilter" checked="true" onclick="selectSurgeon(this)" id="'+ replacedStr +'" value="'+SURGEON_LIST[i] +'" style="margin-right:5px"/>'+SURGEON_LIST[i]+'<br/>';
+                        
+                    }
+                    
+                    this.eGui.innerHTML =   '<div class="dropdownFont" style="display: inline-block; width: 200px; padding-left: 10px;">' +  html +
+                        
+                        '</div>';
+                                   
+                    this.eIncludesText = this.eGui.querySelector('#includesText');
+                    this.eIncludesText.addEventListener("changed", listener);
+                    this.eIncludesText.addEventListener("paste", listener);
+                    this.eIncludesText.addEventListener("input", listener);
+                    
+                    // IE doesn't fire changed for special keys (eg delete, backspace), so need to
+                    // listen for this further ones
+                    this.eIncludesText.addEventListener("keydown", listener);
+                    this.eIncludesText.addEventListener("keyup", listener);
+                    
+                    var that = this;
+                    function listener(event) {
+                        
+                        that.includesText = event.target.value;
+                        params.filterChangedCallback();
+                       
+                    }
+                    
+                    //this.eIncludesText.addEventListener("keyup", this.onSurgeonInput.bind(this));
+                    
+                    
+                    this.allSurgeons = this.eGui.querySelector("#selectAllSurgeons");
+                    this.allSurgeons.addEventListener('change', this.onSurgeonChanged.bind(this));
+                    for (i = 0; i < SURGEON_LIST.length; i++) {
+                        console.log('##-- i: ' + i);
+                        console.log('##-- : ' + SURGEON_LIST[i]);
+                        var replacedStr = SURGEON_LIST[i].split(' ').join('_').replace(/[.']/g,'_');
+                        console.log('##--replacedStr: '+ replacedStr);
+                        /*if(splitValue[i].trim() == null || splitValue[i].trim() == 'null' || splitValue[i].trim() == '' || splitValue[i] == undefined){
+                            continue;
+                        }*/
+                        this[replacedStr] = this.eGui.querySelector("#"+replacedStr);
+                        this[replacedStr].addEventListener('change', this.onSurgeonChanged.bind(this));
+                    }
+                    this.filterActive = false;
+                    this.filterChangedCallback = params.filterChangedCallback;
+                    this.valueGetter = params.valueGetter;
+             /* 
+            Added by Swetha penmethsa on 9.28.2017 for 4.4 release 
+            */
+                    // default model
+                    this.model = {
+                        selected: ["selectAllSurgeons"]
+                    };
+
+                    var that = this;
+                    $(document).on("change", "input[name=selectAllSurgeons]", function() {
+                    // handles checking all or checking none of the filters, note it doesn't
+                    // trigger change which prevents the standard filter change listeners from running
+                    // this way we can display all rows or no rows quickly without having to run
+                    // each filter for each row individually
+
+                    that.model.selected = [];
+                    that.filterActive = true;
+                    if ( $(this).is(":checked") ) {
+
+                        $("input[name=surgeonFilter]").prop("checked",true);
+                        that.model.selected.push("selectAllSurgeons");
+                        that.filterActive = false;
+                    } else {
+
+                        $("input[name=surgeonFilter]").prop("checked",false);
+                        that.model.selected = [];                                
+                        
+                    }
+
+                    that.filterChangedCallback();
+                    
+                    });
+                
+                    $(document).on("change", "input[name=surgeonFilter]", function() {
+                        // handles each individual checkbox
+                        that.filterActive = true;
+                        that.model.selected = [];
+                        $("input[name=surgeonFilter]:checked").each(function(id,obj) {
+                            that.model.selected.push( $(this).prop("id") );
+                        });
+
+                        that.filterChangedCallback();
+
+                        if ( $("input[name=surgeonFilter]").not(":checked").length > 0 ) {
+                            that.filterActive = true;
+                        } else {
+                            that.filterActive = false;
+                        }
+                        
+                    });
+                   
+            /* 
+            Added by Swetha penmethsa on 9.28.2017 for 4.4 release 
+            */     
+                }
+                 
+                OpportunitySurgeonFilter.prototype.onSurgeonChanged = function () {
+                    this.filterActive = ! this.allSurgeons.checked;
+                    this.filterChangedCallback();
+                };
+                
+                OpportunitySurgeonFilter.prototype.onSurgeonInput = function () {
+                    //this.includesText = event.target.value;
+                    this.filterChangedCallback();
+                };
+                
+                OpportunitySurgeonFilter.prototype.getGui = function () {
+                    return this.eGui;
+                };
+                 /* 
+            Added by Swetha penmethsa on 10.20.2017 for 4.4 release 
+            */
+                OpportunitySurgeonFilter.prototype.afterGuiAttached = function() {
+
+                        var filters = $(this.eGui).find("input");
+
+                        var displayedSurgeonIds = [];
+                        OpportunitySurgeonFilter.api.forEachNodeAfterFilter( function(params, index) {
+
+                            if ( params.data.surgeonId ) {
+                                displayedSurgeonIds.push(params.data.surgeonId);
+                            } else if ( params.data.additionalSurgeons.length == 0 ) {
+                                displayedSurgeonIds.push("blank");
+                            }
+                                                    
+                            for ( var i=0; i < params.data.additionalSurgeons.length; i++) {
+                                displayedSurgeonIds.push(params.data.additionalSurgeons[i].id);
+                            }                    
+                        });
+
+
+                        for ( var k=0; k < filters.length; k++) {
+
+                            filteredId = $(filters[k]).attr("id");
+                            
+                            // always show select all surgeons
+                            if ( filteredId == 'selectAllSurgeons') { continue; }
+
+                            var surgNotDisplayed = true;
+                            for ( var j=0; j < displayedSurgeonIds.length; j++ ) {
+
+                                var surgeonId = displayedSurgeonIds[j];                         
+                                if ( filteredId == "z"+surgeonId ) {
+                                    surgNotDisplayed = false;
+                                    break;
+                                }
+                            }
+
+                            if ( surgNotDisplayed ) {
+                                $("#"+filteredId).closest("span").hide();
+                            } else {
+                                $("#"+filteredId).closest("span").show();
+                            }
+                        }
+
+                    };
+                    
+                OpportunitySurgeonFilter.prototype.doesFilterPass = function (params) {
+                    if(this.includesText !== null && this.includesText !== undefined && this.includesText !== ''){  
+                        var passed = true;
+                        var valueGetter = this.valueGetter;
+                        var include = this.includesText;
+                        var value = valueGetter(params).toString().toLowerCase();
+                        return value.indexOf(include) >= 0;
+                    }
+                    
+                    var selSur = this.model.selected;
+                    if ( selSur[0] == "selectAllSurgeons") {
+                        return true;
+                    }
+                    var selectedSurgeons = [];
+                    var val = params.data.opportunitySurgeonNames;
+
+                     for(k=0; k < selSur.length; k++){
+                         var tempSelSur = selSur[k].replace("_", " "); 
+                          
+                        if(val == tempSelSur){                            
+                            console.log('##--checked val: ' + val);
+                            for(i=0; i < SURGEON_LIST.length; i++){
+                                var replacedStr = globalDecodeEntities(SURGEON_LIST[i].split(' ').join('_').replace(/[.']/g,'_'));
+                                if(this[replacedStr].checked){
+                                    selectedSurgeons.push(SURGEON_LIST[i]);
+                                }
+                            }
+                            
+                            
+                            for(key=0; key<selectedSurgeons.length; key++){
+                                if(val.indexOf(selectedSurgeons[key]) != -1){
+                                    return true;
+                                }
+                            }
+                        }
+                    }
+                                      
+                    return false;
+                };
+                
+                /* 
+            Added by Swetha penmethsa on 10.20.2017 for 4.4 release 
+            */ 
+                OpportunitySurgeonFilter.prototype.isFilterActive = function () {
+                    if(this.includesText !== null && this.includesText !== undefined && this.includesText !== ''){                        
+                        return true;
+                    }
+                    return this.filterActive;
+                };
+                
+                OpportunitySurgeonFilter.prototype.getModel = function() {
+                    if(this.includesText !== null && this.includesText !== undefined && this.includesText !== ''){           
+                        var model = {
+                            includes: this.includesText.value
+                        };
+                        return model;
+                    }
+                    return this.model;
+                };
+             /* 
+            Added by Swetha penmethsa on 9.28.2017 for 4.4 release 
+            */
+                OpportunitySurgeonFilter.prototype.setModel = function(model) { 
+                    
+                    if(this.includesText !== null && this.includesText !== undefined && this.includesText !== ''){
+                        
+                        this.eIncludesText.value = model.includes;
+                    }                  
+                    if (typeof model == "undefined" || model == null ) {
+                        this.model = {
+                            selected: ["selectAllSurgeons"]                            
+                        };
+                        this.filterActive = false;
+                    } else {
+                        this.model = model;
+                        this.filterActive = true;
+                    }
+                    //this.eIncludesText.value = model.includes;
+                    this.filterChangedCallback(); 
+                    //Commented by Swetha/Srini below is implemented in above function.
+                    //this.rbAllTime.checked = model.value;
+                    //this.rbAllTime.checked = true;
+                    //this.rbAllModifiedTime.checked = true;
+                };
+            /* 
+            Added by Swetha penmethsa on 9.28.2017 for 4.4 release 
+            */
+                
+                              
+                
+                /*
+                    Custom filter for TimeFrame
+                    */
+                    
+                function TimeFrame() { }
+                
+                TimeFrame.prototype.init = function (params) {
+                   
+                    this.valueGetter = params.valueGetter;
+                     
+                    this.eGui = document.createElement('div');
+                    this.eGui.innerHTML =
+                        '<div class="dropdownFont" style="display: inline-block; width: 200px; padding-left: 10px;">' +  
+                        '<input type="radio" name="TimeFrame" checked id="rbAllTime" filter-checkbox="true"/> All <br/>'+
+                        '<input type="radio" name="TimeFrame" id="rbLast30Days" filter-checkbox="true"/> Previous 30 Days <br/>'+
+                        '<input type="radio" name="TimeFrame" id="rbLast90Days" filter-checkbox="true"/> Previous 90 Days <br/>'+
+                        '<input type="radio" name="TimeFrame" id="rbLastQuarter" filter-checkbox="true"/> Previous Quarter <br/>'+
+                        '<input type="radio" name="TimeFrame" id="rbLastFY" filter-checkbox="true"/> Previous FY <br/>'+
+                        '<input type="radio" name="TimeFrame" id="rbCurrentQuarter" filter-checkbox="true"/> Current Quarter <br/>'+
+                        '<input type="radio" name="TimeFrame" id="rbCurrentFY" filter-checkbox="true"/> Current FY <br/>'+
+                        '<input type="radio" name="TimeFrame" id="rbNext30Days" filter-checkbox="true"/> Next 30 Days <br/>'+
+                        '<input type="radio" name="TimeFrame" id="rbNext90Days" filter-checkbox="true"/> Next 90 Days <br/>'+
+                        '<input type="radio" name="TimeFrame" id="rbNextQuarter" filter-checkbox="true"/> Next Quarter <br/>'+
+                        '<input type="radio" name="TimeFrame" id="rbNextFY" filter-checkbox="true"/> Next FY <br/>' 
+                        '</div>';
+                       this.rbAllTime = this.eGui.querySelector('#rbAllTime');
+                    this.rbLast30Days = this.eGui.querySelector('#rbLast30Days');
+                    this.rbLast90Days = this.eGui.querySelector('#rbLast90Days');
+                    this.rbLastQuarter = this.eGui.querySelector('#rbLastQuarter');
+                    this.rbLastFY = this.eGui.querySelector('#rbLastFY');
+                    this.rbCurrentQuarter = this.eGui.querySelector('#rbCurrentQuarter');
+                    this.rbCurrentFY = this.eGui.querySelector('#rbCurrentFY');
+                    this.rbNext30Days = this.eGui.querySelector('#rbNext30Days');
+                    this.rbNext90Days = this.eGui.querySelector('#rbNext90Days');
+                    this.rbNextQuarter = this.eGui.querySelector('#rbNextQuarter');
+                    this.rbNextFY = this.eGui.querySelector('#rbNextFY'); 
+                    this.rbAllTime.addEventListener('change', this.onRbChanged.bind(this));
+                    this.rbLast30Days.addEventListener('change', this.onRbChanged.bind(this));
+                    this.rbLast90Days.addEventListener('change', this.onRbChanged.bind(this));
+                    this.rbLastQuarter.addEventListener('change', this.onRbChanged.bind(this));
+                    this.rbLastFY.addEventListener('change', this.onRbChanged.bind(this));
+                    this.rbCurrentQuarter.addEventListener('change', this.onRbChanged.bind(this));
+                    this.rbCurrentFY.addEventListener('change', this.onRbChanged.bind(this));
+                    this.rbNext30Days.addEventListener('change', this.onRbChanged.bind(this));
+                    this.rbNext90Days.addEventListener('change', this.onRbChanged.bind(this));
+                    this.rbNextQuarter.addEventListener('change', this.onRbChanged.bind(this));
+                    this.rbNextFY.addEventListener('change', this.onRbChanged.bind(this));   
+                   
+                      
+                    this.filterActive = false;
+                    this.filterChangedCallback = params.filterChangedCallback;
+                    this.valueGetter = params.valueGetter;
+                    
+                    this.model = {
+                            range: $("input[name=TimeFrame]:checked").prop("id")
+                    };
+
+                    var that = this;
+                    $(document).on("change","input[name=TimeFrame]", function() {
+                        that.model = {
+                            range: $(this).prop("id")
+                        };
+
+                        if ( that.model.range != "rbAllTime" ) {
+                            that.filterActive = true;
+                        } else {
+                            that.filterActive = false;
+                        }
+                        that.filterChangedCallback();
+                    });                        
+                };
+                
+                TimeFrame.prototype.onRbChanged = function () {
+                    this.filterActive = ! this.rbAllTime.checked;
+                    this.filterChangedCallback();
+                };
+                
+                TimeFrame.prototype.getGui = function () {
+                    return this.eGui;
+                };
+                
+                TimeFrame.prototype.doesFilterPass = function (params) {
+               
+                    var val = params.data.closeDate;
+                    if ( typeof val !== "undefined" ) {
+                     var date = new Date(val);
+                    val = (date.getMonth() + 1) + '-' + date.getDate() + '-' +  date.getFullYear();
+                    console.log('##--startDate: ' + val);
+                     var range = this.model.range;
+                 if(range == "rbLast30Days" && daysBetween(val, -30, 'd')){
+                            return true;
+                        } else if(range == "rbLast90Days" && daysBetween(val, -90, 'd')){                        
+                            return true;
+                        } else if(range == "rbLastQuarter" && daysBetween(val, -1, 'q')){
+                            return true;
+                        } else if(range == "rbLastFY" && daysBetween(val, -1, 'f')){                       
+                            return true;
+                        } else if(range == "rbCurrentQuarter" && daysBetween(val, 0, 'q')){                        
+                            return true;
+                        }else if(range == "rbCurrentFY" && daysBetween(val, 0, 'f')){                       
+                            return true;
+                        }else if(range == "rbNext30Days" && daysBetween(val, 30, 'd')){                       
+                            return true;
+                        }else if(range == "rbNext90Days" && daysBetween(val, 90, 'd')){                        
+                            return true;
+                        }else if(range == "rbNextQuarter" && daysBetween(val, 1, 'q')){                       
+                            return true;
+                        }else if(range == "rbNextFY" && daysBetween(val, 1, 'f')){                        
+                            return true;
+                        }
+                    }
+                    return false;
+                };
+                
+                TimeFrame.prototype.isFilterActive = function () {
+                    return this.filterActive;
+                };
+                
+                TimeFrame.prototype.getModel = function() {
+                    return this.model;
+                };
+                
+                TimeFrame.prototype.setModel = function(model) {
+                    //this.rbAllTime.checked = model.value;
+                    //this.rbAllTime.checked = true;
+                    
+                    if ( typeof model == "undefined" || model == null ) {
+                        // reset
+                        this.model = {
+                            range: "rbAllTime"
+                        };
+                        this.filterActive = false;
+                    } else {
+                        this.model = model;
+                        this.filterActive = true;
+                    }
+                    this.filterChangedCallback();               
+                };
+                
+                TimeFrame.prototype.afterGuiAttached = function() {
+                    var model = this.getModel();
+                    $("#"+model.range).click();
+                }; 
+                                
+                // Added by Swetha - lastModifiedDateRadio -- START 
+                /*
+                    Custom filter for lastModifiedDateRadio
+                */
+                    
+                function lastModifiedDateRadio() {
+                }
+                
+                lastModifiedDateRadio.prototype.init = function (params) {
+                    this.eGui = document.createElement('div');
+                    this.eGui.innerHTML =
+                        '<div class="dropdownFont" style="display: inline-block; width: 200px; padding-left: 10px;">' +  
+                        '<input type="radio" name="lastModifiedDateRadio" checked id="rbAllModifiedTime" filter-checkbox="true"/> All <br/>'+
+                        '<input type="radio" name="lastModifiedDateRadio" id="rbLastModified30Days" filter-checkbox="true"/> Previous 30 Days <br/>'+
+                        '<input type="radio" name="lastModifiedDateRadio" id="rbLastModified90Days" filter-checkbox="true"/> Previous 90 Days <br/>'+
+                        '<input type="radio" name="lastModifiedDateRadio" id="rbLastModifiedQuarter" filter-checkbox="true"/> Previous Quarter <br/>'+
+                        '<input type="radio" name="lastModifiedDateRadio" id="rbLastModifiedFY" filter-checkbox="true"/> Previous FY <br/>'+
+                        '<input type="radio" name="lastModifiedDateRadio" id="rbCurrentModifiedQuarter" filter-checkbox="true"/> Current Quarter <br/>'+
+                        '<input type="radio" name="lastModifiedDateRadio" id="rbCurrentModifiedFY" filter-checkbox="true"/> Current FY <br/>'+
+                        '</div>'; 
+                        
+                   
+                    
+                    this.filterActive = false;
+                    this.filterChangedCallback = params.filterChangedCallback;
+                    this.valueGetter = params.valueGetter;
+                    
+                    this.model = {
+                            range: $("input[name=lastModifiedDateRadio]:checked").prop("id")
+                    };
+
+                    var that = this;
+                    $(document).on("change","input[name=lastModifiedDateRadio]", function() {
+                        that.model = {
+                            range: $(this).prop("id")
+                        };
+
+                        if ( that.model.range != "rbAllModifiedTime" ) {
+                            that.filterActive = true;
+                        } else {
+                            that.filterActive = false;
+                        }
+                        that.filterChangedCallback();
+                    });
+                    
+                };
+                
+                lastModifiedDateRadio.prototype.onRbChanged = function () {
+                    this.filterActive = ! this.rbAllModifiedTime.checked;
+                    this.filterChangedCallback();
+                };
+                
+                lastModifiedDateRadio.prototype.getGui = function () {
+                    return this.eGui;
+                };
+                
+                lastModifiedDateRadio.prototype.doesFilterPass = function (params) {
+                   // alert(JSON.stringify(params.data));
+                    var val = params.data.lastModifiedDate;
+                  /*                        
+               Added by Swetha penmethsa on 10.20.2017 for 4.4 release         
+               */  
+             if ( typeof val !== "undefined" ) {
+                        var date = new Date(val);
+                        val = (date.getMonth() + 1) + '-' + date.getDate() + '-' +  date.getFullYear();
+                        var range = this.model.range;
+                        console.log('##--startDate: ' + val);
+                        if(range == "rbLastModified30Days" && daysBetween(val, -30, 'd')){
+                            return true;
+                        } else if(range == "rbLastModified90Days" && daysBetween(val, -89, 'd')){                        
+                            return true;
+                        } else if(range == "rbLastModifiedQuarter" && daysBetween(val, -1, 'q')){                       
+                            return true;
+                        } else if(range == "rbLastModifiedFY" && daysBetween(val, -1, 'f')){                       
+                            return true;
+                        } else if(range == "rbCurrentModifiedQuarter" && daysBetween(val, 0, 'q')){                        
+                            return true;
+                        }else if(range == "rbCurrentModifiedFY" && daysBetween(val, 0, 'f')){                        
+                            return true;
+                        }
+                    }   
+                     /*                       
+                Added by Swetha penmethsa on 10.20.2017 for 4.4 release         
+               */   
+                    return false;
+                };
+                
+                lastModifiedDateRadio.prototype.isFilterActive = function () {
+                    return this.filterActive;
+                };
+                
+                lastModifiedDateRadio.prototype.getModel = function() {
+                    return this.model;
+                };
+                                
+                lastModifiedDateRadio.prototype.setModel = function(model) {
+                    console.log(model);
+                    if ( typeof model == "undefined" || model == null ) {
+                        // reset
+                        this.model = {
+                            range: "rbAllModifiedTime"
+                        };
+
+                        this.filterActive = false;
+                    } else {
+                        this.model = model;
+                        this.filterActive = true;
+                    }
+
+                    this.filterChangedCallback();
+                };
+                
+                lastModifiedDateRadio.prototype.afterGuiAttached = function() {
+                    var model = this.getModel();
+                    $("#"+model.range).click(); 
+
+                };
+                
+                // Added by Swetha - lastModifiedDateRadio -- END
+                
+                function daysBetween(val, intVal, intType){
+                
+                    //selectedVal = filterData[0];
+                    //intVal = selectedVal.split(' ')[0];
+                    //intType = selectedVal.split(' ')[1];
+                    today = moment().startOf('day');
+                    console.log('##--date limit: '+ val);
+                    if($.isNumeric(val)){
+                        givenDate = moment(val);
+                    } else{
+                        
+                        givenDate = moment(val, 'MM-DD-YYYY');
+                       
+                    }
+                    
+                    if(intType == 'd'){
+                        
+                        limitDate = moment(today);
+                        limitDate.add(intVal, intType);
+                        
+                     if(intVal == '-90'){
+                            var todayDt = new Date(); 
+                            limitDate = moment(today);
+                            limitDate.add('-92', intType);                      
+                            //today = new Date().setDate(todayDt.getDate()-30);
+                            today = moment(today);
+                            today.add('-31', intType);                            
+                        }
+                      if(intVal == '-180'){
+                            var todayDt = new Date();                       
+                           // today = new Date().setDate(todayDt.getDate()-91);  
+                            today = moment(today);
+                            today.add('-91', intType);                          
+                        }
+                        
+                        if(intVal == '-99999'){
+                            var todayDt = new Date();                       
+                           // today = new Date().setDate(todayDt.getDate()-91);  
+                            today = moment(today);
+                            today.add('-180', intType);                          
+                        }
+                        
+                        if(givenDate.isBetween(limitDate, today, null, '[]') || givenDate.isBetween(today, limitDate, null, '[]')){
+                        
+                            return true;
+                        }
+                        return false;
+                    } else if(intType == 'M' || intType == 'w'){
+                        limitDate = moment(today);
+                        limitDate.add(intVal, intType);
+                        limitDate.startOf(intType);
+                        
+                        today.add(intVal, intType);
+                        today.endOf(intType);
+                        
+                        if(givenDate.isBetween(limitDate, today, null, '[]')){
+                            return true;
+                        }
+                        
+                        return false;
+                        
+                    }else if(intType == 'q' ){
+                    
+                        var d = new Date();
+                        var quarter = Math.floor((d.getMonth() / 3))+3;
+                        quarter = quarter>4?quarter-4:quarter;
+                        console.log('##-- quarter: '+quarter +'intVal: '+ intVal);
+                        if(quarter == 1){
+                            limitDate = new Date(d.getFullYear(), 6, 1);
+                        }else if(quarter == 2){
+                            limitDate = new Date(d.getFullYear(), 9, 1);
+                        }else if(quarter == 3){
+                            limitDate = new Date(d.getFullYear(), 0, 1);
+                        }else if (quarter ==4 || quarter == 0){
+                            limitDate = new Date(d.getFullYear(), 3, 1);
+                        }
+                        
+                        if(d.getMonth() < 3 &&  parseInt(intVal) == -1){
+                            limitDate = new Date(d.getFullYear()-1, 9, 1);
+                        }else if (parseInt(intVal) == -1){
+                            limitDate = new Date(limitDate.getFullYear(), limitDate.getMonth() -3, 1);
+                        }
+                        
+                        if(d.getMonth() > 8 &&  parseInt(intVal) == 1){
+                            limitDate = new Date(d.getFullYear()+1, 0, 1);
+                        }else if (parseInt(intVal) == 1){
+                            limitDate = new Date(limitDate.getFullYear(), limitDate.getMonth() + 3, 1);
+                        }
+                        
+                        today = new Date(limitDate.getFullYear(), limitDate.getMonth() + 3, 0);
+                        if(intVal == '-180'){
+                            var todayDt = new Date(); 
+                           // today = new Date().setDate(todayDt.getDate()-90);
+                        }
+                        console.log('##-- begining of quarter: '+limitDate +'end of quarter: '+ today);
+                        
+                        if(givenDate.isBetween(limitDate, today, null, '[]')){
+                            return true;
+                        }
+                        
+                        return false;
+                    }else if (intType == 'f'){
+                    
+                        var d = new Date();
+                        var month = d.getMonth();
+                        var currentFY = month <=5 ? -1: 0;
+                        
+                        limitDate = new Date(d.getFullYear()+ currentFY, 6, 1);
+                        console.log('##--parseInt(intVal): '+ parseInt(intVal));
+                        console.log('##--currentFY: '+ currentFY);
+                        if(parseInt(intVal) == -1 ){
+                            limitDate = new Date(limitDate.getFullYear() - 1, limitDate.getMonth(), 1);
+                        }else if(parseInt(intVal) == 1){
+                            limitDate = new Date(limitDate.getFullYear() + 1, limitDate.getMonth(), 1);
+                        }
+                    
+                        today = new Date(limitDate.getFullYear(), limitDate.getMonth() + 12, 0);
+                        console.log('##-- begining of FY: '+limitDate +'end of FY: '+ today);
+                        
+                        if(givenDate.isBetween(limitDate, today, null, '[]')){
+                            return true;
+                        }
+                        
+                        return false;
+                    }
+                    
+                    return false; 
+                
+                }//  end of if check for Projected Close Date
+                
+                
+                /*
+                    Custom filter for Age
+                    */
+                    
+                function OpportunityAge() {
+                }  
+                
+                OpportunityAge.prototype.init = function (params) {
+                    this.valueGetter = params.valueGetter;
+
+                    this.eGui = document.createElement('div');
+                    this.eGui.innerHTML =
+                        '<div class="dropdownFont" style="display: inline-block; width: 200px; padding-left: 10px;">' +  
+                        '<input type="radio" name="OpportunityAge" checked id="oaAllTime" filter-checkbox="true"/> All <br/>'+
+                        '<input type="radio" name="OpportunityAge" id="oaLast30Days" filter-checkbox="true"/> Last 30 Days <br/>'+
+                        '<input type="radio" name="OpportunityAge" id="oaLast31_90Days" filter-checkbox="true"/> 31-90 Days <br/>'+
+                        '<input type="radio" name="OpportunityAge" id="oaLast91_180Days" filter-checkbox="true"/> 91-180 Days <br/>'+
+                        '<input type="radio" name="OpportunityAge" id="oaLastGreaterThan180Days" filter-checkbox="true"/> >180 Days <br/>' 
+                        '</div>';
+                     
+                  
+                    
+                    this.filterActive = false;
+                    this.filterChangedCallback = params.filterChangedCallback;
+                    this.valueGetter = params.valueGetter;
+                    
+                    this.model = {
+                            range: $("input[name=OpportunityAge]:checked").prop("id")
+                    };
+
+                    var that = this;
+                    $(document).on("change","input[name=OpportunityAge]", function() {
+                        that.model = {
+                            range: $(this).prop("id")
+                        };
+
+                        if ( that.model.range != "oaAllTime" ) {
+                            that.filterActive = true;
+                        } else {
+                            that.filterActive = false;
+                        }
+                        that.filterChangedCallback();
+                    });
+                    
+                };
+                
+                OpportunityAge.prototype.onRbChanged = function () {
+                    this.filterActive = ! this.oaAllTime.checked;
+                    this.filterChangedCallback();
+                };
+                
+                OpportunityAge.prototype.isFilterActive = function () {
+                        return this.filterActive;
+                }
+                
+                
+                OpportunityAge.prototype.getModel = function() {
+                    return this.model;
+                };
+                              
+                OpportunityAge.prototype.setModel = function(model) {
+                    console.log(model);
+                    if ( typeof model == "undefined" || model == null ) {
+                        // reset
+                        this.model = {
+                            range: "oaAllTime"
+                        };
+
+                        this.filterActive = false;
+                    } else {
+                        this.model = model;
+                        this.filterActive = true;
+                    }
+
+                    this.filterChangedCallback();
+                };
+                
+                OpportunityAge.prototype.afterGuiAttached = function() {
+                    var model = this.getModel();
+                    $("#"+model.range).click(); 
+
+                };
+                                 
+                OpportunityAge.prototype.getGui = function () {
+                    return this.eGui;
+                };
+                
+                                
+                OpportunityAge.prototype.doesFilterPass = function (params) {
+                        
+                    var val = this.valueGetter(params);
+                    //val = '2017-09-22 10:16:43';
+                    
+                    if ( typeof val !== "undefined" ) {
+                        var date = new Date(val);
+                        //alert();
+                        val = (date.getMonth() + 1) + '-' + date.getDate() + '-' +  date.getFullYear();
+                        var range = this.model.range;
+                        
+                        if(range == "oaLast30Days" && daysBetween(val, -30, 'd')){
+                            return true;
+                        } else if(range == "oaLast31_90Days" && daysBetween(val, -90, 'd')){
+                            return true;
+                        } else if(range == "oaLast91_180Days" &&  daysBetween(val, -180, 'd')){
+                            return true;
+                        } else if(range == "oaLastGreaterThan180Days" && daysBetween(val, -99999, 'd')){
+                            return true;                        
+                        } else if ( range == "rbAllDays") { 
+                            return true;
+                        }
+                    }
+                    
+                    return false;
+                };
+                
+                
+                
+                
+                
+                function onPaginationPageLoaded() {
+                    console.log('##--onPaginationPageLoaded');
+                    
+                    var currPage = oppGridOptions.api.paginationGetCurrentPage(); 
+                    setText('#lbPageSize', oppGridOptions.api.paginationGetRowCount());
+                    setText('#lbFirstRow', (oppGridOptions.api.paginationGetPageSize() * currPage) + 1);
+                    
+                    
+                    var allRowsCount = Number(oppGridOptions.api.getModel().getRowCount()); 
+                    var currentPaginationsize = oppGridOptions.api.paginationGetPageSize() * (currPage+1); 
+                    //setText('#lbLastRow', oppGridOptions.api.paginationGetPageSize() * (currPage+1)); 
+                    setText('#lbLastRow', currentPaginationsize > allRowsCount ? allRowsCount: currentPaginationsize );
+                    savedFilterHasChanged();
+                    
+                }
+                
+                // Added by Swetha -- Release 4.4--search filter save functionality -- START
+                
+                function gridDateFormat(node) {                        
+                    return moment(node.value).format("M/D/YYYY");                
+                }
+                                
+                function savedFilterHasChanged() {
+                  //code added by swetha to add number of records in the filters
+                   var currentpageSize = document.getElementById('selPaginationSize').value;
+                    // filters
+                    var newFilter = {
+                        filterModel: oppGridOptions.api.getFilterModel(),
+                        sortModel: oppGridOptions.api.getSortModel(),
+                        PageSize: currentpageSize,
+                        columnState: oppGridOptions.columnApi.getColumnState()
+                        
+                    };
+
+                    var newFilterJSON = JSON.stringify(newFilter);
+
+                    if ( typeof window.currentFilterJSON != "undefined" && ( window.currentFilterJSON != newFilterJSON ) ) {
+                        $("span.filter-has-changed").show();
+                    } else {
+                        $("span.filter-has-changed").hide();
+                    }
+                    
+                    $(".filter-error").text("");
+                    $(".filter-success").text("");
+
+                    window.currentFilterJSON = newFilterJSON;
+
+                }
+                
+                 function onGridReady() {
+
+                    var currentFilter = {
+                        filterModel: oppGridOptions.api.getFilterModel(),
+                        sortModel: oppGridOptions.api.getSortModel(),
+                        columnState: oppGridOptions.columnApi.getColumnState()
+                    };
+
+                    window.currentFilterJSON = JSON.stringify(currentFilter);
+
+                }
+                
+                // Added by Swetha -- Release 4.4 -- search filter save functionality -- END 
+                
+                
+                function setText(selector, text) {
+                    
+                    $(selector).html(text);
+                    //document.querySelector(selector).innerHTML = text;
+                }
+                
+                function onBtFirst() {
+                    oppGridOptions.api.paginationGoToFirstPage();
+                }
+                
+                function onBtLast() {
+                    oppGridOptions.api.paginationGoToLastPage();
+                }
+                
+                function onBtNext() {
+                    oppGridOptions.api.paginationGoToNextPage();
+                }
+                
+                function onBtPrevious() {
+                    oppGridOptions.api.paginationGoToPreviousPage();
+                }
+                
+                
+                function MyDatasource(rowCount) {
+                    this.rowCount = rowCount;
+                }
+                 
+                function onPageSizeChanged(newPageSize) { 
+                    
+                    if(newPageSize != 'All'){
+                        oppGridOptions.api.paginationSetPageSize(Number(newPageSize));
+                    }else{
+                        oppGridOptions.api.paginationSetPageSize(Number(oppGridOptions.api.getModel().getRowCount()));
+                    }
+                    //createNewDatasource();
+                }
+                
+                // when json gets loaded, it's put here, and  the datasource reads in from here.
+                // in a real application, the page will be got from the server.
+                var allOfTheData;
+                
+                function setRowData(rowData) {
+                    allOfTheData = rowData;
+                    createNewDatasource();
+                    
+                } 
+                
+                function clearAllFilters(){  
+                    
+                    oppGridOptions.api.setFilterModel(null);
+                    document.getElementById("oppGridSearch").value = "";
+                    oppGridOptions.api.setQuickFilter(null);
+                   
+                    var nameFilterInstance = oppGridOptions.api.getFilterInstance('closeDate_column'); 
+                    nameFilterInstance.filterActive= false; 
+                    $("#rbAllTime").prop("checked", "checked"); 
+                    oppGridOptions.api.onFilterChanged(); 
+                     
+                }   //  end of clearAllFilters 
+                  
+                // Added by Swetha -- Release 4.4 --Export as CSV functionality -- START 
+                function getBooleanValue(cssSelector) {
+                    return false;
+                    //return document.querySelector(cssSelector).checked === true;
+                }
+                
+                function onBtExport() {
+                    var params = {
+                        skipHeader: getBooleanValue('#skipHeader'),
+                        columnGroups: getBooleanValue('#columnGroups'),
+                        skipFooters: getBooleanValue('#skipFooters'),
+                        skipGroups: getBooleanValue('#skipGroups'),
+                        skipPinnedTop: getBooleanValue('#skipPinnedTop'),
+                        skipPinnedBottom: getBooleanValue('#skipPinnedBottom'),
+                        allColumns: getBooleanValue('#allColumns'),
+                        onlySelected: getBooleanValue('#onlySelected'),
+                        suppressQuotes: getBooleanValue('#suppressQuotes'),
+                        fileName: 'Exported List view.csv',
+                        columnSeparator: ','
+                    };
+                
+                    if (getBooleanValue('#skipGroupR')) {
+                        params.shouldRowBeSkipped = function (params) {
+                            return params.node.data.country.charAt(0) === 'R'
+                        };
+                    }
+                
+                
+                    if (getBooleanValue('#useCellCallback')) {
+                        params.processCellCallback = function (params) {
+                            if (params.value && params.value.toUpperCase) {
+                                return params.value.toUpperCase();
+                            } else {
+                                return params.value;
+                            }
+                        };
+                    }
+                
+                    if (getBooleanValue('#useSpecificColumns')) {
+                        params.columnKeys = ['country', 'bronze'];
+                    }
+                
+                    if (getBooleanValue('#processHeaders')) {
+                        params.processHeaderCallback = function (params) {
+                            return params.column.getColDef().headerName.toUpperCase();
+                        };
+                    }
+                
+                    if (getBooleanValue('#customHeader')) {
+                        params.customHeader = '[[[ This ia s sample custom header - so meta data maybe?? ]]]\n';
+                    }
+                    if (getBooleanValue('#customFooter')) {
+                        params.customFooter = '[[[ This ia s sample custom footer - maybe a summary line here?? ]]]\n';
+                    }
+                
+                    oppGridOptions.api.exportDataAsCsv(params);
+                }
+                
+                // Added by Swetha -- Release 4.4 -- Export as CSV functionality -- END
+                
+                function cellHeight(params){ 
+                    return '<span style="line-height: 25px">'+ (params.value) ? globalDecodeEntities(params.value)  : ""  +'</span>';
+                }
+                
+                $(document).ready(function() {
+                
+                    $(window).bind("pageshow", function() { 
+                        document.getElementById("oppGridSearch").value = ""; 
+                    });
+                    
+                    currentUserId = "{!$User.Id}";    
+                    // set Opportunity related UI status
+                    $('#opportunities').addClass('active');
+                    $("h2.title-icon-container i").removeClass().addClass("fa fa-line-chart"); 
+                    
+                    
+                    $("#oppListBtn").hide();
+                    
+                    $("#oppDashboardBtn").show();
+                    $("#oppListing").show();
+                    $("#listingFilter").show();// this will be available in later release.
+                    $("#listingHeader").show();
+                        
+                        
+                    Visualforce.remoting.Manager.invokeAction("CS_AROpportunityCC.retrieveMapParentTerritoryAndListTerritoryIds",
+                        function(result, event) {
+                        MAP_TERRITORY_ID_CHILD_IDS = result;
+                        
+                        createOpportunityListing();                        
+                        //populate productCategory picklist values on edit modal
+                        //populateProductCatergoryValues();
+                        //populate competitive conversion picklist values
+                        populateCompetitiveConversion();
+                        //populate competitive company picklist values
+                        populateCompetitiveCompanies();
+                        //populate opportunity picklist values
+                       // populateOppotunityType();
+                    }); //  end of remote call 
+                    
+                    $('#opportunity-modal').on('hidden.bs.modal', function (e) {
+                        $('#opportunity-modal input.clear-on-close').val('');
+                        $('#opportunity-modal select.clear-on-close').val('');
+                        $('#opportunity-modal div.clear-on-close').empty();
+                        $('#opportunity-modal #newOppErrors').html('');
+                        
+                        if($("#opportunity-modal .opportunity-owner option[value='"+currentUserId+"']").length > 0){
+                            $('#opportunity-modal .opportunity-owner').val(currentUserId);
+                        } else{
+                            $('#opportunity-modal .opportunity-owner').val("");
+                        }
+                    });
+                        //  Logic for dependent list
+                        
+                    $('.filterable .btn-filter').click(function(){
+                        var $panel = $(this).parents('.filterable'),
+                        $filters = $panel.find('.filters input[type="text"]'),
+                        $tbody = $panel.find('.table tbody');
+                        if ($filters.prop('disabled') == true) {
+                            $filters.prop('disabled', false);
+                            $filters.first().focus();
+                            
+                            $('input.dependent-filter').keyup(function(e){
+                                performFilter(e);
+                            });
+                            
+                        } else {
+                            $filters.val('').prop('disabled', true);
+                            $tbody.find('.no-result').remove();
+                            $tbody.find('tr').show();
+                        }
+                        
+                    });
+                    
+                    
+                    // Added by Swetha -- search filter save functionality -- START
+                    // set and apply a filter
+                    $("ul.filter-menu").on("click", "a.saved-filter", function() {
+
+                        var filter = window.savedFilters[$(this).text()];
+
+                        $("span.selected-filter").text( filter.Name );
+                        
+                        try {
+                             
+                            $("span.filter-error").text("");
+                            $("span.filter-success").text("");
+                            var filterJson = globalDecodeEntities(filter.json__c);
+                            
+                            window.currentFilterJSON = filterJson;
+
+                            var filterObj = JSON.parse(filterJson);
+                            oppGridOptions.api.setFilterModel( filterObj.filterModel );
+                            oppGridOptions.api.setSortModel( filterObj.sortModel );
+                            
+                            document.getElementById('selPaginationSize').value = filterObj.PageSize;
+                            oppGridOptions.api.paginationSetPageSize(filterObj.PageSize);
+                            
+                            oppGridOptions.columnApi.setColumnState( filterObj.columnState );
+                            
+                            $("span.filter-has-changed").hide();
+
+                            
+                        } catch (e) {
+                            console.error(e);
+                            $("span.filter-error").text("Filter corrupted, plese delete it");
+                        }
+
+                        
+
+                        // only show the save if this filter is not readonlg
+                        if ( !$(this).hasClass("readonly") ) {
+                            $("a.filter-save").closest("li").show();
+                            $("a.filter-delete").closest("li").show();
+                        }
+                                                
+                    });
+
+
+
+                    // clear all filters
+                    $("a.filter-clear").on("click", function() {
+                        window.location.reload();
+                        
+                        oppGridOptions.api.setFilterModel(null);
+                        oppGridOptions.api.setQuickFilter(null);
+                        oppGridOptions.api.setSortModel(null);
+                        oppGridOptions.columnApi.resetColumnState();
+                        oppGridOptions.api.onFilterChanged();
+                        oppGridOptions.api.paginationGoToPage( 0 );
+                        oppGridOptions.api.paginationSetPageSize( window.defaultEventGridPageSize); 
+                        
+                       // clearAllGridFilters();
+
+                        $("input.search").val("");
+                        $("span.selected-filter").text("All");
+                        $("a.filter-delete").closest("li").hide();
+                        $("a.filter-save").closest("li").hide();
+                        $("span.filter-error").text("");
+                        $("span.filter-success").text("Filters reset");
+
+                    });
+
+                    $("a.filter-save").on("click", function(e) {
+                        
+                        var filterName = $("span.selected-filter").text();
+                        var filterJson = window.currentFilterJSON;
+                        Visualforce.remoting.Manager.invokeAction("CS_ARCCExtension.saveFilterJson", 
+                            filterName, filterJson, "Opportunities",
+                            function(result, event) { 
+                                if (event.status) {
+
+                                    $("span.filter-success").text("Your filter has been saved");
+                                    $("span.filter-error").text("");
+                                    $("span.filter-has-changed").hide();
+                                    window.savedFilters[result.Name] = result;
+
+
+                                } else {
+
+                                    $("span.filter-error").text(event.message);
+                                    $("span.filter-success").text("");
+                                }
+
+                            });                    
+                    });
+
+                    $("a.filter-delete").on("click", function(e) {
+                        var filterName = $("span.selected-filter").text();
+                        Visualforce.remoting.Manager.invokeAction("CS_ARCCExtension.deleteFilterJson", 
+                            filterName, "Opportunities",
+                            function(result, event) { 
+                                if (event.status) {
+
+                                    $("a.saved-filter:contains('"+filterName+"')").closest("li").remove();
+                                    clearAllGridFilters();
+
+                                    $("span.selected-filter").html("All");
+                                    $("a.filter-delete").closest("li").hide();
+                                    $("a.filter-save").closest("li").hide();
+                                    $("span.filter-success").text("Your filter has been deleted");
+                                    $("span.filter-error").text("");
+
+                                    var savedFilters = $( "li.saved-filter-list" ).nextAll();
+                                    if ( savedFilters.length == 0 ) {
+                                        $( "li.saved-filter-list" ).hide();
+                                    }
+
+                                } else {
+
+                                    $("span.filter-error").text(event.message);
+                                    $("span.filter-success").text("");
+                                }
+
+                            });
+                    });
+
+                    $("a.filter-save-as").on("click", function(e) {
+                    
+                        $("button.filter-menu-btn").addClass("disabled");
+                        $("div.filter-save-as").show();
+                        $("input.filter-name").focus();
+                        $("div.task-add-new").hide();
+                        
+                    });
+
+                    $("button.filter-cancel-save-as").on("click", function(e) {
+                        e.preventDefault();
+                        e.stopPropagation();
+
+                        $("div.filter-save-as").hide();
+                        $("button.filter-menu-btn").removeClass("disabled");
+                        $("input.filter-name").val("");
+                        $("span.filter-error").text("");
+                        $("span.filter-success").text("");
+                        $("div.task-add-new").show();
+                    });
+
+                    $("button.filter-save-as").on("click", function(e) {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        $("span.filter-error").text("");
+
+                        var filterName = $("input.filter-name").val();
+                        if ( filterName.length > 0 ) {
+
+                            filterJson = window.currentFilterJSON;
+                           
+                            Visualforce.remoting.Manager.invokeAction("CS_ARCCExtension.saveFilterJson", 
+                            filterName, filterJson, "Opportunities",
+                            function(result, event) { 
+                                if (event.status) {
+
+                                    $("div.filter-save-as").hide();
+                                    $("button.filter-menu-btn").removeClass("disabled");
+                                    $("input.filter-name").val("");
+
+                                    $("li[role=separator].saved-filter-list").show();
+
+                                    /* Vishnu rel4.3: Added the below to avoid the multiple filter names issue*/
+                                    var existingFilterName = $('a.saved-filter').filter(function(index) { return $(this).text() === result.Name; });
+                                    console.log('##--existingFilterName: ' + existingFilterName);
+                                    if(! existingFilterName ||
+                                        existingFilterName.text() != result.Name){
+
+                                        var filterHtml = "<li><a href='#' class='saved-filter'>"+result.Name+"</a></li>";
+                                        $("li[role=separator].saved-filter-list").after(filterHtml);
+
+                                        var savedFilters = $( "li.saved-filter-list" ).nextAll();
+                                        $("li[role=separator].saved-filter-list").after(
+                                            savedFilters.detach().sort(function(a,b) {
+                                                var aName = $(a).find("a").text().toLowerCase();
+                                                var bName = $(b).find("a").text().toLowerCase();
+                                                return ((aName < bName) ? -1 : ((aName > bName) ? 1 : 0));
+                                            })
+                                        );
+
+                                    }   //  end of if
+                                    /* Vishnu rel4.3: Added the below to avoid the multiple filter names issue*/
+
+                                    $("span.selected-filter").html( result.Name );
+                                    $("a.filter-delete").closest("li").show();
+                                    $("span.filter-success").text("Your filter has been saved");
+                                    $("div.task-add-new").show();
+
+                                    window.savedFilters[result.Name] = result;
+
+                                } else {
+
+                                    $("span.filter-error").text(event.message);
+                                    $("span.filter-success").text("");
+                                }
+
+                            });
+
+                            
+
+                        } else {
+
+                            $("span.filter-error").html("Filter name cannot be blank");
+                            $("span.filter-success").text("");
+                        }
+                        
+
+                    });
+                    
+                    // pull in filter list
+                    Visualforce.remoting.Manager.invokeAction("CS_ARCCExtension.retrieveFiltersFor","Opportunities", function(filters, event) {
+                        
+                        // store filters in a global associative list by name
+                        window.savedFilters = {};
+
+                        if ( event.status ) {
+                            $("span.filter-error").text("");
+                            $("span.filter-success").text("");
+
+                            filters = filters.sort(function(a,b) {
+                                aName = a.Name.toLowerCase();
+                                aOrdinal = a.Global_Order__c;
+
+                                bName = b.Name.toLowerCase();
+                                bOrdinal = b.Global_Order__c;
+
+                                // first order by ordinal asc then by name desc
+                                var cmp = ((aOrdinal < bOrdinal) ? 1 : ((aName > bName) ? -1 : 0));
+                                if ( cmp == 0 ) {   
+                                    // ordinals are the same, try name
+                                    cmp = ((aName < bName) ? -1 : ((aName > bName) ? 1 : 0));
+                                }
+                                return cmp;
+                            });                        
+
+                            var hasAtLeastOne = false;
+                            for ( var i=0; i < filters.length; i++) {
+
+                                var filter = filters[i];
+
+                                var filterHtml = null;
+                                if ( filter.Global__c == true ) {
+                                    // global filters are readonly
+                                    filterHtml = "<li><a href='#' class='saved-filter readonly'>"+filter.Name+"</a></li>";
+                                } else {
+                                    filterHtml = "<li><a href='#' class='saved-filter'>"+filter.Name+"</a></li>";
+                                }
+                                
+                                $("li[role=separator].saved-filter-list").after(filterHtml);
+
+                                window.savedFilters[filter.Name] = filter;
+                                hasAtLeastOne = true;
+                            }
+
+                            if ( hasAtLeastOne ) {
+                                $("li[role=separator].saved-filter-list").show();                                                           
+                            }
+
+                        } else {
+
+                            $("span.filter-error").text(event.message);
+                            $("span.filter-success").text("");
+                        }
+                                                          
+                    });
+                    // Added by Swetha -- search filter save functionality -- END 
+                  
+                    
+                }); //  end of ready fn
+           
+                
+                
+                // Added by Swetha -- search filter save functionality -- START
+                 
+                // clears all the filtesr
+                function clearAllGridFilters() {
+                                        
+                    var nameFilterInstance = oppGridOptions.api.getFilterInstance('closeDate_column'); 
+                    nameFilterInstance.filterActive= false; 
+                    $("#rbAllTime").prop("checked", "checked"); 
+                    
+                    var ageFilterInstance = oppGridOptions.api.getFilterInstance('createdDate'); 
+                    ageFilterInstance.filterActive= false; 
+                    $("#oaAllTime").prop("checked", "checked"); 
+                    
+                    var lastModifiedDateFilterInstance = oppGridOptions.api.getFilterInstance('lastModifiedDate'); 
+                    lastModifiedDateFilterInstance.filterActive= false; 
+                    $("#rbAllModifiedTime").prop("checked", "checked"); 
+            /* 
+            Added by Swetha penmethsa on 9.28.2017 for 4.4 release 
+            */                
+                    var OpportunitySurgeonFilterIns = oppGridOptions.api.getFilterInstance('opportunitySurgeonNames');                              
+                    OpportunitySurgeonFilterIns.filterActive= false; 
+                    $("#selectAllSurgeons").prop('checked', true);
+            /* 
+            Added by Swetha penmethsa on 9.28.2017 for 4.4 release 
+            */
+                    oppGridOptions.api.setFilterModel(null);
+                    oppGridOptions.api.setQuickFilter(null);
+                    oppGridOptions.api.setSortModel(null);
+                    oppGridOptions.columnApi.resetColumnState();
+                    oppGridOptions.api.onFilterChanged();
+
+                }
+                // end pager callbacks
+                 // Added by Swetha --  Release 4.4-- search filter save functionality -- END 
+                
+                function createOpportunityListing(){
+                    $("i.oppListView-busy").show();
+                    Visualforce.remoting.Manager.invokeAction("{!$RemoteAction.CS_AROpportunityCC.retrieveOpportunitiesInMyTeamTerritory}",
+                        function(opportuityWrapper, event) {
+                            
+                            /*
+                            Release 2.2
+                            Component ID CID:-000045
+                            Developer Name:- Mimansha Samal
+                            Date Added:- 1/10/2017
+                            Feature:- display date & time in MM-DD-YYYY format
+                            */
+                            
+                            for ( var l=0; l < opportuityWrapper.length; l++) { 
+                            
+                                populateSurgeonList(opportuityWrapper[l].opportunitySurgeonNames); // added by srinivas sattoor on 6.30.2017 for 4.1 CID-000329                               
+                                opportuityWrapper[l].closeDate = moment(opportuityWrapper[l].closeDate).
+                                format('MM-DD-YYYY');
+                                opportuityWrapper[l].lastModifiedDate = moment(opportuityWrapper[l].lastModifiedDate).
+                                format('MM-DD-YYYY');
+                                if(opportuityWrapper[l].productCategory == undefined){
+                                    opportuityWrapper[l].productCategory = '';
+                                }
+                                if(opportuityWrapper[l].accountTerritory == undefined){
+                                    opportuityWrapper[l].accountTerritory = '';
+                                }
+                                if(opportuityWrapper[l].account == undefined){
+                                    opportuityWrapper[l].account = '';
+                                }
+                                if(opportuityWrapper[l].opportunitySurgeonNames == undefined){
+                                    opportuityWrapper[l].opportunitySurgeonNames = '';
+                                }
+                                //swetha p
+                                if(opportuityWrapper[l].currentFYRevenue != undefined){
+                                    opportuityWrapper[l].currentFYRevenue = opportuityWrapper[l].currentFYRevenue.replace('$','');
+                                    opportuityWrapper[l].currentFYRevenue = opportuityWrapper[l].currentFYRevenue.replace(',','');
+                                    opportuityWrapper[l].currentFYRevenue = opportuityWrapper[l].currentFYRevenue.replace(',','');
+                                    opportuityWrapper[l].currentFYRevenue = opportuityWrapper[l].currentFYRevenue.replace(',','');
+                                    opportuityWrapper[l].currentFYRevenue = opportuityWrapper[l].currentFYRevenue.replace(',','');
+                                    opportuityWrapper[l].currentFYRevenue = Math.round(opportuityWrapper[l].currentFYRevenue);
+                                    opportuityWrapper[l].currentFYRevenue = numberWithCommas(opportuityWrapper[l].currentFYRevenue);
+                                    opportuityWrapper[l].currentFYRevenue = '$'+opportuityWrapper[l].currentFYRevenue;
+                                }
+                                if(opportuityWrapper[l].potentialFYRevenue != undefined){
+                                    //alert( opportuityWrapper[l].potentialFYRevenue);
+                                    opportuityWrapper[l].potentialFYRevenue = opportuityWrapper[l].potentialFYRevenue.replace('$','');
+                                    opportuityWrapper[l].potentialFYRevenue = opportuityWrapper[l].potentialFYRevenue.replace(',','');
+                                    opportuityWrapper[l].potentialFYRevenue = opportuityWrapper[l].potentialFYRevenue.replace(',','');
+                                    opportuityWrapper[l].potentialFYRevenue = opportuityWrapper[l].potentialFYRevenue.replace(',','');
+                                    opportuityWrapper[l].potentialFYRevenue = opportuityWrapper[l].potentialFYRevenue.replace(',','');
+                                    opportuityWrapper[l].potentialFYRevenue = Math.round(opportuityWrapper[l].potentialFYRevenue);
+                                    opportuityWrapper[l].potentialFYRevenue = numberWithCommas(opportuityWrapper[l].potentialFYRevenue);
+                                    opportuityWrapper[l].potentialFYRevenue = '$'+opportuityWrapper[l].potentialFYRevenue;
+                                }
+                                //alert( opportuityWrapper[l].potentialFYRevenue);
+                            }
+                            SURGEON_LIST.sort();
+                            //swetha p 
+                           OPPORTUNITY_LIST = opportuityWrapper;
+                            
+                            <!-- Opportunity Redesign - List view Controls for Release 3.2(CID-000180) by Srinivas Sattoor -->
+                            new agGrid.Grid(document.querySelector('#opportunityGrid'), oppGridOptions); 
+                            oppGridOptions.rowHeight = 40; 
+                            //oppGridOptions.headerHeight = 80;
+                            oppGridOptions.api.setRowData(OPPORTUNITY_LIST);
+                            autoSizeAll();
+                            oppGridOptions.api.addEventListener("cellClicked", showDetails); 
+                            calculateTotalForOppListing();
+                            calculateTotalForOppListingPotentialFYRevenue(); 
+                            //Commented by Srinivas Sattoor 7.14.2017 for 4.1 
+                            //setupCreateOppModal();
+                            
+                        }); //  end of remote call
+                        $("i.oppListView-busy").hide();
+                }   //  end of createOpportunityListing
+                
+                function numberWithCommas(x) {
+                    return x.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+                }
+                
+                function showDetails(event){  
+               
+                     console.log('##--showDetailsClicked')
+                    if((oppGridOptions.api.getFocusedCell()).toString().split("column =")[1].trim() == "accName"){ 
+                        <!-- Added by Swetha -- 4.4 Release -- Account tab opening in new tab when clicking on hyperlink on Opp LV  -- START -->
+                        //window.location = "/apex/ARAccountDetail?id="+ event.node.data.accountId;
+                        window.open('/apex/ARAccountDetail?id='+ event.node.data.accountId,'_blank');
+                        <!-- Added by Swetha -- 4.4 Release -- Account tab opening in new tab when clicking on hyperlink on Opp LV  -- END -->
+                    }else if((oppGridOptions.api.getFocusedCell()).toString().split("column =")[1].trim() == "surgeonName"){ 
+                        window.location = "/apex/ARSurgeonDetail?id="+ event.node.data.practitionerId;
+                    } else{
+                        window.open("/apex/AROpportunityDetail?id="+ event.node.data.opportunityId); 
+                    }
+                    
+                }//end of showDetails
+                
+                function autoSizeAll() {
+                    
+                    console.log('##--Screen Width: '+ screen.width);
+                    
+                    if(screen.width < 1500){
+                        var allColumnIds = [];
+                        oppGridColDef.forEach( function(oppGridColDef) { 
+                            allColumnIds.push(oppGridColDef.field);
+                        }); 
+                        console.log('##--autoSizeAll.allColumnIds: '+ allColumnIds);
+                        oppGridOptions.columnApi.autoSizeColumns(allColumnIds); 
+                    }else{
+                        oppGridOptions.api.sizeColumnsToFit()
+                    }
+                } 
+                
+                function calculateTotalForOppListing(){
+                    var totalAnnualRevListingAmount = 0;
+                    //alert(JSON.stringify($("#tableListView").bootstrapTable('getData')));
+                    
+                    $.each($("#tableListView").bootstrapTable('getData'), function(i, v){
+                                                                        if(v.totalAnnualRevenue && isOppInCurrentFY(v.closeDate) && v.currentStage == 'Closed - Won'){
+                                                                           // console.log('##--calculateTotalForOppListing.totalAnnualRevenue: '+ v.totalAnnualRevenue)
+                                                                            tot = v.totalAnnualRevenue.replace("$","");
+                                                                            tot = tot.replace(/,/g,"");
+                                                                            totalAnnualRevListingAmount = totalAnnualRevListingAmount + parseFloat(tot);
+                                                                        }
+                                                                        
+                                                                    });
+                    totalAnnualRevListingAmount = Math.round(totalAnnualRevListingAmount);
+                    $("#oppListingTotal").html( (totalAnnualRevListingAmount+"").replace(/(\d)(?=(\d\d\d)+(?!\d))/g, "$1,"));
+                    
+                }   //  end of calculateTotalForOppListing
+                
+                function calculateTotalForOppListingPotentialFYRevenue(){
+                    var totalListingPotentialFYRevenue = 0;
+                    
+                    $.each($("#tableListView").bootstrapTable('getData'), function(i, v){
+                                                                        if(v.currentFYRevenue && isOppInCurrentFY(v.closeDate) && v.currentStage != 'Closed - Lost' && v.currentStage != 'Closed - Won' && v.currentStage != 'Cancelled'){
+                                                                            tot = v.currentFYRevenue.replace("$","");
+                                                                            tot = tot.replace(/,/g,"");
+                                                                            totalListingPotentialFYRevenue = totalListingPotentialFYRevenue + parseFloat(tot);
+                                                                        }
+                                                                        
+                                                                    });
+                    totalListingPotentialFYRevenue = Math.round(totalListingPotentialFYRevenue);
+                  
+                    $("#oppListingPotentialFYTotal").html( (totalListingPotentialFYRevenue+"").replace(/(\d)(?=(\d\d\d)+(?!\d))/g, "$1,"));
+                    
+                }   //  end of calculateTotalForOppListing
+                
+                function isOppInCurrentFY(givenDate){
+                    
+                    givenDate = moment(givenDate, 'YYYY-MM-DD');
+                    var d = new Date();
+                    var month = d.getMonth();
+                    
+                    begininglimitDate = new Date(d.getFullYear(), 6, 1);
+                    
+                    endinglimitDate = new Date(begininglimitDate.getFullYear(), begininglimitDate.getMonth() + 12, 0);
+                    
+                    if(givenDate.isBetween(begininglimitDate, endinglimitDate, null, '[]')){
+                        return true;
+                    }
+                    
+                    return false;
+
+                } 
+                
+                function addSurgeonOptionToSelect(filterDiv, filterId, optionValue){
+                    
+                    if(optionValue == null || optionValue == ''){
+                        return;
+                    }
+                    var splitOptionValue = optionValue.split(",");
+                    
+                    for (i = 0; i < splitOptionValue.length; i++) {
+                        addOptionToSelect('divOppListingFilters', 'filterSurgeon', splitOptionValue[i]);
+                    }
+                
+                }// end of addSurgeonOptionToSelect 
+                
+                function addProcOptionToSelect(filterDiv, filterId, optionValue){
+                    
+                    if(optionValue == null || optionValue == ''){
+                        return;
+                    }
+                    var splitOptionValue = optionValue.split(",");
+                    
+                    for (i = 0; i < splitOptionValue.length; i++) {
+                        //optionValue.trim().replace(/,/g , "");
+                        addOptionToSelect(filterDiv, filterId, splitOptionValue[i].trim());
+                    }
+                
+                }// end of addProcOptionToSelect
+                
+                function addOptionToSelect(filterDiv, filterId, optionValue){
+                    
+                    if(optionValue == null || optionValue == ''){
+                        return;
+                    }
+                    var select= document.getElementById(filterId);
+                    if(select == null){
+                        return;
+                    }
+                    for (var i= select.options.length; i-->0;) {
+                    
+                        if(filterId == 'filterAccount'){
+                            //console.log('##--existing option' + select.options[i].value);
+                            //console.log('##--new option' + optionValue);
+                        }
+                        if (select.options[i].value == globalDecodeEntities(optionValue)) {
+                            
+                            return;
+                        }   
+                    }
+                    if(filterId == 'filterAccount'){
+                        //console.log('##--checking if option is being added: ' + optionValue);
+                    }
+                    $("#"+filterDiv+" select#" + filterId).append( $("<option />").val(globalDecodeEntities(optionValue)).text(globalDecodeEntities(optionValue)) );
+                    
+                }   //  end of addOptionToSelect
+
+                 
+                function dateSortFn(a, b) {
+                    return new Date(a.closeDate).getTime() - new Date(b.closeDate).getTime();
+                }   //  end of dateSortFn
+                
+                function dateSorter(a,b){
+                  
+                    var p_a = new Date(a);
+                    var p_b = new Date(b);
+                     
+                    if(p_a > p_b ) return 1;
+                    if(p_a < p_b) return -1;
+                
+                }// end of dateSorter
+                
+                
+                function sortJSON(data, prop, asc) {
+                    sortedData = data.sort(function(a, b) {
+                        if (asc) {
+                            return (toNumber(a[prop]) > toNumber(b[prop])) ? 1 : ((toNumber(a[prop]) < toNumber(b[prop])) ? -1 : 0);
+                        } else {
+                            return (toNumber(b[prop]) > toNumber(a[prop])) ? 1 : ((toNumber(b[prop]) < toNumber(a[prop])) ? -1 : 0);
+                        }
+                        
+                    });
+                    return sortedData;
+                }   //  end of sortJSON
+                
+                function toNumber(currency){
+                    if(! currency)
+                        return 0;
+                        
+                    return Number(currency.replace(/[^0-9\.]+/g,""));
+                    
+                }   //  end of toNumber 
+                
+                
+                
+                function onFilterChanged(value) {
+                    oppGridOptions.api.setQuickFilter(value);
+                }
+                
+                function switchOpportunityView(eleType){
+                    
+                    if(eleType == "ListView"){
+                        
+                        window.location = "/AROpportunityLV";
+                        
+                    } else if(eleType == "Dashboard"){
+                       
+                       window.location = "/AROpportunityDB";
+                        
+                    } else if(eleType == 'DetailView'){
+                    
+                        $("#oppListing").hide();
+                        $("#listingFilter").hide();
+                        $("#listingHeader").hide();
+                        $("#detailHeader").show();
+                        $("#dashboardFilter").hide();
+                        $("#divOppListingFilters").hide();
+                        $("#oppDashboard").hide();
+                        
+                        $("#oppListBtn").show();
+                        $("#oppDashboardBtn").show();
+                        $("#oppDetailsView").show();
+                    }
+                }   //  end of switchOpportunityView
+                
+                // load in the competitive conversion type list
+                function populateCompetitiveConversion(){
+                  Visualforce.remoting.Manager.invokeAction("{!$RemoteAction.CS_AROpportunityCC.retrieveCompetitiveConversionValues}",
+                    function(result, event) { 
+                      for ( var i=0; i < result.length; i++) {
+                          var txt = globalDecodeEntities(result[i]);
+                          $("#opportunity-modal select.competitive-conversion").append("<option value='"+txt+"'>"+txt+"</option>");
+                          $("#opportunity-edit-modal select.competitive-conversion").append("<option value='"+txt+"'>"+txt+"</option>");
+                      }
+                  });
+                  
+                }
+                
+                // load in the competitive conversion type list
+                function populateCompetitiveCompanies(){
+                  Visualforce.remoting.Manager.invokeAction("{!$RemoteAction.CS_AROpportunityCC.retrieveCompetitiveCompanyValues}",
+                    function(result, event) { 
+                      //console.log('##--populateCompetitiveCompanies: '+JSON.stringify(result));
+                      for ( var i=0; i < result.length; i++) {
+                          var txt = globalDecodeEntities(result[i]);
+                          $("#opportunity-modal select.competitive-company").append("<option value='"+txt+"'>"+txt+"</option>");
+                          $("#opportunity-edit-modal select.competitive-company").append("<option value='"+txt+"'>"+txt+"</option>");
+                      }
+                  });
+                  
+                }
+                
+                // load in the close lost reasons
+                function populateCloseLostReasons(opportunityType){
+                  var selectList = $("#opportunity-stage-close-modal select.opportunity-closed-lost-reason");
+                  selectList.find("option:gt(0)").remove();
+                  //console.log('##--opportunityType: '+opportunityType);
+                  Visualforce.remoting.Manager.invokeAction("{!$RemoteAction.CS_AROpportunityCC.retrieveOpportunityCloseLostReasons}", 
+                    opportunityType, function(result, event) { 
+                      for ( var i=0; i < result.length; i++) {
+                          var txt = globalDecodeEntities(result[i]);
+                          $("#opportunity-stage-close-modal select.opportunity-closed-lost-reason").append("<option value='"+txt+"'>"+txt+"</option>");
+                      }
+                  });
+                  
+                }
+                
+                
+                // load in the opportunity stage list
+                function populateOpportunityStageNames(opportunityType){
+                  Visualforce.remoting.Manager.invokeAction("{!$RemoteAction.CS_AROpportunityCC.retrieveOpportunityStageValues}",
+                    opportunityType, function(result, event) { 
+                      for ( var i=0; i < result.length; i++) {
+                          var txt = globalDecodeEntities(result[i]);
+                          $("#opportunity-edit-modal select.stage").append("<option value='"+txt+"'>"+txt+"</option>");
+                      }
+                  });
+                  
+                } 
+                
+            function decimalSort(a, b){
+                
+                firstVal = a || "0";
+                secondVal = b || "0";
+                
+                firstDecimal = parseFloat(firstVal.replace(/[^0-9\.]+/g,""));
+                secondDecimal = parseFloat(secondVal.replace(/[^0-9\.]+/g,""));
+                
+                //console.log('Value firstDecimal: ' + firstDecimal + '\t Value secondDecimal: ' + secondDecimal);
+                
+                if (firstDecimal < secondDecimal) return -1;
+                if (firstDecimal > secondDecimal) return 1;
+                return 0;
+            }   //  end of decimalSort
+            
+            /* 
+            Added by srinivas satttoor on 6.30.2017 for 4.1 
+            */
+            function populateSurgeonList(val){
+                
+                console.log('##--val: '+ val);
+                if(val == null || val == 'null' || val == '' || val == undefined){
+                    return;
+                }
+                var splitValue = val.split(",");
+                console.log('##--splitValue: '+ splitValue);
+                if(splitValue.length == 1){
+                    console.log('##--SURGEON_LIST.indexOf(splitValue[0]): '+ SURGEON_LIST.indexOf(splitValue[0]));
+                    if(SURGEON_LIST.indexOf(globalDecodeEntities(splitValue[0].trim())) == -1)
+                        SURGEON_LIST.push(globalDecodeEntities(splitValue[0].trim()));
+                } else{
+                    for (i = 0; i < splitValue.length; i++) {
+                        if(splitValue[i].trim() == null || splitValue[i].trim() == 'null' || splitValue[i].trim() == '' || splitValue[i] == undefined){
+                            continue;
+                        }
+                        console.log('##--SURGEON_LIST.splitValue[i] : '+ splitValue[i]);
+                        console.log('##--SURGEON_LIST.indexOf(splitValue[i]): '+ SURGEON_LIST.indexOf(splitValue[i]));
+                        if (SURGEON_LIST.indexOf(globalDecodeEntities(splitValue[i].trim())) == -1) {
+                            SURGEON_LIST.push(globalDecodeEntities(splitValue[i].trim())); 
+                        }
+                    }
+                }
+                console.log('##--populateSurgeonList.SURGEON_LIST: '+ JSON.stringify(SURGEON_LIST)); 
+                
+            }// end of populateSurgeonList
+                
+            </script>
+            <div class="wrapper wrapper-content">
+                <div class="row">
+                    <div class="col-xs-12">
+                        <div class="ibox float-e-margins">
+                            <div class="ibox-title">
+                                <div class="clearfix">
+                                    <div class="pull-left">
+                                        <div id="listingHeader" style="display: none;">
+                                            <div class="text-pull-left">
+                                             <h2>
+                                                    <b><span class="font-large">{!$Label.AROpportunity_OppoListView}</span></b>
+                                                    <i class="oppListView-busy fa fa-refresh fa-spin" style="display:none"></i>
+                                                </h2>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="pull-right">
+                                       
+                                        <button type="button" class="btn btn-primary menu_btn" tabindex="-1" id="oppAddBtn" onclick="createNewOpportunity()"><i class="fa fa-plus"></i> Opportunity</button>
+                                        <button type="button" class="btn btn-primary menu_btn btnViewSwitch"  tabindex="-1" id="oppListBtn" style="margin-right: 5px" onclick="switchOpportunityView('ListView')"><i class="fa fa-list"></i> List View</button>
+                                        <button type="button" class="btn btn-primary menu_btn btnViewSwitch"  tabindex="-1" id="oppDashboardBtn" style="margin-right: 5px; display: none;" onclick="switchOpportunityView('Dashboard')"><i class="fa fa-pie-chart"></i> Dashboard</button>
+                                    </div>
+                                </div>
+                            </div>  <!-- End of ibox-title -->
+                            
+                            <div class="row">
+                                <div class="col-xs-12">
+                                    <div class="ibox" style="margin-bottom: 0px;">
+                                        <div class="ibox-content">
+                                            <div class="clearfix">                                                
+                                                <div id="listingFilter" style="display: none">
+                                                    <div class="row"> 
+                                                        <div class="col-sm-12" style="padding:0 0 0 0;">
+                                                            <div class="col-sm-4 pull-left" style="padding:0 0 0 0;">
+                                                                <input id="oppGridSearch" type="text" class="search form-control provider-typeahead" placeholder="Search..." 
+                                                                    onpaste="onFilterChanged(this.value)"
+                                                                    oninput="onFilterChanged(this.value)"
+                                                                    onchange="onFilterChanged(this.value)"
+                                                                    onkeydown="onFilterChanged(this.value)"
+                                                                    onkeyup="onFilterChanged(this.value)"/>
+                                                            </div>
+                                                            <!-- Added by Swetha -- Release 4.4 -- Save Search Filter -- START -->
+                                                            <div class="form-inline col-xs-12 col-sm-6 col-lg-8 text-right">
+                                                                
+                                                                <div class="form-group" style="margin-right:10px">
+                                                                    <span class="text-danger filter-error"></span>
+                                                                    <span class="text-success filter-success"></span>
+                                                                </div>
+                                                                <div class="btn-group">
+                                                                  <button type="button" class="btn btn-primary filter-menu-btn" style="margin-bottom:0px;min-width:50px">
+                                                                    <span class="filter-has-changed" style="display:none">*</span><i class="fa fa-filter"></i>
+                                                                    <span class="selected-filter">All</span>
+                                                                  </button>
+                                                                  <button type="button" class="btn btn-primary dropdown-toggle filter-menu-btn" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" style="margin-bottom:0px">
+                                                                    <span class="caret"></span>
+                                                                    <span class="sr-only">Toggle Filter Dropdown</span>
+                                                                  </button>
+                                                                  <ul class="dropdown-menu filter-menu">
+                                                                    <li><a href="#" class="filter-save-as">Save As ...</a></li>
+                                                                    <li style="display:none"><a href="#" class="filter-save">Save</a></li>
+                                                                    <li><a href="#" class="filter-clear">Clear</a></li>
+                                                                    <li style="display:none"><a href="#" class="filter-delete">Delete</a></li>
+                                                                    <li role="separator" class="divider saved-filter-list" style="display:none"></li>
+                        
+                                                                  </ul>
+                                                                  
+                                                                  <!--  Added by Swetha -- Export as CSV --Release 4.4 --functionality -- START -->
+                                                                  <button type="button" class="btn btn-primary" onclick="onBtExport()" style="margin-bottom:0px;min-width:50px; margin-left:3px; display:{!if(currentUserCanExportListview == true, 'block', 'none;')}">
+                                                                     <span>Export</span>
+                                                                  </button>
+                                                                  <!--  Added by Swetha -- Export as CSV-- Release 4.4 --functionality -- END -->
+                                                                </div>                                                
+                                                                <div class="form-group filter-save-as" style="display:none">
+                                                                    <input type="text" class="form-control filter-name" placeholder="Filter Name..."/>
+                                                                    <button class="btn btn-primary filter-save-as" style="margin-bottom:0px">Save</button>
+                                                                    <button class="btn btn-default filter-cancel-save-as" style="margin-bottom:0px">Cancel</button>
+                                                                </div>
+                                                                <!-- Added by Swetha -- Release 4.4 --Save Search Filter -- END  -->                                                                
+                                                            </div>
+                                                        </div>
+                                                    </div> 
+                                                </div>
+                                            
+                                            </div>
+                                        </div>
+                                    </div> 
+                                </div>
+                            </div> <!-- End of the row -->
+                            
+                            <div id="oppListing"> 
+                                <div id="opportunityGrid" style="border:thin; border-color:gray; height: 600px;" class="ag-bootstrap"></div> 
+                            </div>  <!-- End of List View -->
+                            <br/>
+                            <div class="row bootstrap-font">
+                                <div class ="col-sm-6">
+                                    Showing <span class="value" id="lbFirstRow">1</span> to <span class="value" id="lbLastRow">5</span> of <span class="value" id="lbPageSize"></span> rows 
+                                    <select id="selPaginationSize" onchange="onPageSizeChanged(this.value)">
+                                        <option value="20">20</option>
+                                        <option value="40">40</option>
+                                        <option value="60">60</option>
+                                        <option value="80">80</option>
+                                        <option value="100">100</option>
+                                        <option value="All">All</option>
+                                    </select>
+                                    records per page
+                                </div>
+                                <div class="col-sm-6">
+                                    <div class="pull-right">
+                                        <button type="button" class="btn btn-xs btn-primary"  onclick="onBtFirst()">First</button>
+                                        <button type="button" class="btn btn-xs btn-primary"  onclick="onBtPrevious()">Previous</button>
+                                        <button type="button" class="btn btn-xs btn-primary"  onclick="onBtNext()">Next</button>
+                                        <button type="button" class="btn btn-xs btn-primary"  onclick="onBtLast()" id="btLast">Last</button>   
+                                    </div>
+                                    
+                                </div>
+                            </div> 
+                        
+                    </div>
+                </div>
+            </div>
+        </div>
+        </apex:define>
+    </apex:composition>
+
+</apex:page>

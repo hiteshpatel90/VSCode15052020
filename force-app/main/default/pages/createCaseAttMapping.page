@@ -1,0 +1,51 @@
+<apex:page standardController="Case_Attribute_Mapping__c" extensions="createCaseAttMappingExtension">
+    <apex:sectionHeader title="Case Attribute Mapping Edit" subtitle="New Case Attribute Mapping"/>
+     <apex:form >
+         <apex:pagemessages ></apex:pagemessages>
+        <apex:pageblock title="Case Attribute Mapping Edit">
+            <apex:pageblockButtons >
+                <apex:commandButton value="Save" action="{!saveCAM}"/>
+                <apex:commandButton value="Cancel" action="{!cancel}"/>
+            </apex:pageblockButtons>
+            <apex:pageblockSection columns="1" >
+                <apex:pageblockSectionItem >
+                    <apex:outputLabel value="Object Type" />
+                    <apex:inputfield value="{!objCAM.Object_Type__c}">
+                        <apex:actionSupport action="{!populateFields}" event="onchange" reRender="opSelFields"/>
+                    </apex:inputfield>
+                </apex:pageblockSectionItem>
+                <apex:pageblockSectionItem >
+                    <apex:outputLabel value="Case Record Type" />
+                    
+                    <apex:selectList value="{!objCAM.Case_Record_Type__c}" size="0">
+                        <apex:selectOptions value="{!CaseRecordTypes}"></apex:selectOptions>
+                    </apex:selectList>
+                    
+                </apex:pageblockSectionItem>
+                
+                <apex:pageBlockSectionItem id="pbsItemSelFields">
+                    <apex:outputLabel value="Select Fields" />
+                    
+                
+                    <apex:outputPanel id="opSelFields">
+                        <apex:selectList value="{!leftselected}" multiselect="true" size="8">
+                            <apex:selectOptions value="{!unselectedvalues}"></apex:selectOptions>
+                        </apex:selectList>
+                       
+                        <apex:commandButton value="Add >>" action="{!selectclick}" reRender="opSelFields"/>
+                        <apex:commandButton value="<< Remove" action="{!unselectclick}" reRender="opSelFields"/>
+                                                  
+                        <apex:selectList value="{!rightselected}" multiselect="true" size="8">
+                            <apex:selectOptions value="{!SelectedValues}"></apex:selectOptions>
+                        </apex:selectList>
+                    </apex:outputPanel>
+                </apex:pageBlockSectionItem>
+                <apex:pageblockSectionItem >
+                    <apex:outputLabel value="Active" />
+                    <apex:inputfield value="{!objCAM.Active__c}"/>
+                </apex:pageblockSectionItem>
+                
+            </apex:pageblockSection>
+        </apex:pageblock>
+    </apex:form>
+</apex:page>

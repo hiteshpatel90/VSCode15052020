@@ -1,0 +1,107 @@
+<apex:page controller="bigQueryIntegration">
+<apex:includeScript value="https://code.jquery.com/jquery-1.11.1.min.js"/>
+<apex:includeScript value="https://cdn.datatables.net/1.10.7/js/jquery.dataTables.min.js"/>
+<apex:includeScript value="https://www.datatables.net/release-datatables/extensions/FixedColumns/js/dataTables.fixedColumns.js"/>
+<apex:stylesheet value="https://cdn.datatables.net/1.10.7/css/jquery.dataTables.css"/>
+<apex:stylesheet value="https://www.datatables.net/release-datatables/extensions/FixedColumns/css/dataTables.fixedColumns.css"/>
+ 
+    <html>
+        <body>
+             
+            <table id="bigQueryTable" class="display" cellspacing="0" width="100%">
+                <thead>
+                    <th style="background-color:lightgreen">Artist</th>
+                    <th style="background-color:lightgreen">Release Name</th>
+                    <th style="background-color:lightgreen">Release Type</th>
+                    <th style="background-color:lightgreen">Release Date</th>
+                    <th style="background-color:lightgreen">Release Owner</th>
+                    <th style="background-color:lightgreen">Genre</th>
+                    <th style="background-color:lightgreen">MAU</th>
+                    <th style="background-color:lightgreen">Fans or Followers</th>
+                    <th style="background-color:#CC00CC">Instagram Followers</th>
+                    <th style="background-color:aqua">Competition</th>
+                    <th style="background-color:aqua">Cultural Relevance</th>
+                    <th style="background-color:aqua">Relationship</th>
+                    <th style="background-color:cornflowerblue">Context Total</th>
+                    <th style="background-color:orange">Returns</th>
+                    <th style="background-color:lightgreen">Weighted Score</th>
+                    <th style="background-color:lightgreen">Score</th>
+                    <th style="background-color:lightgrey">Marquee</th>
+                    <th style="background-color:lightgrey">Home Banner</th>
+                    <th style="background-color:lightgrey">CRM Email</th>
+                    <th style="background-color:lightgrey">PHPTO</th>
+                    <th style="background-color:lightgrey">NMF Billboard (NYC)</th>
+                </thead>
+                 
+                <tbody>
+                    <apex:repeat value="{!lstWrapperQueryData}" var="qd">
+                        <tr>
+                            <td>{!qd.strArtistName}</td>
+                            <td>{!qd.strReleaseName}</td>
+                            <td>{!qd.strReleaseType}</td>
+                            <td>{!qd.strReleaseDate}</td>
+                            <td>{!qd.strReleaseOwner}</td>
+                            <td>{!qd.strGenre}</td>
+                            <td>{!qd.strMAU}</td>
+                            <td>{!qd.FansorFollowers}</td>
+                            <td>{!qd.InstagramFollowers}</td>
+                            <td>{!qd.strCompetition}</td>
+                            <td>{!qd.strCulturalRelevance}</td>
+                            <td>{!qd.strRelationship}</td>
+                            <td>{!qd.strContextTotal}</td>
+                            <td>{!qd.strReturns}</td>
+                            <td>{!qd.strWeightedScore}</td>
+                            <td>{!qd.strScore}</td>
+                            <td>{!qd.strMarquee}</td>
+                            <td>{!qd.strHomeBanner}</td>
+                            <td>{!qd.strCRMEmail}</td>
+                            <td>{!qd.strPHPTO}</td>
+                            <td>{!qd.strNMFBillboardNYC}</td>
+                        </tr>
+                    </apex:repeat>
+                </tbody>
+            </table>
+         
+        </body>
+    </html>
+     
+    <script type="text/javascript">
+        var table;
+        $(document).ready( initializeDataTable());
+        var freezeColIdx = 0;
+        
+        function initializeDataTable(){
+            
+            table = $('#bigQueryTable').DataTable( {
+            scrollY:        "400px",
+            scrollX:        true,
+            scrollCollapse: true,
+            paging:         false
+            } );
+             
+            new $.fn.dataTable.FixedColumns( table, {
+                leftColumns: freezeColIdx
+            } );
+             
+        }
+       
+         setTimeout(function(){ 
+             freezeColChange();
+         }, 2000);
+        
+        
+        function freezeColChange(){
+            freezeColIdx = 1;
+            table.destroy();
+            initializeDataTable();
+        }
+    </script>
+     
+    <style>
+        th, td { white-space: nowrap; }
+        div.dataTables_wrapper {
+        width: 1100px;
+        margin: 0 auto;
+        }
+    </style>    
+</apex:page>

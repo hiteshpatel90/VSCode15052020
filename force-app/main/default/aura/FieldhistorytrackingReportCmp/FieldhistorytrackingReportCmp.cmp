@@ -1,0 +1,85 @@
+<aura:component controller="FieldhistorytrackingReportController" implements="forceCommunity:availableForAllPageTypes">
+	<aura:handler name="init" action="{!c.myAction}" value="{!this}" />
+    <aura:attribute name="FieldHistories" type="Field_History__c[]" />
+     <style>
+
+        table#t01 tr:nth-child(even) {
+            background-color: #eee;
+        }
+        table#t01 tr:nth-child(odd) {
+           background-color:#fff;
+        }
+        table#t01 th    {
+            background-color: black;
+            color: white;            
+        }
+    </style>
+    <table width="100%" id="t01" cellpadding="6" style="border-collapse: collapse;padding:10px;"> 
+            <tr>
+        		<td>
+                    <br/>
+                	Archived Field History
+                    <br/>
+                    <br/>
+                </td>
+        	</tr>
+            <tr>
+                <th style="border: 1px solid black;border-collapse: collapse;">
+                    Number
+                </th>
+                <th style="border: 1px solid black;border-collapse: collapse;">
+                    Field/ Event
+                </th>
+                <th style="border: 1px solid black;border-collapse: collapse;">
+                    Edit Date
+                </th>
+                <th style="border: 1px solid black;border-collapse: collapse;">
+                    New Value
+                </th>
+                <th style="border: 1px solid black;border-collapse: collapse;">
+                    Old Value
+                </th>
+                <th style="border: 1px solid black;border-collapse: collapse;">
+                    sObject Name
+                </th>
+                <th style="border: 1px solid black;border-collapse: collapse;">
+                    Record Id
+                </th>
+                <th style="border: 1px solid black;border-collapse: collapse;">
+                    User
+                </th>
+            </tr>
+          
+          
+            <aura:iteration items="{!v.FieldHistories}" var="fh">
+                <tr>
+                    <td style="border: 1px solid black;border-collapse: collapse;">
+                       
+                    </td>
+                    <td style="border: 1px solid black;border-collapse: collapse;">
+                        {!fh.Field_Event__c}
+                    </td>
+                	<td style="border: 1px solid black;border-collapse: collapse;">
+                        {!fh.Edit_Date__c}
+                    </td>
+                    <td style="border: 1px solid black;border-collapse: collapse;">
+                        {!fh.New_Value__c}
+                    </td>
+                    <td style="border: 1px solid black;border-collapse: collapse;">
+                        {!fh.Old_Value__c}
+                    </td>
+                    <td style="border: 1px solid black;border-collapse: collapse;">
+                        {!fh.sObject_Name__c}
+                    </td>
+                    <td style="border: 1px solid black;border-collapse: collapse;">
+                        {!fh.Record_Id__c}
+                    </td>
+                    <td style="border: 1px solid black;border-collapse: collapse;">
+                        {!fh.User__r.Name}
+                    </td>
+                </tr>
+              
+            </aura:iteration>
+           
+        </table> 
+</aura:component>

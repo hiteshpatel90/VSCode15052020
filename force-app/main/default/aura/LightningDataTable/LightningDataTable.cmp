@@ -1,0 +1,22 @@
+<aura:component implements="flexipage:availableForAllPageTypes" controller="LightningDataTableController">
+    <aura:attribute name="mydata" type="Object"/>
+    <aura:attribute name="mycolumns" type="List"/>
+ 
+    <aura:handler name="init" value="{!this}" action="{!c.doInit}" />
+    
+     <aura:attribute name="sortedBy" type="String" default="Name"/>
+    <aura:attribute name="sortedDirection" type="String" default="asc"/>
+    <aura:attribute name="selectedRows" type="List"/>
+    
+    <lightning:datatable data="{! v.mydata }" 
+                         aura:id="accTable" 
+        columns="{! v.mycolumns }" 
+        keyField="Id"
+        hideCheckboxColumn="false"
+        onsort="{!c.updateColumnSorting}"
+        sortedBy="{!v.sortedBy}"
+        sortedDirection="{!v.sortedDirection}"
+                         maxRowSelection="1"
+                         />
+    	
+</aura:component>

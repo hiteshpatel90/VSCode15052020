@@ -1,0 +1,12 @@
+<apex:page controller="ctrlVolumebyOwnerLastmonth" showHeader="false" sidebar="false">          
+    <apex:chart height="250" width="350" data="{!BarchartData}">        
+        <apex:axis type="Numeric" position="left" dashSize="2" grid="true" fields="intTotalCase" title="Record Count">
+            <apex:chartLabel />
+        </apex:axis>
+        <apex:axis type="Category" position="bottom" fields="caseOwner" title="Case Owner">
+            <apex:chartLabel rotate="315"/>            
+        </apex:axis>
+        <apex:barSeries orientation="vertical" stacked="true" axis="left" xField="caseOwner" yField="intTotalCase">
+        </apex:barSeries>
+    </apex:chart>         
+</apex:page>

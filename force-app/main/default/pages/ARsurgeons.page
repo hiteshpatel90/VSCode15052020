@@ -1,0 +1,1770 @@
+<apex:page id="thePage" applyBodyTag="false" applyHtmlTag="false" showChat="false" showHeader="false" sidebar="false" showQuickActionVfHeader="false" standardStylesheets="false" controller="CS_ARContactsCC"  extensions="CS_ARCCExtension" docType="html-5.0">
+   
+    <apex:composition template="ARtemplate">
+        <apex:define name="bodyContent">
+        
+            <script src="https://d3js.org/d3.v3.min.js"></script>
+            <script src="https://cdn.rawgit.com/jakezatecky/d3-funnel/v0.7.5/dist/d3-funnel.js"></script>
+            <style>
+                    /* Changing the modal overflow to fix the issue with scrolling issue when 2 modals are present*/
+                .modal {
+                  /* overflow-y:auto; */
+                } 
+                #opportunity-edit-modal .modal-dialog,
+                #opportunity-edit-modal .modal-content,
+                #opportunity-case-modal .modal-dialog,
+                #opportunity-case-modal .modal-content {
+                    /* 80% of window height 
+                    height: 90%; */
+                }
+                
+                #opportunity-edit-modal .modal-body,
+                #opportunity-case-modal .modal-body {
+                /* 100% = dialog height, 120px = header + footer */
+                    max-height: calc(100% - 120px);
+                    overflow-y: scroll;
+                }
+                .border_top_2{
+                    border-top-width: 2px; 
+                }
+                
+                .border_top_none{
+                    border-top-width: 0px; 
+                }
+                
+                .light_border_top_bottom{
+                    border-top: thin solid lightgrey;
+                    border-bottom: thin solid lightgrey;
+                }
+                
+                .grey_border_right{
+                    border-right: thin solid grey;
+                }
+                
+                .menu_btn{
+                    width: 140px;
+                }
+                
+                .font-large {
+                    font-size: large;
+                }
+            
+                .chart_table {
+                    border-top: thin solid lightgrey;
+                }
+                
+                .chart_table tbody tr, .chart_table tfoot tr {
+                    text-align: left;
+                    height: 30px;
+                }
+                /* .ibox{
+                    background-color: white;
+                } */
+                .ibox_border{
+                    border: 1px solid lightgrey;
+                }
+                
+                .ct-series-a .ct-bar {
+                      /* Colour of your bars 
+                      stroke: teal;*/
+                      /* The width of your bars */
+                      stroke-width: 20px;
+                }
+                
+                .fa-2x {
+                
+                    width: 50px;
+                    text-align: center;
+                }
+                
+                
+                
+                /*
+                    From reports
+                */
+                div.stat h4, div.stat h2, div.stat p {
+                    margin: 0px;
+                    font-weight: bold;
+                }
+                h2.cat-title {
+                    margin: 15px;
+                }
+                div.stat > div {
+                    padding: 10px;
+                }
+
+                div.chart {
+                    font-size: 1rem;
+                }
+
+                .text-blue {
+                    color: #325996;
+                }
+                .ct-blue {
+                    stroke: #325996;
+                }
+                .ct-red {
+                    stroke: #ed5565;
+                }
+                .ct-green {
+                    stroke: #9cc984;
+                }
+                .ct-gray {
+                    stroke: #D3D3D3;
+                }                
+
+                div.donut-ytd-quota, div.donut-mtd-quota {
+                    text-align: center;
+                    position: relative;
+                    font-size: 2rem;
+                }
+
+                div.donut-divider-container {
+                    height: 2px;
+                }
+                div.donut-divider-container > div.donut-divider {
+                    background-color: #325996;
+                    padding:0px;
+                    margin:0px;
+                    width:50px; /* this must be the same as the stroke-width for the chart */
+                    height:4px;
+                    float:right
+                }
+                div.donut-divider > div.donut-divider-text {
+                    color: #325996;
+                    width:25px;
+                    text-align:center;
+                    padding: 0px;
+                    margin: 0px;
+                    position: relative; 
+                    left: -26px; 
+                    top: -7px;
+                    font-weight: bold;
+                    font-size: 1.25em;
+                }
+
+                /* .ct-label {
+                    font-size: 2rem;
+
+                } */
+                
+                .readonly-control{
+                    border: lightgray thin solid;
+                    padding-left: 10px;
+                }
+                
+                .related-table{
+                    border: thin solid lightgrey;
+                }
+                
+                .related-table td, .related-table th {
+                    border:none
+                }
+                
+                .related-table caption{
+                    padding-bottom: 0px;
+                    padding-top: 20px;
+                }
+                
+                .muted_label{
+                    padding-top: 0px;
+                    color: #9c9a9a; /*lightgrey;*/
+                    min-height: 25px !important;
+                }
+                
+                .detail_div{
+                    margin-bottom: 25px !important;
+                }
+                
+                .GGrid-content {
+                    border-top-color: #151516 !important;
+                    height: inherit !important;
+                }
+                
+                .subsection_header{
+                    font-size: 18px;
+                    margin-left: 15px;
+                }
+                
+                .fa-border{
+                    background-color: #545454;
+                }
+                .fa-meeting-background{
+                    background-color: #a94442 !important;
+                }
+                .fa-meeting-task{
+                    background-color: #3c763d !important;
+                }
+                .fa-meeting-surgicalcase{
+                    background-color: #337ab7 !important;
+                }
+                .fa-meeting-note{
+                    background-color: #ed5565 !important;
+                }
+                .fa-meeting-log{
+                    background-color: #f8ac59 !important;
+                }
+                
+                .nav-tabs { border-bottom: 2px solid #DDD; }
+                .nav-tabs > li.active > a, .nav-tabs > li.active > a:focus, .nav-tabs > li.active > a:hover { border-width: 0; }
+                .nav-tabs > li > a { border: none; color: #666; }
+                    .nav-tabs > li.active > a, .nav-tabs > li > a:hover { border: none; color: #4285F4 !important; background: transparent; }
+                    .nav-tabs > li > a::after { content: ""; background: #4285F4; height: 2px; position: absolute; width: 100%; left: 0px; bottom: -1px; transition: all 250ms ease 0s; transform: scale(0); }
+                .nav-tabs > li.active > a::after, .nav-tabs > li:hover > a::after { transform: scale(1); }
+                .tab-nav > li > a::after { background: #21527d none repeat scroll 0% 0%; color: #fff; }
+                .tab-pane { padding: 15px 0; }
+                .tab-content{padding:20px}
+                
+               
+                    /*  CSS for breadcrumbs */
+                .breadcrumbs_side{
+                    padding: 5px;
+                }  
+                ul {
+                  list-style: none;
+                  margin: 0px;
+                  padding-left: 0px;
+                }
+                
+                .cf:before, .cf:after {
+                  content: ' ';
+                  display: table;
+                }
+                .cf:after {
+                  clear: both;
+                }
+                .inner {
+                  max-width: 820px;
+                  margin: 0 auto;
+                }
+                
+                .breadcrumbs {
+                  background-color: white;  /*#f5f5f5*/
+                }
+                
+                .breadcrumbs ul {
+                    border: 1px solid #ddd;
+                    border-top-left-radius: 20px;
+                    border-bottom-left-radius: 20px;
+                    border-top-right-radius: 20px;
+                    border-bottom-right-radius: 20px;
+                }
+                
+                .breadcrumbs li {
+                  float: left;
+                  width: 20%;
+                }
+                .breadcrumbs li:first-child a{border-top-left-radius: 20px; border-bottom-left-radius: 20px;  }
+                .breadcrumbs li:last-child a{border-top-right-radius: 20px; border-bottom-right-radius: 20px;  }
+                
+                .breadcrumbs a {
+                  position: relative;
+                  display: block;
+                  padding: 5px;
+                  padding-right: 0 !important;
+                  /* important overrides media queries */
+                  font-size: 12px;
+                  font-weight: bold;
+                  text-align: center;
+                  color: #aaa;
+                  cursor: pointer;
+                  white-space: nowrap;
+                  /*overflow: hidden;*/
+                  text-overflow: clip;
+                }
+                
+                .breadcrumbs a:hover {
+                  background: #eee; /*TODO: need to change*/
+                }
+                .breadcrumbs a.active {
+                  color: white;
+                  background-color: rgb(75, 202, 129);
+                }
+                
+                .breadcrumbs a.current {
+                  color: white;
+                  background-color: rgb(0, 112, 210);
+                }
+                
+                .breadcrumbs a.won {
+                  color: white;
+                  background-color: rgb(4, 132, 75);
+                }
+                
+                .breadcrumbs a.lost {
+                  color: white;
+                  background-color: rgb(212, 80, 76);
+                }
+          
+                .breadcrumbs a.active span:first-child {
+                    display: inline-block;
+                    width: 22px;
+                    height: 22px;
+                    padding: 2px;
+                    margin-right: 5px;
+                    color: white;
+                    border: none;
+                    background-color: rgb(75, 202, 129);
+                }
+                
+                .breadcrumbs a.current span:first-child {
+                    display: inline-block;
+                    height: 22px;
+                    padding: 2px;
+                    /*width: 22px;
+                    margin-right: 5px;
+                    color: white;
+                    border: none;
+                    background-color: rgb(0, 112, 210);*/
+                }
+                
+                .breadcrumbs a.won span:first-child {
+                    display: inline-block;
+                    /*width: 22px;*/
+                    height: 22px;
+                    padding: 2px;
+                    margin-right: 5px;
+                    color: white;
+                    border: none;
+                    background-color: rgb(4, 132, 75);
+                }
+                
+                .breadcrumbs a.lost span:first-child {
+                    display: inline-block;
+                    /* width: 22px; */
+                    height: 22px;
+                    padding: 2px;
+                    margin-right: 5px;
+                    color: white;
+                    border: none;
+                    background-color: rgb(212, 80, 76);
+                }
+                
+                .breadcrumbs a:before,
+                .breadcrumbs a:after {
+                  content: '';
+                  position: absolute;
+                  top: 0;
+                  left: 100%;
+                  z-index: 1;
+                  display: block;
+                  width: 0;
+                  height: 0;
+                  border-top: 16px solid transparent;
+                  border-bottom: 16px solid transparent;
+                  border-left: 8px solid transparent;
+                }
+                
+                .breadcrumbs a:before {
+                  margin-left: 1px;
+                  border-left-color: #d5d5d5;
+                }
+                
+                .breadcrumbs a:after {
+                  border-left-color: white;
+                }
+                
+                .breadcrumbs a:hover:after {
+                  border-left-color: #eee;
+                }
+                
+                .breadcrumbs a.active:after {
+                  border-left-color: rgb(75, 202, 129);
+                }
+                
+                .breadcrumbs a.current:after {
+                  border-left-color: rgb(0, 112, 210);
+                }
+                
+                .breadcrumbs a.won:after {
+                  border-left-color: rgb(4, 132, 75);
+                }
+                
+                .breadcrumbs a.lost:after {
+                  border-left-color: rgb(212, 80, 76);
+                }
+                
+                .breadcrumbs li:last-child a:before,
+                .breadcrumbs li:last-child a:after {
+                  display: none;
+                }
+              
+                @media (max-width: 520px) {
+                    .breadcrumbs_side{
+                        padding: 5px;
+                    } 
+                  .breadcrumbs a {
+                    padding: 5px;
+                  }
+                
+                  .breadcrumbs a:before,
+                  .breadcrumbs a:after {
+                    border-top-width: 16px;
+                    border-bottom-width: 16px;
+                    border-left-width: 8px;
+                  }
+                
+                  .breadcrumbs li a span:first-child {
+                    display: block;
+                    margin: 0 auto;
+                  }
+                
+                  .breadcrumbs li a span:last-child {
+                    display: none;
+                  }
+                }
+                
+                /*
+                    Dependent list table style
+                */
+                .filterable {
+                    margin-top: 15px;
+                }
+                .filterable .panel-heading .pull-right {
+                    margin-top: -20px;
+                }
+                .filterable .filters input[disabled] {
+                    background-color: transparent;
+                    border: none;
+                    cursor: auto;
+                    box-shadow: none;
+                    padding: 0;
+                    padding-top: 11px;
+                    height: auto;
+                }
+                .filterable .filters input[disabled]::-webkit-input-placeholder {
+                    color: #333;
+                }
+                .filterable .filters input[disabled]::-moz-placeholder {
+                    color: #333;
+                }
+                .filterable .filters input[disabled]:-ms-input-placeholder {
+                    color: #333;
+                }
+                .header-left{
+                    text-align: left;
+                    background-color: lightgray;
+                }
+                
+                .muted_label{
+                    padding-top: 0px;
+                    color: #9c9a9a; /*lightgrey;*/
+                    min-height: 25px !important;
+                }
+                
+                 .ag-header-cell-menu-button{
+                    opacity:1 !important;
+                }
+                
+                .pointerclass{
+                    cursor: pointer;
+                }
+                .wrapclass{
+                    word-wrap: break-word;
+                }
+                .ag-header-cell-label {
+                    text-overflow: clip;
+                    overflow: visible;
+                    white-space: normal;
+                    overflow-wrap: break-word;
+                }
+                .axis-grid-cell-href {
+                    cursor: pointer;
+                    color: #3A9DDB ;
+                    font-family: "Helvetica Neue", Helvetica, Arial, sans-serif; 
+                    font-size: 14px; 
+                }
+                .ag-header-cell {
+                    text-align: left !important;
+                    padding-left:2px;
+                }
+                
+                
+            </style>
+            
+            <script type="text/javascript"> 
+                
+                function replaceAccents(s) {
+                    var r = s.toLowerCase();
+                    r = r.replace(new RegExp('[àáâãäå]', 'g'), 'a');
+                    r = r.replace(new RegExp('æ', 'g'), 'ae');
+                    r = r.replace(new RegExp('ç', 'g'), 'c');
+                    r = r.replace(new RegExp('[èéêë]', 'g'), 'e');
+                    r = r.replace(new RegExp('[ìíîï]', 'g'), 'i');
+                    r = r.replace(new RegExp('ñ', 'g'), 'n');
+                    r = r.replace(new RegExp('[òóôõøö]', 'g'), 'o');
+                    r = r.replace(new RegExp('œ', 'g'), 'oe');
+                    r = r.replace(new RegExp('[ùúûü]', 'g'), 'u');
+                    r = r.replace(new RegExp('[ýÿ]', 'g'), 'y');
+                    r = r.replace(new RegExp('\\W', 'g'), '');
+                    return r;
+                }
+                var rowData; 
+                
+                var lstProductTeams = [];
+                var lstDesignations = [];
+                var PROFICIENCY_TEMPLATE =
+                    '<label style="border: 1px solid lightgrey; margin: 4px; padding: 4px;">'  +
+                    '<input type="checkbox" name="RANDOM"/>' +
+                    'PROFICIENCY_NAME' +
+                    '</label>';     
+                
+                var columnDefs = [                    
+                  
+                    {headerName: "Full Name", field: "strAccFullName", width:300, colId: "accName", headerClass: ['axis-grid-header'], cellClass: ['axis-grid-cell-href'],
+                        filterParams: {
+                            textFormatter: replaceAccents
+                        }
+                    },
+                    {headerName: "Designation", field: "objAccount.Designation__pc", headerClass: ['axis-grid-header'], cellClass: ['axis-grid-cell']
+                       , cellRenderer: cellHeight, filter: multiValuedColanSepFilter, filterData: lstDesignations,                        
+                        filterParams: {
+                            textFormatter: replaceAccents
+                        }
+                    },
+                   
+                    {headerName: "Practice Name", field: "objAccount.Practice_Name__c", headerClass: ['axis-grid-header'], cellClass: ['axis-grid-cell'],
+                        cellRenderer: cellHeight,
+                        filterParams: {
+                            textFormatter: replaceAccents
+                        }
+                    },
+                    {headerName: "City", field: "objAccount.PersonMailingCity", headerClass: ['axis-grid-header'], cellClass: ['axis-grid-cell'],
+                        cellRenderer: cellHeight,
+                        filterParams: {
+                            textFormatter: replaceAccents
+                        }
+                    },
+                    {headerName: "State", field: "objAccount.PersonMailingState", headerClass: ['axis-grid-header'], cellClass: ['axis-grid-cell'],
+                        cellRenderer: cellHeight,
+                        filterParams: {
+                            textFormatter: replaceAccents
+                        }                       
+                    },
+                    {headerName: "Teams", field: "teamname", headerClass: ['axis-grid-header'], cellClass: ['axis-grid-cell'],
+                        cellRenderer: function(params){
+                                        //return '<span style="line-height: 25px">'+ globalDecodeEntities(params.value).replace(/,/g, "<br/>") +'</span>'; 
+                                        if(params.value != undefined){
+                                            return '<span style="line-height: 25px">'+ (params.value).join("<br>") +'</span>';
+                                        }else{
+                                            return '';
+                                        }
+                                    },
+                        filterParams: {
+                            textFormatter: replaceAccents
+                        }
+                    },
+                    {headerName: "Practice Phone", field: "objAccount.Phone", colId: "accPhone", headerClass: ['axis-grid-header'], cellClass: ['axis-grid-cell-href'],
+                        cellRenderer: cellHeight },
+                    {headerName: "Mobile Phone", field: "objAccount.PersonMobilePhone", colId: "accMobilePhone", headerClass: ['axis-grid-header'], cellClass: ['axis-grid-cell-href'],
+                        cellRenderer: cellHeight },
+                    {headerName: "Email", field: "objAccount.PersonEmail", colId: "accEmail", headerClass: ['axis-grid-header'], cellClass: ['axis-grid-cell-href'],
+                        cellRenderer: cellHeight,
+                        filterParams: {
+                            textFormatter: replaceAccents
+                        }
+                    } 
+                ];
+                
+                
+                var gridOptions = {
+                    rowSelection: 'single',
+                    suppressRowClickSelection: false,
+                    enableFilter: true,
+                    columnDefs: columnDefs,
+                    rowData: null,
+                    animateRows: true,
+                    groupUseEntireRow: true,
+                    enableColResize: true,
+                    //autoSizeColumns: true,
+                    enableSorting: true,
+                    paginationPageSize: 20,
+                    pagination: true,
+                    suppressPaginationPanel: true,
+                    getRowHeight: function(params) {                       
+                        
+                        console.log('##--height: '+params.data.rowHeight);
+                        return params.data.rowHeight;
+                        
+                       //return 40 * ((params.data.match(/,/g) || []).length);
+                    },
+                    icons: { 
+                            menu: '<i class="fa fa-sort-desc" ></i>' 
+                    },
+                    onPaginationChanged: onPaginationPageLoaded,
+                    onFilterChanged: savedFilterHasChanged,
+                    onSortChanged: savedFilterHasChanged,
+                    onDisplayedColumnsChanged: savedFilterHasChanged
+                };
+                
+                function cellHeight(params){ 
+                    return '<span style="line-height: 25px">'+ (params.value) ? globalDecodeEntities(params.value)  : ""  +'</span>';
+                }
+                 
+                function onPaginationPageLoaded() {
+                    console.log('##--onPaginationPageLoaded');
+                    
+                    var currPage = gridOptions.api.paginationGetCurrentPage(); 
+                    setText('#lbPageSize', gridOptions.api.paginationGetRowCount());
+                    setText('#lbFirstRow', (gridOptions.api.paginationGetPageSize() * currPage) + 1);
+                    
+                    
+                    var allRowsCount = Number(gridOptions.api.getModel().getRowCount()); 
+                    var currentPaginationsize = gridOptions.api.paginationGetPageSize() * (currPage+1); 
+                    //setText('#lbLastRow', gridOptions.api.paginationGetPageSize() * (currPage+1)); 
+                    setText('#lbLastRow', currentPaginationsize > allRowsCount ? allRowsCount: currentPaginationsize );
+                    savedFilterHasChanged();
+                }
+                
+                // Added by Swetha -- search filter save functionality -- START
+                function savedFilterHasChanged() {
+                    var currentpageSize = document.getElementById('selPaginationSize').value;
+                    // filters
+                    var newFilter = {
+                        filterModel: gridOptions.api.getFilterModel(),
+                        sortModel: gridOptions.api.getSortModel(),
+                        PageSize: currentpageSize,
+                        columnState: gridOptions.columnApi.getColumnState()
+                    };
+
+                    var newFilterJSON = JSON.stringify(newFilter);
+
+                    if ( typeof window.currentFilterJSON != "undefined" && ( window.currentFilterJSON != newFilterJSON ) ) {
+                        $("span.filter-has-changed").show();
+                    } else {
+                        $("span.filter-has-changed").hide();
+                    }
+                    
+                    $(".filter-error").text("");
+                    $(".filter-success").text("");
+
+                    window.currentFilterJSON = newFilterJSON;
+
+                }
+                // Added by Swetha -- search filter save functionality -- END
+                
+                
+                function setText(selector, text) {
+                    
+                    $(selector).html(text);
+                    //document.querySelector(selector).innerHTML = text;
+                }
+                
+                function onBtFirst() {
+                    gridOptions.api.paginationGoToFirstPage();
+                }
+                
+                function onBtLast() {
+                    gridOptions.api.paginationGoToLastPage();
+                }
+                
+                function onBtNext() {
+                    gridOptions.api.paginationGoToNextPage();
+                }
+                
+                function onBtPrevious() {
+                    gridOptions.api.paginationGoToPreviousPage();
+                }
+                
+                function MyDatasource(rowCount) {
+                    this.rowCount = rowCount;
+                }
+                 
+                function onPageSizeChanged(newPageSize) { 
+                    
+                    if(newPageSize != 'All'){
+                        gridOptions.api.paginationSetPageSize(Number(newPageSize));
+                    }else{
+                        gridOptions.api.paginationSetPageSize(Number(gridOptions.api.getModel().getRowCount()));
+                    }
+                    //createNewDatasource();
+                }
+                
+                $(document).ready(function () {
+                    
+                    //var aggridLicenseKey = 'Arthrex_Inc_Site_1Devs17_January_2018__MTUxNjE0NzIwMDAwMA==f78a3bf17fb3daeb78acd7ced888139e';
+                    //agGrid.LicenseManager.setLicenseKey(aggridLicenseKey);
+                  
+
+                    
+                    $('#Surgeons').addClass('active');//set the Contact "tab" as the active link
+                    $("h2.title-icon-container i").removeClass().addClass("fa fa-user-md");
+                    
+                    
+                    populateInitialData();
+                    
+                    
+                    $("#create-surgeon-modal button.new-surgeon-btn").on("click", function() {
+                      var npi = $("#create-surgeon-modal input.npi").val();
+                      var firstName = $("#create-surgeon-modal input.firstName").val();
+                      var lastName = $("#create-surgeon-modal input.lastName").val();
+                      if ( (npi.length === 0 ) || (firstName.length === 0 ) || (lastName.length === 0 ) ) {
+                      
+                        $("#create-surgeon-modal span.error").text("All fields are required");
+                      
+                      } else if ( !/^\d{10}$/.test(npi) ) {
+        
+                        $("#create-surgeon-modal span.error").text("NPI must be a 10 digit number");
+                     
+                      } else {
+                        
+                        // there are fields to save
+                        $("#create-surgeon-modal button").attr("disabled",true);
+                        //var btnText = $("#create-surgeon-modal button.new-surgeon-btn").text();
+                        var btnText = 'Save';//Added by srinivas sattoor on 10.16.2017 to resolve CDID-000592
+                        $("#create-surgeon-modal button.new-surgeon-btn").text("Saving...");
+                          
+                        /*  Visualforce.remoting.Manager.invokeAction("{!$RemoteAction.CS_ARContactsCC.saveNewSurgeonRequest}",
+                              npi, firstName, lastName, function(result, event) {
+                              
+                              console.log('##-- result: '+ result);
+                              console.log('##-- event: '+ event);
+                              $("#create-surgeon-modal button.new-surgeon-btn").text(btnText);
+                              $("#create-surgeon-modal").modal('hide');
+                              toastr.options = {
+                                                "positionClass": "toast-top-left",
+                                            };
+                                toastr.success("Your Surgeon request has been submitted and will be processed shortly.");
+                                            
+                         });*/
+                         
+                         url = $("#surgeonForm").attr("action");
+                         orgid = $("#orgid").val();
+                         retURL = $("#retURL").val();
+                         type = 'New Surgeon Request';
+                         subject    = 'New Surgeon Request ('+npi+') '+lastName +', '+firstName;
+                         //loggedInUsername = "{!$User.FirstName}" + " " + "{!$User.LastName}";
+                         description = 'FirstName: '+ firstName 
+                                    + '\n LastName: '+ lastName
+                                    + '\n NPI: '+ npi;
+                         console.log('##--new-surgeon-btn.btnText: '+ btnText);
+                         createSurgeonWebEmailCase(btnText, url, orgid, retURL, type, subject, description);
+                      } 
+                    });
+                    
+                    $("#cancel-create-surgeon-modal button.btn-close-request-surgeon-warning").on("click", function(e) {                     
+                        $("#cancel-create-surgeon-modal").modal('hide');
+                        $("#create-surgeon-modal").modal('hide');
+                    }); //  end of Cancel Surgeon Request modal.cancel click
+                    
+                    $("#create-surgeon-modal button.surgeon-request-close-btn").on("click", function() {
+               
+                        $("#cancel-create-surgeon-modal").modal("show");                   
+                    }); //  end of Surgeon Request modal.cancel click
+                    
+                    
+                    
+                    // Added by Swetha -- search filter save functionality -- START
+                    // set and apply a filter
+                    $("ul.filter-menu").on("click", "a.saved-filter", function() {
+                        savedFilterClicked = true;
+                        var filter = window.savedFilters[$(this).text()];
+
+                        $("span.selected-filter").text( filter.Name );
+                        
+                        try {
+
+                            $("span.filter-error").text("");
+                            $("span.filter-success").text("");
+
+                            var filterJson = globalDecodeEntities(filter.json__c);
+                            window.currentFilterJSON = filterJson;
+
+                            var filterObj = JSON.parse(filterJson);
+                            
+                            gridOptions.api.setFilterModel( filterObj.filterModel );
+                            gridOptions.api.setSortModel( filterObj.sortModel );
+                            
+                            document.getElementById('selPaginationSize').value = filterObj.PageSize;
+                            gridOptions.api.paginationSetPageSize(filterObj.PageSize);
+                            
+                            gridOptions.columnApi.setColumnState( filterObj.columnState );
+                            
+                            $("span.filter-has-changed").hide();
+
+                            
+                        } catch (e) {
+                            console.error(e);
+                            $("span.filter-error").text("Filter corrupted, plese delete it");
+                        }
+
+                        
+
+                        // only show the save if this filter is not readonlg
+                        if ( !$(this).hasClass("readonly") ) {
+                            $("a.filter-save").closest("li").show();
+                            $("a.filter-delete").closest("li").show();
+                        }
+                                                
+                    });
+
+
+
+                    // clear all filters
+                    $("a.filter-clear").on("click", function() {
+                        
+                        clearAllGridFilters();
+
+                        $("input.search").val("");
+                        $("span.selected-filter").text("All");
+                        $("a.filter-delete").closest("li").hide();
+                        $("a.filter-save").closest("li").hide();
+                        $("span.filter-error").text("");
+                        $("span.filter-success").text("Filters reset");
+
+                    });
+
+                    $("a.filter-save").on("click", function(e) {
+                        
+                        var filterName = $("span.selected-filter").text();
+                        var filterJson = window.currentFilterJSON;
+
+                        Visualforce.remoting.Manager.invokeAction("CS_ARCCExtension.saveFilterJson", 
+                            filterName, filterJson, "Surgeons",
+                            function(result, event) { 
+                                if (event.status) {
+
+                                    $("span.filter-success").text("Your filter has been saved");
+                                    $("span.filter-error").text("");
+                                    $("span.filter-has-changed").hide();
+                                    window.savedFilters[result.Name] = result;
+
+
+                                } else {
+
+                                    $("span.filter-error").text(event.message);
+                                    $("span.filter-success").text("");
+                                }
+
+                            });                    
+                    });
+
+                    $("a.filter-delete").on("click", function(e) {
+                        var filterName = $("span.selected-filter").text();
+                        Visualforce.remoting.Manager.invokeAction("CS_ARCCExtension.deleteFilterJson", 
+                            filterName, "Surgeons",
+                            function(result, event) { 
+                                if (event.status) {
+
+                                    $("a.saved-filter:contains('"+filterName+"')").closest("li").remove();
+                                    clearAllGridFilters();
+
+                                    $("span.selected-filter").html("All");
+                                    $("a.filter-delete").closest("li").hide();
+                                    $("a.filter-save").closest("li").hide();
+                                    $("span.filter-success").text("Your filter has been deleted");
+                                    $("span.filter-error").text("");
+
+                                    var savedFilters = $( "li.saved-filter-list" ).nextAll();
+                                    if ( savedFilters.length == 0 ) {
+                                        $( "li.saved-filter-list" ).hide();
+                                    }
+
+                                } else {
+
+                                    $("span.filter-error").text(event.message);
+                                    $("span.filter-success").text("");
+                                }
+
+                            });
+                    });
+
+                    $("a.filter-save-as").on("click", function(e) {
+                    
+                        $("button.filter-menu-btn").addClass("disabled");
+                        $("div.filter-save-as").show();
+                        $("input.filter-name").focus();
+                        $("div.task-add-new").hide();
+                        
+                    });
+
+                    $("button.filter-cancel-save-as").on("click", function(e) {
+                        e.preventDefault();
+                        e.stopPropagation();
+
+                        $("div.filter-save-as").hide();
+                        $("button.filter-menu-btn").removeClass("disabled");
+                        $("input.filter-name").val("");
+                        $("span.filter-error").text("");
+                        $("span.filter-success").text("");
+                        $("div.task-add-new").show();
+                    });
+
+                    $("button.filter-save-as").on("click", function(e) {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        $("span.filter-error").text("");
+
+                        var filterName = $("input.filter-name").val();
+                        if ( filterName.length > 0 ) {
+
+                            filterJson = window.currentFilterJSON;
+
+                            Visualforce.remoting.Manager.invokeAction("CS_ARCCExtension.saveFilterJson", 
+                            filterName, filterJson, "Surgeons",
+                            function(result, event) { 
+                                if (event.status) {
+
+                                    $("div.filter-save-as").hide();
+                                    $("button.filter-menu-btn").removeClass("disabled");
+                                    $("input.filter-name").val("");
+
+                                    $("li[role=separator].saved-filter-list").show();
+
+                                    /* Vishnu rel4.3: Added the below to avoid the multiple filter names issue*/
+                                    var existingFilterName = $('a.saved-filter').filter(function(index) { return $(this).text() === result.Name; });
+                                    console.log('##--existingFilterName: ' + existingFilterName);
+                                    if(! existingFilterName ||
+                                        existingFilterName.text() != result.Name){
+
+                                        var filterHtml = "<li><a href='#' class='saved-filter'>"+result.Name+"</a></li>";
+                                        $("li[role=separator].saved-filter-list").after(filterHtml);
+
+                                        var savedFilters = $( "li.saved-filter-list" ).nextAll();
+                                        $("li[role=separator].saved-filter-list").after(
+                                            savedFilters.detach().sort(function(a,b) {
+                                                var aName = $(a).find("a").text().toLowerCase();
+                                                var bName = $(b).find("a").text().toLowerCase();
+                                                return ((aName < bName) ? -1 : ((aName > bName) ? 1 : 0));
+                                            })
+                                        );
+
+                                    }   //  end of if
+                                    /* Vishnu rel4.3: Added the below to avoid the multiple filter names issue*/
+
+                                    $("span.selected-filter").html( result.Name );
+                                    $("a.filter-delete").closest("li").show();
+                                    $("span.filter-success").text("Your filter has been saved");
+                                    $("div.task-add-new").show();
+
+                                    window.savedFilters[result.Name] = result;
+
+                                } else {
+
+                                    $("span.filter-error").text(event.message);
+                                    $("span.filter-success").text("");
+                                }
+
+                            });
+
+                            
+
+                        } else {
+
+                            $("span.filter-error").html("Filter name cannot be blank");
+                            $("span.filter-success").text("");
+                        }
+                        
+
+                    });
+                    
+                    // pull in filter list
+                    Visualforce.remoting.Manager.invokeAction("CS_ARCCExtension.retrieveFiltersFor","Surgeons", function(filters, event) {
+                        
+                        // store filters in a global associative list by name
+                        window.savedFilters = {};
+
+                        if ( event.status ) {
+                            $("span.filter-error").text("");
+                            $("span.filter-success").text("");
+
+                            filters = filters.sort(function(a,b) {
+                                aName = a.Name.toLowerCase();
+                                aOrdinal = a.Global_Order__c;
+
+                                bName = b.Name.toLowerCase();
+                                bOrdinal = b.Global_Order__c;
+
+                                // first order by ordinal asc then by name desc
+                                var cmp = ((aOrdinal < bOrdinal) ? 1 : ((aName > bName) ? -1 : 0));
+                                if ( cmp == 0 ) {   
+                                    // ordinals are the same, try name
+                                    cmp = ((aName < bName) ? -1 : ((aName > bName) ? 1 : 0));
+                                }
+                                return cmp;
+                            });                        
+
+                            var hasAtLeastOne = false;
+                            for ( var i=0; i < filters.length; i++) {
+
+                                var filter = filters[i];
+
+                                var filterHtml = null;
+                                if ( filter.Global__c == true ) {
+                                    // global filters are readonly
+                                    filterHtml = "<li><a href='#' class='saved-filter readonly'>"+filter.Name+"</a></li>";
+                                } else {
+                                    filterHtml = "<li><a href='#' class='saved-filter'>"+filter.Name+"</a></li>";
+                                }
+                                
+                                $("li[role=separator].saved-filter-list").after(filterHtml);
+
+                                window.savedFilters[filter.Name] = filter;
+                                hasAtLeastOne = true;
+                            }
+
+                            if ( hasAtLeastOne ) {
+                                $("li[role=separator].saved-filter-list").show();                                                           
+                            }
+
+                        } else {
+
+                            $("span.filter-error").text(event.message);
+                            $("span.filter-success").text("");
+                        }
+                                                          
+                    });
+                    // Added by Swetha -- search filter save functionality -- END 
+                    
+                    
+                                        
+                }); //  end of ready function
+                
+                
+                // Added by Swetha -- search filter save functionality -- START
+                 
+                // clears all the filtesr
+                function clearAllGridFilters() {
+
+                   /* 
+            Added by Swetha penmethsa on 10.11.2017 for 4.4 release 
+            */
+                   window.location.reload(); 
+                    /*gridOptions.api.setFilterModel(null);
+                    gridOptions.api.setQuickFilter(null);
+                    gridOptions.api.setSortModel(null);
+                    gridOptions.columnApi.resetColumnState();
+                    gridOptions.api.onFilterChanged();*/
+
+                }
+                /* 
+            Added by Swetha penmethsa on 10.11.2017 for 4.4 release 
+            */
+                // end pager callbacks
+                // Added by Swetha -- search filter save functionality -- END
+                
+                
+                function clearAllFilters(){
+                    
+                    gridOptions.api.setFilterModel(null);
+                    document.getElementById("gloabalsearch").value = "";
+                   gridOptions.api.setQuickFilter(null);
+                }
+                
+                function designationFilter() {
+                }
+                // Added by Swetha Penmethsa --- 4.4 Release -- Export as CSV functionality -- START 
+                function getBooleanValue(cssSelector) {
+                    return false;
+                   // return document.querySelector(cssSelector).checked === true;
+                }
+                
+                function onBtExport() {
+                    var params = {
+                        skipHeader: getBooleanValue('#skipHeader'),
+                        columnGroups: getBooleanValue('#columnGroups'),
+                        skipFooters: getBooleanValue('#skipFooters'),
+                        skipGroups: getBooleanValue('#skipGroups'),
+                        skipPinnedTop: getBooleanValue('#skipPinnedTop'),
+                        skipPinnedBottom: getBooleanValue('#skipPinnedBottom'),
+                        allColumns: getBooleanValue('#allColumns'),
+                        onlySelected: getBooleanValue('#onlySelected'),
+                        suppressQuotes: getBooleanValue('#suppressQuotes'),
+                        fileName: 'Exported List view.csv',
+                        columnSeparator: ','
+                    };
+                
+                    if (getBooleanValue('#skipGroupR')) {
+                        params.shouldRowBeSkipped = function (params) {
+                            return params.node.data.country.charAt(0) === 'R'
+                        };
+                    }
+                
+                
+                    if (getBooleanValue('#useCellCallback')) {
+                        params.processCellCallback = function (params) {
+                            if (params.value && params.value.toUpperCase) {
+                                return params.value.toUpperCase();
+                            } else {
+                                return params.value;
+                            }
+                        };
+                    }
+                
+                    if (getBooleanValue('#useSpecificColumns')) {
+                        params.columnKeys = ['country', 'bronze'];
+                    }
+                
+                    if (getBooleanValue('#processHeaders')) {
+                        params.processHeaderCallback = function (params) {
+                            return params.column.getColDef().headerName.toUpperCase();
+                        };
+                    }
+                
+                    if (getBooleanValue('#customHeader')) {
+                        params.customHeader = '[[[ This ia s sample custom header - so meta data maybe?? ]]]\n';
+                    }
+                    if (getBooleanValue('#customFooter')) {
+                        params.customFooter = '[[[ This ia s sample custom footer - maybe a summary line here?? ]]]\n';
+                    }
+                
+                    gridOptions.api.exportDataAsCsv(params);
+                }
+                
+                // Added by Swetha Penmethsa ---4.4 Release -- Export as CSV functionality -- END
+                designationFilter.prototype.init = function (params) {
+                    this.filterChangedCallback = params.filterChangedCallback; 
+                    this.valueGetter = params.valueGetter;
+                };
+                
+                designationFilter.prototype.getModel = function () {
+
+                };
+            
+                designationFilter.prototype.setModel = function (model) {
+            
+                };
+                
+                designationFilter.prototype.getGui = function () {
+                    var eGui = document.createElement('div'); 
+                    var random = '' + Math.random(); 
+                    var that = this;
+                    
+                    var selectAppDiv = document.createElement('div');
+                    selectAppDiv.className = "selectall-header";
+                    var selectAllHtm = '<label>'  +
+                                        '<input type="checkbox" name="selectAll" checked="true" />' +
+                                        '(Select All)' +
+                                        '</label>';
+
+                    selectAppDiv.innerHTML = selectAllHtm;
+
+                    var selectAll = selectAppDiv.querySelector('input'); 
+                        
+                    console.log('##--getGui.selectAll: '+ JSON.stringify(selectAll));
+                    selectAll.addEventListener('click', function () {  
+                        //that.model[name] = eRadio.checked;
+                        
+                        for (var attrname in that.model) { that.model[attrname] = this.checked }
+
+                        alert('CheckBox selected: ' + this.checked + '\n\n##--getGui.selectAll.that'+ JSON.stringify(that));
+                        $("input[name$='prodTeam']").prop('checked', this.checked);
+                        that.filterChangedCallback();
+                    });
+
+                    eGui.appendChild(selectAppDiv);
+                    
+                    
+                    lstProductTeams.forEach( function (name, index) {
+                        var eFilter = document.createElement('div'); 
+                        var html = PROFICIENCY_TEMPLATE.replace('PROFICIENCY_NAME', name).replace('RANDOM', random); 
+                        eFilter.innerHTML = html;
+                        var eRadio = eFilter.querySelector('input'); 
+                        eGui.appendChild(eFilter);
+                        
+                        console.log('##--getGui.eRadio: '+ JSON.stringify(eRadio));
+                        eRadio.addEventListener('click', function () {
+                            console.log('##--index: '+ index);
+                            that.selected = lstProductTeams[index];
+                            console.log('##--eRadio.checked'+ eRadio.checked); 
+                            //that.model[name] = eRadio.checked;
+                            
+                            console.log('##--getGui.that'+ JSON.stringify(that));
+                            that.filterChangedCallback();
+                        });
+                    });
+            
+                    return eGui;
+                };
+
+                designationFilter.prototype.doesFilterPass = function (params) {
+                    // make sure each word passes separately, ie search for firstname, lastname
+                    var passed = true;
+                    var value = this.valueGetter(params); 
+                    //console.log('##--doesFilterPass.params: '+ JSON.stringify(params));
+                    console.log('##--doesFilterPass.value: '+ value);
+                    console.log('##--doesFilterPass.selected: '+this.selected);
+                    
+                    if(value == undefined || !value.includes(this.selected)){
+                        return false;
+                    }
+                
+                    return passed;
+                };
+                
+                designationFilter.prototype.isFilterActive = function () {
+                    return true;
+                };
+                
+                
+                function onFilterChanged(value) {
+                    gridOptions.api.setQuickFilter(value);
+                }
+                
+                // saving new surgeon requests
+            
+            
+                function populateInitialData(){ 
+                    
+                    $("#campaignListHeader").html('List of Campaigns');  
+                    var productTeams = [];
+                    Visualforce.remoting.Manager.invokeAction("{!$RemoteAction.CS_ARCCExtension.retrievePractitioners}",
+                    function(result, event){ 
+                        
+                        $.each(result, function(i, v){
+                            
+                            if(v.objAccount.Designation__pc == undefined || v.objAccount.Designation__pc == null){
+                                return;
+                            }
+                            var splitOptionValue = v.objAccount.Designation__pc.split(";");
+                            
+                            for (i = 0; i < splitOptionValue.length; i++) {
+                                if(lstProductTeams.indexOf(splitOptionValue[i]) == -1){                                    
+                                    lstProductTeams.push(splitOptionValue[i]);
+                                }
+                                
+                            }
+                            
+                            //  Added by srinivas sattoor on 11.2.2017 for Release 4.4: Populating Designation list to be used for Filter
+                            if(v.objAccount.Designation__pc){
+                                tmpDesigArray = v.objAccount.Designation__pc.split(";");
+                                $(tmpDesigArray).each(function(inx, val){
+                                    if(! inArray(val, lstDesignations))
+                                        lstDesignations.push(val);
+                                });
+                            }
+                        });
+                        console.log('##==productTeams: '+ productTeams);
+                        //lstProductTeams = ArrNoDupe(productTeams);
+                        //alert(JSON.stringify(result));
+                        console.log('##==lstProductTeams: '+ lstProductTeams);
+                        console.log('##--Campaigns: ' + JSON.stringify(result));
+                        
+                        gridDiv = document.querySelector('#leadGrid');
+                        console.log('##--populateInitialData.gridDiv: ' + gridDiv);
+                        new agGrid.Grid(gridDiv, gridOptions);
+                        result.forEach( function(dataItem, index) { 
+                            dataItem.rowHeight = 40;
+                            
+                            if(dataItem.strAccFullName != undefined){
+                                var practiceName = '';
+                                practiceName = String(dataItem.strAccFullName);
+                                newRowHeight = 18 * (Math.floor(practiceName.length / 17) + 1);
+                                if(newRowHeight > dataItem.rowHeight){
+                                    dataItem.rowHeight = newRowHeight;
+                                }                               
+                             }
+                             
+                             console.log('##--teamname: '+ dataItem.teamname);
+                             
+                             if(dataItem.teamname != undefined){
+                                  
+                                 dataItem.rowHeight = ((dataItem.teamname.length-1) * 25) + 40;
+                             }
+                             //return 40 * ((params.data.match(/,/g) || []).length);
+                        });
+                        gridOptions.api.setRowData(result);
+                        gridOptions.api.addEventListener("cellClicked", showDetails);
+                        autoSizeAll();
+                        //gridOptions.api.sizeColumnsToFit();
+                        
+                    }); 
+                    
+                }   //  end of populateInitialData 
+                
+                function autoSizeAll() {
+                    
+                    console.log('##--Screen Width: '+ screen.width);
+                    
+                    if(screen.width < 1800){
+                        var allColumnIds = [];
+                        columnDefs.forEach( function(columnDefs) { 
+                            allColumnIds.push(columnDefs.field);
+                        }); 
+                        console.log('##--autoSizeAll.allColumnIds: '+ allColumnIds);
+                        gridOptions.columnApi.autoSizeColumns(allColumnIds); 
+                    }else{
+                        gridOptions.api.sizeColumnsToFit()
+                    }
+                } 
+                function ArrNoDupe(a) {
+                    var temp = {};
+                    for (var i = 0; i < a.length; i++)
+                        temp[a[i]] = true;
+                    var r = [];
+                    for (var k in temp)
+                        r.push(k);
+                    return r;
+                }
+                                
+                function showDetails(event){
+                    console.log('h'+(gridOptions.api.getFocusedCell()).toString().split("column =")[1]);
+                    //alert('h'+JSON.stringify(event.node.data));
+                    //alert('h'+(gridOptions.api.getFocusedCell()).toString().split("column =")[1]);
+                    if((gridOptions.api.getFocusedCell()).toString().split("column =")[1].trim() == "accName"){
+                        //var accDetails = gridOptions.api.getSelectedRows();
+                        window.location = "/apex/ARSurgeonDetail?id="+ event.node.data.objAccount.Id;
+                    }
+                    
+                    if((gridOptions.api.getFocusedCell()).toString().split("column =")[1].trim() == "accPhone" && event.node.data.objAccount.Phone != undefined){                        
+                        window.location = "tel:"+ event.node.data.objAccount.Phone;                        
+                    }
+                    
+                    if((gridOptions.api.getFocusedCell()).toString().split("column =")[1].trim() == "accMobilePhone" && event.node.data.objAccount.PersonMobilePhone != undefined){
+                        window.location = "tel:"+ event.node.data.objAccount.PersonMobilePhone;
+                    }
+                    
+                    if((gridOptions.api.getFocusedCell()).toString().split("column =")[1].trim() == "accEmail" && event.node.data.objAccount.PersonEmail != undefined){
+                        window.location = "mailto:"+ event.node.data.objAccount.PersonEmail;
+                    }
+                    
+                    if((gridOptions.api.getFocusedCell()).toString().split("column =")[1].trim() == "schCase"){
+                       
+                        showCasePopup(event.node.data.objAccount.Id, event.node.data.objAccount.Name);
+                    }
+                    
+                }
+                
+                function showCasePopup(accId, accName){
+                    
+                    var recordId = accId;
+                    var practitionerId = accId;
+                    var practitionerName = accName;                                                
+        
+                    var providerId = accId;
+                    var providerName = accName;
+        
+                    $("#case-prop-modal input.provider").attr("data-record-id", providerId);
+                    $("#case-prop-modal input.provider").val(providerName);
+                    $("#case-prop-modal input.provider").trigger("record-id-set");
+                    
+                    $("#case-prop-modal input.practitioner").attr("data-record-id", practitionerId);
+                    $("#case-prop-modal input.practitioner").val(practitionerName);
+                    $("#case-prop-modal input.practitioner").trigger("record-id-set");
+        
+                    $("#case-prop-modal span.modal-title-txt").text("Create Case");
+                    $("#case-prop-modal input").removeAttr("disabled");
+                    $("#case-prop-modal select").removeAttr("disabled");
+        
+                    $("#case-prop-modal").modal("show");
+                    
+                }
+                 //swetha penmethsa-april 13 - 3.2 release 
+                function clearPopupValues(){
+                    $("#create-surgeon-modal input.npi").val("");
+                    $("#create-surgeon-modal input.firstName").val("");
+                    $("#create-surgeon-modal input.lastName").val("");
+                    $("#create-surgeon-modal span.error").text("");
+                    $("#create-surgeon-modal button").attr("disabled",false);
+                }
+                 //swetha penmethsa-april 13 - 3.2 release
+                 
+                //Added by srinivas sattoor for 4.4
+                function multiValuedColanSepFilter(){}
+
+                    multiValuedColanSepFilter.prototype.init = function (params) {
+                    this.valueGetter = params.valueGetter;
+                    this.filterText = null;
+                    this.setupGui(params);
+                };
+
+                // not called by ag-Grid, just for us to help setup
+                multiValuedColanSepFilter.prototype.setupGui = function (params) {
+                    this.gui = document.createElement('div');
+
+                    var filterOptionSelectors=[];
+                    var colName = params.colDef.headerName;
+                    this.filterData = params.colDef.filterData;
+                    
+                    html ='<div style="border-bottom: solid 1px lightgray"><input type="checkbox" name="selectAllFilterOptions" checked="true" id="selectAllFilterOptions" value="selectAllFilterOptions" style="margin-right:5px"/>(Select All)<br/></div>';
+                    
+                    for (i = 0; i < this.filterData.length; i++) {
+                        var replacedStr = (this.filterData[i]).split(' ').join('_').replace(/[.']/g,'_');
+                        html += '<input type="checkbox" name="filterOption" checked="true" id="'+ replacedStr +'" value="'+ this.filterData[i] +'" style="margin-right:5px"/>'+ this.filterData[i] +'<br/>';
+                        filterOptionSelectors.push(replacedStr);
+                        
+                    }
+                    
+                    this.gui.innerHTML =   '<div class="dropdownFont" style="display: inline-block; width: 200px; padding-left: 10px;">' +  html +
+                        
+                        '</div>';
+
+
+                    this.eFilterSelectAll = this.gui.querySelector('#selectAllFilterOptions');
+                    this.eFilterSelectAll.addEventListener("change", listener);
+                    
+                    // this.eFilterOptions = this.gui.querySelector('input[id^="filterOption"]');
+                    this.eFilterOptions = [];
+                    for(i=0; i<filterOptionSelectors.length; i++){
+                        comp = this.gui.querySelector("#"+filterOptionSelectors[i]);
+                        comp.addEventListener("change", listener);
+                        this.eFilterOptions.push(comp);
+                    }   //  end of for-each filterOption checkbox component
+                    this.filterChangedCallback = params.filterChangedCallback;
+                    // this.eFilterText.addEventListener("paste", listener);
+                    // this.eFilterText.addEventListener("input", listener);
+                    // IE doesn't fire changed for special keys (eg delete, backspace), so need to
+                    // listen for this further ones
+                    // this.eFilterText.addEventListener("keydown", listener);
+                    // this.eFilterText.addEventListener("keyup", listener);
+
+                    var that = this;
+                    function listener(event) {
+                        that.filterText = event.target.value;
+                        that.filterActive = ! that.eFilterSelectAll.checked;
+                        params.filterChangedCallback();
+                    }
+                    /* 
+                    Added by Swetha penmethsa on 11.06.2017 for 4.4 release 
+                    */
+                    // default model
+                        this.model = {
+                         selected: ["selectAllFilterOptions"]
+                        };
+                        
+                        var that = this;
+                        $(document).on("change", "input[name=selectAllFilterOptions]", function() {
+                         // handles checking all or checking none of the filters, note it doesn't
+                         // trigger change which prevents the standard filter change listeners from running
+                         // this way we can display all rows or no rows quickly without having to run
+                         // each filter for each row individually
+                        
+                         that.model.selected = [];
+                         that.filterActive = true;
+                         if ( $(this).is(":checked") ) {
+                        
+                          $("input[name=filterOption]").prop("checked",true);
+                          that.model.selected.push("selectAllFilterOptions");
+                          that.filterActive = false;
+                         } else {
+                        
+                          $("input[name=filterOption]").prop("checked",false);
+                          that.model.selected = [];                                
+                          
+                         }
+                        
+                         that.filterChangedCallback();
+                        });
+                        
+                        $(document).on("change", "input[name=filterOption]", function() {
+                         // handles each individual checkbox
+                         that.filterActive = true;
+                         that.model.selected = [];
+                         $("input[name=filterOption]:checked").each(function(id,obj) {
+                          that.model.selected.push( $(this).prop("id") );
+                         });
+                        
+                         that.filterChangedCallback();
+                        
+                         if ( $("input[name=filterOption]").not(":checked").length > 0 ) {
+                          that.filterActive = true;
+                         } else {
+                          that.filterActive = false;
+                         }
+                         
+                        });
+                    /* 
+                    Added by Swetha penmethsa on 11.6.2017 for 4.4 release 
+                    */
+                };
+
+                multiValuedColanSepFilter.prototype.getGui = function () {
+                    return this.gui;
+                };
+                
+                var savedFilterClicked = false;
+                multiValuedColanSepFilter.prototype.doesFilterPass = function (params) {
+                
+                    // make sure each word passes separately, ie search for firstname, lastname
+                    var passed = true;
+                    var valueGetter = this.valueGetter;
+                    var value = valueGetter(params);
+                    
+                    var selSur = this.model.selected;
+                    
+                    if(savedFilterClicked == true){
+                        savedFilterClicked = false;
+                        for(i=0; i<this.eFilterOptions.length; i++){
+                            if(selSur.indexOf(this.filterData[i]) != -1){
+                                this.eFilterOptions[i].checked=true;
+                            }else{
+                                this.eFilterOptions[i].checked=false;
+                            }
+                        }
+                    }
+                    
+                    if(this.filterText == 'selectAllFilterOptions' && !this.eFilterSelectAll.checked){
+                        //  Selected option is 'Select All' but for un check, means we need to uncheck all the other options
+                        for(i=0; i<this.eFilterOptions.length; i++){
+                            this.eFilterOptions[i].checked=false;
+                        }
+                    } else if(this.filterText == 'selectAllFilterOptions' && this.eFilterSelectAll.checked){
+                        //  Selected option is 'Select All' and for check, means we need to check all the other options
+                        for(i=0; i<this.eFilterOptions.length; i++){
+                            this.eFilterOptions[i].checked=true;
+                        }
+                    } else{
+                            //  for other cases, other than Select All option
+                        this.eFilterSelectAll.checked=true;                        
+                        if ( selSur[0] == "selectAllFilterOptions") {
+                            return true;
+                        }else{
+                            this.eFilterSelectAll.checked=false;
+                        }
+                        for(i=0; i<this.eFilterOptions.length; i++){
+                            if(! this.eFilterOptions[i].checked){
+                                this.eFilterSelectAll.checked=false;
+                            }
+                        }
+                    }
+                    
+                    if(this.eFilterSelectAll.checked){
+                        return true;
+                    }
+                    
+                    for(i=0; i<this.eFilterOptions.length; i++){
+                        if(this.eFilterOptions[i].checked && value &&
+                            value.indexOf(this.eFilterOptions[i].value) > -1){
+                            return true;
+                        }
+                    }
+                    
+                    return false;
+                };
+
+                multiValuedColanSepFilter.prototype.isFilterActive = function () {
+                    return this.filterActive;
+                };
+
+                multiValuedColanSepFilter.prototype.getModel = function() {
+                return this.model;
+                };
+
+                multiValuedColanSepFilter.prototype.setModel = function(model) {
+                if (typeof model == "undefined" || model == null ) {
+                        this.model = {
+                            selected: ["selectAllFilterOptions"]
+                        };
+                        this.filterActive = false;
+                    } else {
+                        this.model = model;
+                        this.filterActive = true;                        
+                    }
+                    this.filterChangedCallback();
+                }; 
+            </script>
+            
+            
+            <div class="wrapper wrapper-content">
+            
+                <div class="row">
+                    <div class="col-sm-12">
+                        <div class="ibox float-e-margins" style="background-color: white;"> 
+                            <div class="ibox-title" style="background-color: white; border-bottom-color: #151516 !important; border-bottom: solid 2px; margin-bottom: 10px"> 
+                                <div class="clearfix">
+                                    <div class="pull-left">
+                                        <div id="taskListView">
+                                            <h2>
+                                                <b><span class="font-large">Surgeon Customers</span></b>
+                                                <i class="SurgeonListView-busy fa fa-refresh fa-spin" style="display:none"></i>
+                                            </h2>
+                                        </div>
+                                    </div>
+                                    <div class="pull-right">
+                                        <!--<a href="" data-toggle="modal" data-target="#create-surgeon-modal" style="margin-top: 3px; display: block;">
+                                            <span><i class="fa fa-pencil-square-o"></i>&nbsp;{!$Label.CS_NewSurgeon}</span>
+                                        </a>-->
+                                        <a href="" data-toggle="modal" data-target="#create-surgeon-modal"> 
+                                            <button class="btn btn-primary pull-right btn-xs edit-surgeon-btn" onclick="clearPopupValues();">
+                                                <i class="fa fa-pencil-square-o"></i><i class="edit-busy fa fa-refresh fa-spin" style="display:none"></i> {!$Label.CS_NewSurgeon}
+                                            </button>
+                                        </a>  
+                                    </div>           
+                                </div>
+                            </div>  <!-- end of ibox-title -->
+                            <div class="row">
+                                <div class="col-xs-12">
+                                    <div class="ibox" style="margin-bottom: 0px;">
+                                        <div class="ibox-content" style="border-top: none !important">
+                                            <div class="clearfix">                                                
+                                                <div id="listingFilter">
+                                                    <div class="row"> 
+                                                        <div class="col-sm-12" style="padding:0 0 0 0;">
+                                                            <div class="col-sm-4 pull-left" style="padding:0 0 0 0;"> 
+                                                                <input id="gloabalsearch" placeholder="Search..." type="text"  class="search form-control provider-typeahead" 
+                                                                   onpaste="onFilterChanged(this.value)"
+                                                                   oninput="onFilterChanged(this.value)"
+                                                                  
+                                                                   onchange="onFilterChanged(this.value)"
+                                                                   onkeydown="onFilterChanged(this.value)"
+                                                                   onkeyup="onFilterChanged(this.value)"/>
+                                                              
+                                                                <!-- <p class="instructions" style="display:none"></p> -->   
+                                                            </div>
+                                                            
+                                                            <!-- Added by Swetha -- Save Search Filter -- START -->
+                                                            <div class="form-inline col-xs-12 col-sm-6 col-lg-8 text-right">
+                                                                
+                                                                <div class="form-group" style="margin-right:10px">
+                                                                    <span class="text-danger filter-error"></span>
+                                                                    <span class="text-success filter-success"></span>
+                                                                </div>
+                                                                <div class="btn-group">
+                                                                  <button type="button" class="btn btn-primary filter-menu-btn" style="margin-bottom:0px;min-width:50px">
+                                                                    <span class="filter-has-changed" style="display:none">*</span><i class="fa fa-filter"></i>
+                                                                    <span class="selected-filter">All</span>
+                                                                  </button>
+                                                                  <button type="button" class="btn btn-primary dropdown-toggle filter-menu-btn" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" style="margin-bottom:0px">
+                                                                    <span class="caret"></span>
+                                                                    <span class="sr-only">Toggle Filter Dropdown</span>
+                                                                  </button>
+                                                                  <ul class="dropdown-menu filter-menu">
+                                                                    <li><a href="#" class="filter-save-as">Save As ...</a></li>
+                                                                    <li style="display:none"><a href="#" class="filter-save">Save</a></li>
+                                                                    <li><a href="#" class="filter-clear">Clear</a></li>
+                                                                    <li style="display:none"><a href="#" class="filter-delete">Delete</a></li>
+                                                                    <li role="separator" class="divider saved-filter-list" style="display:none"></li>
+                        
+                                                                  </ul>
+                                                                  <!--  Added by Swetha -- Export as CSV functionality -- START -->
+                                                                  
+                                                                  <button type="button" class="btn btn-primary" onclick="onBtExport()" style="margin-bottom:0px;min-width:50px; margin-left:3px; display:{!if(currentUserCanExportListview == true, 'block', 'none;')}">
+                                                                     <span>Export</span>
+                                                                  </button>
+                                                                  <!--  Added by Swetha -- Export as CSV functionality -- END -->
+                                                                  
+                                                                </div>                                                
+                                                                <div class="form-group filter-save-as" style="display:none">
+                                                                    <input type="text" class="form-control filter-name" placeholder="Filter Name..."/>
+                                                                    <button class="btn btn-primary filter-save-as" style="margin-bottom:0px">Save</button>
+                                                                    <button class="btn btn-default filter-cancel-save-as" style="margin-bottom:0px">Cancel</button>
+                                                                </div>
+                                                                <!-- Added by Swetha -- Save Search Filter -- END  -->                                                                
+                                                                
+                                                                                                                           
+                                                            </div>
+                                                            
+                                                        </div> 
+                                                    </div> 
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>              
+                            </div>                         
+                            <div style="padding: 2px">
+                                 
+
+                                <div id="leadGrid" style="border:thin; border-color:gray; height: 600px;" class="ag-bootstrap"></div>
+                            </div> 
+                            
+                            <br/>
+                            <div class="row bootstrap-font">
+                                <div class ="col-sm-6">
+                                    Showing <span class="value" id="lbFirstRow">1</span> to <span class="value" id="lbLastRow">5</span> of <span class="value" id="lbPageSize"></span> rows 
+                                    <select id="selPaginationSize" onchange="onPageSizeChanged(this.value)">
+                                        <option value="20">20</option>
+                                        <option value="40">40</option>
+                                        <option value="60">60</option>
+                                        <option value="80">80</option>
+                                        <option value="100">100</option>
+                                        <option value="All">All</option>
+                                    </select>
+                                    records per page
+                                </div>
+                                <div class="col-sm-6">
+                                    <div class="pull-right">
+                                        <button class="btn btn-xs btn-primary" onclick="onBtFirst()">First</button>
+                                        <button class="btn btn-xs btn-primary" onclick="onBtPrevious()">Previous</button>
+                                        <button class="btn btn-xs btn-primary" onclick="onBtNext()">Next</button>
+                                        <button class="btn btn-xs btn-primary" onclick="onBtLast()" id="btLast">Last</button>   
+                                    </div>
+                                    
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                  
+                </div>  <!-- end of row -->   
+            </div>  <!-- end of top wrapper -->
+            
+            
+            <!-- Add Surgeon modal -->
+            <div class="modal fade  modal-authrex" id="create-surgeon-modal" data-backdrop="static" tabindex="-1" role="dialog">
+              <div class="modal-dialog">
+                <div class="modal-content">
+                  <div class="modal-header">
+                    <button type="button" class="close surgeon-request-close-btn" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                    <h4 class="modal-title"><i class="fa fa-plus-square-o"></i>&nbsp;&nbsp;{!$Label.CS_RequNewSurg}</h4>
+                  </div>
+                  <div class="modal-body row">
+                     <form action="{!LEFT($CurrentPage.URL,FIND('/',$CurrentPage.URL,9))}/servlet/servlet.WebToCase?encoding=UTF-8" method="POST" id="surgeonForm"> 
+                   <!-- <form action="https://webto.salesforce.com/servlet/servlet.WebToCase?encoding=UTF-8" method="POST" id="surgeonForm"> -->
+                        <input type="hidden" name="orgid" value="{!$Organization.Id}" id="orgid"/>
+                        <input type="hidden" name="retURL" value="{!LEFT($CurrentPage.URL,FIND('/',$CurrentPage.URL,9))}?contactsubmitted" id="retURL"/>
+                        <div class="form">
+                          <div class="form-group">
+                            <label>{!$Label.CS_NPI}</label>
+                            <input type="text" class="form-control npi"/>               
+                          </div>
+                          <div class="form-group">
+                            <label>{!$Label.CS_FirstName}</label>
+                            <input type="text" class="form-control firstName"/>               
+                          </div>
+                          <div class="form-group">
+                            <label>{!$Label.CS_LastName}</label>
+                            <input type="text" class="form-control lastName"/>               
+                          </div>                            
+                        </div>
+                    </form>
+                  </div>
+                  <div class="modal-footer">
+                    <span class="error text-danger"></span>
+                    <button type="button" class="btn btn-default surgeon-request-close-btn">{!$Label.CS_Close}</button>
+                    <button type="button" class="btn btn-primary new-surgeon-btn">{!$Label.CS_Save}</button>
+                  </div>
+                </div><!-- /.modal-content -->
+              </div><!-- /.modal-dialog -->
+            </div><!-- /.modal --> 
+    
+            <!--CID - 000177/Mimansha Samal/April/13/2017/Request New Surgeon Save Warning Modal -->
+    
+            <div class="modal fade  modal-authrex" id="cancel-create-surgeon-modal" data-backdrop="static" tabindex="-1" role="dialog" >
+                
+                <div class="modal-dialog" style="width:450px">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                            <h4 class="modal-title"><i class="fa fa-plus-square-o"></i>&nbsp;&nbsp;Request New Surgeon</h4>
+                        </div>
+
+                        <div class="modal-body">
+                            <div class="row">
+                                <div>
+                       
+                                    <label>Do you want to save the changes you made for Request New Surgeon? </label>
+                                      
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="modal-footer">
+                            <span class="text-danger save-error"></span>
+                   
+                            <button type="button" class="btn btn-default" data-dismiss="modal">Yes</button>
+                            <button type="button" class="btn btn-primary btn-close-request-surgeon-warning">No</button>
+                    
+                        </div>
+                    </div><!-- /.modal-content -->
+                </div><!-- /.modal-dialog -->
+            </div><!-- /.modal -->         
+            
+            <!--CID - 000177/Mimansha Samal/April/13/2017/Request New Surgeon Save Warning Modal -->        
+        </apex:define>
+        
+        
+    </apex:composition>
+    <script>
+        document.getElementById("gloabalsearch").value = "";
+    </script>
+</apex:page>

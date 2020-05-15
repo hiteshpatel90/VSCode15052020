@@ -1,0 +1,96 @@
+<apex:page controller="EnrollmentPortal_Controller_HF">
+    <apex:Form >
+    <meta charset="utf-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1"/>
+    <title>jQuery UI Datepicker - Default functionality</title>
+    <link rel="stylesheet" href="//code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css"/>
+    <link rel="stylesheet" href="/resources/demos/style.css"/>
+    <script src="https://code.jquery.com/jquery-1.12.4.js"></script>
+    <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
+    <script>
+            $( function() {
+                $( "#datepickerFrom" ).datepicker();
+                $( "#datepickerTo" ).datepicker();
+            } );
+            
+            function searchInvoiceFun(tblId){
+                var fromDate = document.getElementById('datepickerFrom').value;
+                var toDate = document.getElementById('datepickerTo').value;
+                if(fromDate != null && toDate != null){
+                    
+                    Visualforce.remoting.Manager.invokeAction(
+                        '{!$RemoteAction.EnrollmentPortal_Controller_HF.searchInvoice}',
+                        fromDate, toDate,
+                        function(result, event){
+                            if (event.status) {
+                               var tableHeaderRowCount = 1;
+                               var tbl = document.getElementById('PaymentHistoryTableID'+tblId);
+                               var rowCount = tbl.rows.length;
+                               for (var i = tableHeaderRowCount; i < rowCount; i++) {
+                                   
+                                    tbl.deleteRow(tableHeaderRowCount);
+                                }
+                               for (var i = 0; i < result.length; i++) {
+                                    var row = tbl.insertRow(i+1);
+                                    var cell1 = row.insertCell(0);
+                                    var cell2 = row.insertCell(1);
+                                    
+                                    cell1.innerHTML =  result[i].strInvoiceNumber;
+                                    cell2.innerHTML =  result[i].strinvoiceDate 
+                               }
+                                
+                                
+                            }else {
+
+                                console.log(event.message);
+                            
+                            }
+                        },
+                        {escape: true}
+                    );
+                }
+                
+                return false;
+            }
+            
+        </script>
+    <table id="PaymentHistoryTableID{!objEnrollmentRecord.Id}" border="1">
+        <label>Date</label>
+        <input class="form-control w-30" placeholder="From" id="datepickerFrom"></input>
+        <input class="form-control w-30" placeholder="To" id="datepickerTo"></input>
+        
+        <button class="btn btn-success" onclick="return searchInvoiceFun('{!objEnrollmentRecord.Id}');">Search
+           <i class="fa fa-search fa-lg hf-Color-White"/>
+       </button>
+       
+        <thead>
+        <tr>
+            <th>
+                <div>Invoice</div>
+            </th>
+            <th>
+                <div>Date</div>
+            </th>
+        </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td>345621313</td>
+                <td>MM/DD/YYYY</td>
+            </tr>
+            <apex:repeat value="{!lstwrapperInvoice}" var="inv">
+                <tr>
+                    <td>
+                        <apex:outputLink value="https://www.google.com">{!inv.strInvoiceNumber}</apex:outputLink>                    
+                    </td>
+                    <td>
+                        <apex:outputText value="{0,date,MM'/'dd'/'yyyy}">
+                            <apex:param value="{!inv.invoiceDate}" /> 
+                        </apex:outputText>
+                    </td>
+                </tr>
+            </apex:repeat>
+        </tbody>
+    </table>
+    </apex:Form>
+</apex:page>

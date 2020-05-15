@@ -1,0 +1,226 @@
+<!-- ****************************************************************************
+* Type               : Visualforce Page
+* Name               : viewCartPage
+* Created by         : 
+* Created Date       : 
+* Last Modified By   : 
+* Purpose            : This visualforce page is used to display those products which are selected by user        
+*******************************************************************************-->
+<apex:page controller="searchProductsController" standardStylesheets="false" showHeader="false" sidebar="false">
+    <html lang="en-US" prefix="og: http://ogp.me/ns#">
+        <head>
+            <meta charset="utf-8"/>
+            <meta http-equiv="x-ua-compatible" content="ie=edge"/>
+            <meta name="viewport" content="width=device-width, initial-scale=1"/>
+            <!--  -->
+            <title>Pharmagenetico</title>            
+            <script type="text/javascript">
+                function altRows(id){            
+                    if(document.getElementsByTagName){                
+                        var table = document.getElementById(id);  
+                        var rows = table.getElementsByTagName("tr");                    
+                        for(i = 0; i < rows.length; i++){          
+                            if(i % 2 == 0){
+                                rows[i].className = "evenrowcolor";
+                            }else{
+                                rows[i].className = "oddrowcolor";
+                            }      
+                        }
+                    }
+                }
+                window.onload=function(){
+                    altRows('alternatecolor');
+                }
+            </script>
+            <style type="text/css">
+                html {
+                    height: 100%;
+                }
+                table.altrowstable {
+                    font-family: verdana,arial,sans-serif;
+                    font-size:11px;
+                    color:#333333;
+                    border-width: 1px;
+                    border-color: #a9c6c9;
+                    border-collapse: collapse;
+                }
+                table.altrowstable th {
+                    border-width: 1px;
+                    padding: 8px;
+                    border-style: solid;
+                    border-color: #a9c6c9;
+                }
+                table.altrowstable td {
+                    border-width: 1px;
+                    padding: 8px;
+                    border-style: solid;
+                    border-color: #a9c6c9;
+                }
+                .oddrowcolor{
+                    background-color:#e6e6e6;
+                }
+                .evenrowcolor{
+                    background-color:#f2f2f2;
+                }
+                
+                .form-style-5 input[type="submit"],
+                .form-style-5 input[type="button"]
+                {
+                    color: #FFF;
+                    margin: 0 auto;
+                    background: #63C8D6;
+                    font-size: 15px;                
+                } 
+                body {
+                   position: relative;
+                   margin:0;
+                   padding:0;
+                   min-height: 100%;
+                }
+                #footer {
+                   position:absolute;
+                   right: 0;
+                   bottom:0;
+                   left: 0;
+                   width:100%;
+                   height:60px;   /* Height of the footer */
+                   background:#6cf;
+                }               
+            </style>
+            
+            <link rel='stylesheet' id='gforms_formsmain_css-css' href='https://pharmagenetico.com/app/plugins/gravityforms/css/formreset.min.css?ver=1.9.17.5' type='text/css' media='all' />
+            <link rel='stylesheet' id='gforms_formsmain_css-css'  href='https://pharmagenetico.com/app/plugins/gravityforms/css/formsmain.min.css?ver=1.9.17.5' type='text/css' media='all' />
+            <link rel='stylesheet' id='gforms_ready_class_css-css'  href='https://pharmagenetico.com/app/plugins/gravityforms/css/readyclass.min.css?ver=1.9.17.5' type='text/css' media='all' />
+            <link rel='stylesheet' id='gforms_browsers_css-css'  href='https://pharmagenetico.com/app/plugins/gravityforms/css/browsers.min.css?ver=1.9.17.5' type='text/css' media='all' />
+            <link rel='stylesheet' id='sage/css-css'  href='https://pharmagenetico.com/app/themes/pharmagenetico/dist/styles/main.css' type='text/css' media='all' />
+            <link href='https://fonts.googleapis.com/css?family=Open+Sans:400,300,700,600|Roboto+Slab:400,700|Montserrat:400,700' rel='stylesheet' type='text/css'/>
+            <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.5.0/css/font-awesome.min.css"/>
+        </head> 
+        <body class="page page-id-95 page-template page-template-template-account-create page-template-template-account-create-php create-an-account">  
+            <header class="banner">
+                <div class="white">
+                    <div class="container">
+                        <a href="/">
+                            <img class="logo" src="https://pharmagenetico.com/app/uploads/2016/01/PharmaGenetico-Logo-CMYK.png" alt="" />
+                        </a>
+                        <!--<div class="login">
+                            <a href="/create-an-account" class="btn btn-primary">CREATE AN ACCOUNT</a>
+                            <a href="/login" class="btn btn-primary">PHARMACY LOGIN</a>
+                        </div>-->
+                    </div>
+                </div>
+                <div class="orange" id="particles-js">
+                    <h1>Intelligent Pharmaceuticals</h1>
+                    <div class="mobile-menu">
+                        <i class="fa fa-bars"></i> MENU
+                    </div>
+                    <nav class="nav-primary">
+                        <a href="#about">ABOUT US</a>
+                        <a href="#quality">QUALITY COMPLIANCE</a>
+                        <a href="#products">PRODUCTS</a>
+                        <a href="#contact">CONTACT US</a>
+                        <a href="#report">REPORT AN ADVERSE EVENT</a>
+                    </nav>
+                </div>
+            </header>
+            <apex:form id="frm">
+                <div class="wrap container form-style-5" role="document">
+                    <table width="100%">
+                        <tr>
+                            <td>
+                                <apex:outputLabel value="Your Cart" style="color:rgb(209, 76, 43);font-family:verdana,arial,sans-serif; font-weight:normal;font-size:15pt;"></apex:outputLabel>
+                            </td>
+                            <td align="right">
+                                <apex:outputLabel value="Total Summary: " style="color:rgb(209, 76, 43);font-family:verdana,arial,sans-serif; font-weight:normal;"></apex:outputLabel>                                
+                                <apex:outputText value="{0, Number, Currency}" style="color:rgb(209, 76, 43);font-family:verdana,arial,sans-serif; font-weight:normal;">
+                                    <apex:param value="{!decTotalPrice}"/>
+                                </apex:outputText>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <apex:commandButton action="{!gotoSearchProductPage}" value="Continue Shopping" />                                
+                            </td>
+                            <td align="right">
+                                <apex:commandButton value="Check Out" />                            
+                            </td>
+                        </tr>
+                    </table>
+                    <br/>
+                    <apex:variable var="catIndex" value="{!-1}"/>
+                    <apex:outputPanel id="opProducts">
+                    <apex:repeat id="rptProducts" value="{!lstSelectedProductWrapper}" var="pr">
+                        <table width="100%" cellpadding="5" cellspacing="5">
+                            <tr style="background-Color:#e6e6e6;" valign="center">
+                                <td colspan="3"> 
+                                    <apex:variable value="{!catIndex+1}" var="catIndex"/>                    
+                                    <apex:outputLabel value="{!pr.strProductCategoty}" style="font-weight:bold;font-size:12pt;color:#D14C2B;"/>
+                                </td>
+                            </tr>
+                        </table>   
+                        <table class="altrowstable" width="100%" id="alternatecolor" style="color:#D14C2B;">               
+                            <tr class="evenrowcolor">
+                                <th width="35%">
+                                    <apex:outputLabel value="Product Title" style="font-weight:bold;font-size:11pt;"/>
+                                </th>
+                                <th width="20%">
+                                    <apex:outputLabel value="Available Quantity" style="font-weight:bold;font-size:11pt;"/>                                
+                                </th>
+                                <th width="20%">
+                                    <apex:outputLabel value="Quantity" style="font-weight:bold;font-size:11pt;"/>                                
+                                </th>
+                                <th width="15%">
+                                    <apex:outputLabel value="Price" style="font-weight:bold;font-size:11pt;"/>                                
+                                </th>                              
+                                <th width="10%">
+                                    <apex:outputLabel value="Action" style="font-weight:bold;font-size:11pt;"/>                                
+                                </th>
+                            </tr>  
+                            <apex:variable var="rowIndex" value="{!0}"/>  
+                            <apex:repeat id="selProducts" value="{!pr.lstSelProduct}" var="prd">
+                                <tr class="{!If(MOD(rowIndex, 2) == 0, 'evenrowcolor', 'oddrowcolor')}">
+                                    <td>                                    
+                                        <apex:outputLink style="font-size:10pt;" value="/{!prd.objProduct.id}">{!prd.objProduct.Name}</apex:outputLink> 
+                                    </td>
+                                    <td>
+                                        <apex:outputLabel value="{!prd.objProduct.Available_Quantity__c}"></apex:outputLabel>
+                                    </td>
+                                    <td>
+                                        <apex:inputText value="{!prd.decQuantity}"/>
+                                    </td>
+                                    <td>
+                                        <apex:outputText value="{0, Number, Currency}">
+                                            <apex:param value="{!prd.objProduct.Unit_Price__c}"/>
+                                        </apex:outputText>
+                                    </td>
+                                    <td>
+                                        <apex:commandLink value="Remove" reRender="frm" action="{!removeProducts}">
+                                            <apex:param name="rowIndex" value="{!rowIndex}"/>
+                                            <apex:param name="catIndex" value="{!catIndex}"/>
+                                        </apex:commandLink>
+                                        <apex:variable value="{!rowIndex+1}" var="rowIndex"/>  <!--increment-->
+                                    </td>
+                                </tr>
+                            </apex:repeat>
+                        </table>           
+                    </apex:repeat>
+                    </apex:outputPanel>              
+                    <br/>
+                </div>
+            </apex:form>
+            <div id="footer">
+            <footer>
+                <div class="container">
+                    <div class="left">
+                        <a href="/privacy-policy/">PRIVACY POLICY</a>
+                        <!-- <a href="#">TERMS OF USE</a> -->
+                    </div>
+                    <div class="right">
+                        Copyright 2015 Pharmagenetico. All rights reserved.
+                    </div>
+                </div>
+            </footer>
+            </div>
+        </body>
+    </html>
+</apex:page>

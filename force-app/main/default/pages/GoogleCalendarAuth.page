@@ -1,0 +1,8 @@
+<apex:page controller="GoogleCalenderApi">
+    <apex:form >
+    <apex:commandButton value="Connect With Calendar" action="{!authorization}"/>
+    
+    <br/> <br/>
+    <apex:commandButton value="Get Access Token" action="{!doFetchAccessToken}"/>
+    </apex:form>
+</apex:page>

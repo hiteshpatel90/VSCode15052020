@@ -1,0 +1,31 @@
+<apex:page standardController="Case" extensions="caseViewPageExtension" sidebar="false">
+    <apex:form >
+        <apex:pageBlock title="Case Detail">
+            <apex:pageblockSection >
+                
+                <apex:outputField value="{!Case.CaseNumber}"/>
+                <apex:outputField value="{!Case.Subject}"/>
+                <apex:pageBlockSectionItem >
+                    <apex:outputLabel value="Account Name"></apex:outputLabel>
+                    <a href="#" onclick="openAccount();" value="test">{!Case.Account.Name}</a>
+                </apex:pageBlockSectionItem>
+                <apex:outputField value="{!Case.AccountId}"/>
+            </apex:pageblockSection>
+        </apex:pageBlock>
+    </apex:form>
+    <script>
+        function openAccount(){
+            alert('h2');
+           srcUp('/001i000001cttpq');
+            alert('h1');
+        }
+        var openSuccess = function openSuccess(result) {
+            //Report whether we succeeded in opening the subtab
+            if (result.success == true) {
+                alert('subtab successfully opened');
+            } else {
+                alert('subtab cannot be opened');
+            }
+        };
+    </script>
+</apex:page>

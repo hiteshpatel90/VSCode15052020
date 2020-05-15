@@ -1,0 +1,124 @@
+<!-------------------------------------------------------------------------------------------
+- Type             : visualforce Page
+- Name             : FieldhistorytrackingReport
+- Created by       : 
+- Created Date     : 22nd October 2015
+- Last Modified By : 
+- Purpose          : page used to display Field Tracking history report
+---------------------------------------------------------------------------------------------->
+<apex:page standardController="Field_History__c" sidebar="false" extensions="extFieldhistorytrackingReport">
+    <style>
+
+        table#t01 tr:nth-child(even) {
+            background-color: #eee;
+        }
+        table#t01 tr:nth-child(odd) {
+           background-color:#fff;
+        }
+        table#t01 th    {
+            background-color: black;
+            color: white;            
+        }
+    </style>  
+    <apex:form id="frm">
+        <table width="100%" id="t01" cellpadding="6" style="border-collapse: collapse;padding:10px;"> 
+            <tr>
+                <td width="50%" colspan="2">
+                    <apex:outputLabel value="Select Filter : "></apex:outputLabel>
+                    <apex:selectList value="{!strSelFilterOption}" size="0">
+                        <apex:selectOptions value="{!FilterOptions}"/>
+                        <apex:actionSupport action="{!refresh}" event="onchange" reRender="frm"/>
+                    </apex:selectList>
+                </td>
+                <td width="50%" align="right" colspan="4">
+                    <span class="xls" style="cursor:pointer;display:inline-block; width:30px; height:30px; background: transparent url('https://partnerportal.hidglobal.com/img/icons/30x30.png') no-repeat scroll 0% 0%;vertical-align: middle;background-position: -60px -30px;"></span>
+                    <apex:commandLink action="{!exportFieldTracking}" style="cursor:pointer;" value="Export Field Tracking"/>
+                </td>
+            </tr>
+            <tr>
+                <th style="border: 1px solid black;border-collapse: collapse;">
+                    <apex:outputLabel value="Number"></apex:outputLabel>
+                </th>
+                <th style="border: 1px solid black;border-collapse: collapse;">
+                    <apex:outputLabel value="Field/ Event"></apex:outputLabel>
+                </th>
+                <th style="border: 1px solid black;border-collapse: collapse;">
+                    <apex:outputLabel value="Edit Date"></apex:outputLabel>
+                </th>
+                <th style="border: 1px solid black;border-collapse: collapse;">
+                    <apex:outputLabel value="New Value"></apex:outputLabel>
+                </th>
+                <th style="border: 1px solid black;border-collapse: collapse;">
+                    <apex:outputLabel value="Old Value"></apex:outputLabel>
+                </th>
+                <th style="border: 1px solid black;border-collapse: collapse;">
+                    <apex:outputLabel value="sObject Name"></apex:outputLabel>
+                </th>
+                <th style="border: 1px solid black;border-collapse: collapse;">
+                    <apex:outputLabel value="Record Id"></apex:outputLabel>
+                </th>
+                <th style="border: 1px solid black;border-collapse: collapse;">
+                    <apex:outputLabel value="User"></apex:outputLabel>
+                </th>
+            </tr>
+            <apex:variable var="i" value="{!0}"/>
+          
+            <apex:repeat value="{!FieldHistories}" var="fh">
+                <tr>
+                    <td style="border: 1px solid black;border-collapse: collapse;">
+                        <apex:variable var="i" value="{!i+1}"/>
+                        <apex:outputLabel value="{!i}"></apex:outputLabel>
+                    </td>
+                    <td style="border: 1px solid black;border-collapse: collapse;">
+                        <apex:outputLabel value="{!fh.Field_Event__c}"/>
+                    </td>
+                    <td style="border: 1px solid black;border-collapse: collapse;">
+                        <apex:outputText value="{0,date,MM'/'dd'/'yyyy hh:mm a}">
+                            <apex:param value="{!fh.Edit_Date__c}" /> 
+                        </apex:outputText> 
+                    </td>
+                    <td style="border: 1px solid black;border-collapse: collapse;">
+                        <apex:outputLabel value="{!fh.New_Value__c}"/>
+                    </td>
+                    <td style="border: 1px solid black;border-collapse: collapse;">
+                        <apex:outputLabel value="{!fh.Old_Value__c}"/>
+                    </td>
+                    <td style="border: 1px solid black;border-collapse: collapse;">
+                        <apex:outputLabel value="{!fh.sObject_Name__c}"/>
+                    </td>
+                    <td style="border: 1px solid black;border-collapse: collapse;">
+                        <apex:outputLabel value="{!fh.Record_Id__c}"/>
+                    </td>
+                    <td style="border: 1px solid black;border-collapse: collapse;">
+                        <apex:outputLabel value="{!fh.User__r.Name}"/>
+                    </td>
+                </tr>
+            </apex:repeat>
+           
+        </table>
+        
+            
+           
+                <table width="100%">
+                    <tr>
+                        <td align="left">
+                            <apex:commandButton status="fetchStatus" reRender="pb" value="Refresh" action="{!refresh}" title="Refresh Page"/>
+                            <apex:outputPanel style="color:#4AA02C;font-weight:bold">
+                                <apex:actionStatus id="fetchStatus" startText="Fetching..." stopText=""/>
+                            </apex:outputPanel>
+                        </td>
+                        <td align="center">
+                            <apex:outputText >{!(pageNumber * size)+1-size}-{!IF((pageNumber * size)>noOfRecords, noOfRecords,(pageNumber * size))} of {!noOfRecords}</apex:outputText>
+                        </td>
+                        <td align="right">
+                            <apex:commandButton status="fetchStatus" reRender="frm" value="|<" action="{!first}" disabled="{!!hasPrevious}" title="First Page"/>
+                            <apex:commandButton status="fetchStatus" reRender="frm" value="<" action="{!previous}" disabled="{!!hasPrevious}" title="Previous Page"/>
+                            <apex:commandButton status="fetchStatus" reRender="frm" value=">" action="{!next}" disabled="{!!hasNext}" title="Next Page"/>
+                            <apex:commandButton status="fetchStatus" reRender="frm" value=">|" action="{!last}" disabled="{!!hasNext}" title="Last Page"/>
+                        </td>
+                    </tr>
+                </table>    
+            
+  
+    </apex:form>
+</apex:page>

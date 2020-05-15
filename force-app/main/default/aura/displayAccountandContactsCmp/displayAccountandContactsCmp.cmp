@@ -1,0 +1,61 @@
+<aura:component controller="displayAccountandContactsCtrl" implements="force:appHostable,flexipage:availableForAllPageTypes" access="global" >
+    
+    <aura:handler action="{!c.doInit}" value="{!this}" name="init"></aura:handler>
+    <aura:attribute name="accountList" type="List"></aura:attribute>
+    <aura:attribute name="contactList" type="List"></aura:attribute>
+    
+    <h1>Accounts</h1>
+    <br></br>
+    <table border="1">
+        <tr>
+            <th>
+                Account Name
+            </th>
+            <th>
+                Account Type
+            </th>
+        </tr>
+        <aura:iteration items="{!v.accountList}" var="acc">
+            <tr>
+                <td>
+                    {!acc.Name}
+                </td>
+                
+                <td>
+                    {!acc.Type}
+                </td>
+            </tr>
+        </aura:iteration>
+    </table>
+    
+    <br></br>
+    <br></br>
+    <h1>Contacts</h1>
+    <br></br>
+    <table border="1">
+        <tr>
+            <th>
+                Contact Name
+            </th>
+            <th>
+                Email
+            </th>
+            <th>
+                Phone
+            </th>
+        </tr>
+        <aura:iteration items="{!v.contactList}" var="con">
+            <tr>
+                <td>
+                    {!con.Name}
+                </td>
+                <td>
+                    {!con.Email}
+                </td>
+                <td>
+                    {!con.Phone}
+                </td>
+            </tr>
+        </aura:iteration>
+    </table>
+</aura:component>

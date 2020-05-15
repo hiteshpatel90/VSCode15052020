@@ -1,0 +1,333 @@
+<apex:page showHeader="false" sidebar="false" standardStylesheets="false">
+    
+    <apex:form >
+    
+        <head>
+            
+            <meta charset="utf-8" />
+            <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+            <meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1, maximum-scale=1, user-scalable=no" />
+    
+            <meta name="description" content="Registration" />
+            <meta name="author" content="" />
+            
+            <style>
+                
+                * {
+                    box-sizing: border-box;
+                }
+    
+                /* Create three columns of equal width */
+                .columns {
+                    float: left;
+                    width: 50%;
+                    padding: 8px;
+                }
+    
+                /* Style the list */
+                .price {
+                    list-style-type: none;  
+                    margin: 0;
+                    padding: 0;
+                    -webkit-transition: 0.3s;
+                    transition: 0.3s;
+                }
+    
+                /* Add shadows on hover */
+                .price:hover {
+                    box-shadow: 0 8px 12px 0 rgba(0,0,0,0.2)
+                }
+    
+                /* Pricing header */
+                .price .header {
+                    background-color: #00376e;
+                    color: #FFFFFF !important;
+                }
+                
+                .headerText{
+                    color: #FFFFFF !important;
+                }
+                
+                /* List items */
+                .price li {
+                    border-bottom: 1px solid #eee;
+                    padding: 10px;
+                    text-align: center;
+                    word-wrap: break-word;
+                }
+    
+                /* white list item */
+                .price .white {
+                    background-color: #ffffff;
+                    font-size: 20px;
+                }
+    
+                /* The "Sign Up" button */
+                .button {
+                    background-color: #4CAF50;
+                    border: none;
+                    color: white;
+                    padding: 10px 25px;
+                    text-align: center;
+                    text-decoration: none;
+                    font-size: 18px;
+                }
+    
+                /* Change the width of the three columns to 100%
+                (to stack horizontally on small screens) */
+                @media only screen and (max-width: 600px) {
+                    .columns {
+                        width: 100%;
+                    }
+                }
+                
+                .meduim{
+                    font-weight: 600;
+                }
+                
+                .h1, .h2, .h3, .h4, .h5, .h6, h1, h2, h3, h4, h5, h6 {
+                    font-family: FFMarkWebProLight,Helvetica,Arial,sans-serif !important;
+                }
+                
+                .promoCodeLabel{
+                    color: #0074ee;
+                    font-size: 18pt;
+                    font-weight: 600;
+                }
+                
+                .promoCodeDiv {
+                    background-color: #00376e;
+                    color: #FFFFFF !important;
+                    padding: 2%;
+                }
+                
+                .fieldLabel{
+                    color: #99c7FB;
+                    font-size: 14pt;
+                    font-weight: 600;
+                }
+                
+                .fieldValue{
+                    color: #004a82;
+                    font-size: 14pt;
+                }
+                
+                .boxTitle{
+                    color: #004a82;
+                }
+                
+                .boxParagraph{
+                    color: #004a82;
+                    font-size: 14pt;
+                }
+                
+                .btn {
+                    font-family: FFMarkWebProLight !important;
+                    text-transform: uppercase !important;
+                    white-space: normal !important;
+                    word-wrap: break-word !important;
+                }
+                
+                .btn-white {
+                    background-color: #fff;
+                    border: 2px solid #99c7fb !important;
+                    border-color: #00749e;
+                    border-radius: 22px;
+                    color: #99c7fb;
+                    font-size: 14px;
+                    font-weight: bold !important;
+                    line-height: 1.33333;
+                    padding: 12px 28px;
+                }
+                
+                .btn-white:hover{
+                    color: #0dd98a !important;
+                    background-color: transparent !important;
+                    border-color:#0dd98a !important;
+                }
+                
+                .btnLink {
+                    color: #0074ee !important;
+                    font-size: 14px;
+                    font-weight: 600 !important;
+                    text-decoration: underline;
+                }
+                
+                footer {
+                    background-color: #005ed9 !important;
+                }
+                
+                footer .copyright > p {
+                    float: right !important;
+                }
+                
+            </style>
+            
+            <script src="{!$Resource.ClearMe}/JS/optimizelybundle.js" />  
+            <script src="{!$Resource.ClearMe}/JS/inlinebundle.js" />
+            <script src="{!$Resource.ClearMe}/JS/scriptsbundle.js" />
+            <script src="{!$Resource.ClearMe}/JS/vendorbundle.js" />
+            <script src="{!$Resource.ClearMe}/JS/mainbundle.js" />
+            
+            <link rel="stylesheet" href="{!$Resource.ClearMe}/CSS/clearmeBundle.css" />
+            <link rel="stylesheet" href="{!$Resource.ClearMe}/CSS/MyFontsWebfontsKit.css" />
+            
+        </head>
+    
+        <body style="font-family: FFMarkWebProLight;">
+            
+            <header>
+                <nav>
+                    <div class="container dropdown">
+                        <p class="brand visible-xs visible-sm"><a href="/home">CLEAR</a></p>
+                        <button class="navbar-toggle dropdown-toggle" data-toggle="dropdown" type="button">
+                            <span class="icon"></span>
+                        </button>
+                        <ul class="navbar-nav">
+                            
+                            <!--template bindings={}-->
+                            <li class="brand">
+                                <!--template bindings={}-->
+                                <!--template bindings={}-->
+                                    <!--template bindings={}-->
+                                        <a href="/home"> CLEAR</a>
+                                    <!--template bindings={}-->
+                            </li>
+                            
+                            <li class="navItem special"><a href="https://my.clearme.com" target="_blank">Log in</a></li>
+                            
+                        </ul>
+                    </div>
+                </nav>
+            </header>
+            
+            <figure class="slide container-fluid heroes show" style="background-color: rgb(0, 116, 238);">
+                <br /><br />
+                <center><h1 style="font-family:FFMarkWebProLight; color: #FFFFFF">Hello Julio</h1></center>
+                <div class="container">
+                     <div class="columns">
+                      <ul class="price">
+                        <li class="header"><h4 class="headerText">Membership Details</h4></li>
+                        <li class="white">
+                            
+                            <center>
+                            
+                                <br />
+                            
+                                <span class="fieldLabel">PLAN</span>
+                                <h1 class="boxTitle">Full Membership</h1>
+                                <p class="boxParagraph">
+                                        Your full membership subscription, including travel, sports and arenas,  automatically renews on <span class="meduim">01/23/18</span> at <span class="meduim">$179</span> with your card ending in <span class="meduim">4388</span>.
+                                </p>
+                                
+                                <br />
+                                <button class="btn btn-lg btn-white">UPDATE BILLING</button>
+                                
+                                <br /><br /><br />
+                                <span style="padding: 3%">
+                                    <a class="btnLink">Change renewal settings</a>
+                                </span>
+                                <span style="padding: 3%">
+                                    <a class="btnLink">Print receipt</a>
+                                </span>
+                                
+                                <br /><br /><br />
+                                
+                            </center>
+                            
+                        </li>
+                      </ul>
+                    </div>
+                    <div class="columns">
+                      <ul class="price">
+                        <li class="header"><h4 class="headerText">Personal Profile</h4></li>
+                        <li class="white" style="text-align: left; padding-left: 10%;">
+                            
+                            <br />
+                            
+                            <span class="fieldLabel">USERNAME</span><br />
+                            <span class="fieldValue">username@clearme.com</span><br /><br />
+                            
+                            <span class="fieldLabel">PASSWORD</span><br />
+                            <span class="fieldValue">******</span><br /><br />
+                            
+                            <span class="fieldLabel">EMAIL ADDRESS</span><br />
+                            <span class="fieldValue">email@clearme.com</span><br /><br />
+                            
+                            <span class="fieldLabel">PHONE</span><br />
+                            <span class="fieldValue">6462514343</span><br /><br />
+                            
+                            <span class="fieldLabel">DELTA SKYMILES #</span><br />
+                            <span class="fieldValue">6462514343</span><br /><br />
+                            
+                            <button class="btn btn-lg btn-white">UPDATE INFORMATION</button>
+                            
+                        </li>
+                      </ul>
+                    </div>
+                </div>
+                <br /><br />
+            </figure>
+            
+            <figure class="slide container-fluid heroes show" style="background-color: rgb(0, 116, 238);">
+                <div class="container">
+                    <div class="columns wrapper promoCodeDiv">
+                        <span class="promoCodeLabel">FAMILY PROMO CODE </span>
+                        <h1 style="color: white !important;">F3K6UHW</h1>
+                    </div>
+                    <div class="columns wrapper promoCodeDiv" style="font-size: 20pt; height: 175px !important;">
+                        Using this code at clearme.com, <span class="meduim">add an adult family member for only $50/yr.</span> Kids under 18 are free. 
+                    </div>
+                </div>
+                <br /><br />
+            </figure>
+            
+            <footer>
+                <div class="col-xs-12 col-sm-7 flex">
+                    <div class="wrapper">
+                        <ul class="communication">
+                            <li class="tel"><span class="visible-xs">TALK</span><i class="icon"></i><span class="hidden-xs">855-CLEARME (253-2763)</span></li>
+                        </ul>
+                    </div>
+                </div>
+                <nav class="navbar navbar-inverse">
+                    <div class="container">
+                        <div class="col-xs-12 paddingShim">
+                            <ul class="nav navbar-nav navbar-right pull-right">
+                                <!--template bindings={}--><li>
+                                    <!--template bindings={}-->
+                                        <a href="/privacy_policy"> Privacy Policy</a>
+                                    
+                                    <!--template bindings={}-->
+                                </li>
+                                <!--template bindings={}--><li>
+                                    <!--template bindings={}-->
+                                        <a href="/privacy_policy"> Privacy Policy</a>
+                                    
+                                    <!--template bindings={}-->
+                                </li><li>
+                                    <!--template bindings={}-->
+                                        <a href="/member-terms"> Member Terms</a>
+                                    
+                                    <!--template bindings={}-->
+                                </li><li>
+                                    <!--template bindings={}-->
+                                        <a href="/terms"> Terms of Use</a>
+                                    
+                                    <!--template bindings={}-->
+                                </li>
+                            </ul>
+    
+                        </div>
+                        <div class="col-xs-12 copyright">
+                            <p class="small">&copy; 2017 Secure Identity, LLC. All rights reserved.</p>
+                        </div>
+                    </div>
+                </nav>
+            </footer>
+            
+        </body>
+    
+    </apex:form>
+    
+</apex:page>

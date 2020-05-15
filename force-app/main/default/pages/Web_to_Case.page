@@ -1,0 +1,213 @@
+<apex:page showHeader="false" sidebar="false">
+<!--  ----------------------------------------------------------------------  -->
+<!--  NOTE: Please add the following <META> element to your page <HEAD>.      -->
+<!--  If necessary, please modify the charset parameter to specify the        -->
+<!--  character set of your HTML page.                                        -->
+<!--  ----------------------------------------------------------------------  -->
+
+<META HTTP-EQUIV="Content-type" CONTENT="text/html; charset=UTF-8"/>
+ 
+<!--  ----------------------------------------------------------------------  -->
+<!--  NOTE: Please add the following <FORM> element to your page.            -->
+<!--  ----------------------------------------------------------------------  -->
+
+<form action="https://cs21.salesforce.com/servlet/servlet.WebToCase?encoding=UTF-8" method="POST">
+
+<input type="hidden" name="orgid" value="00Dq00000000okS"/>
+<input type="hidden" name="retURL" value="http://www.cengage.com/"/>
+
+<!--  ----------------------------------------------------------------------  -->
+<!--  NOTE: These fields are optional debugging elements. Please uncomment    -->
+<!--  these lines if you wish to test in debug mode.                          -->
+<!--  <input type="hidden" name="debug" value=1>                              -->
+<!--  <input type="hidden" name="debugEmail"                                  -->
+<!--  value="serge.kandukuri@eaglecrk.com">                                   -->
+<!--  ----------------------------------------------------------------------  -->
+
+    <table width="100%">
+        <tr>
+            <td>
+                <label style="font-size:19pt;color:#FF7F50;">New Case for: WebAssign</label>
+            </td>
+            <td>
+            </td>
+            <td width="60%">
+            </td>
+        </tr>
+        <tr>            
+            <td colspan="3">
+                <br/>
+            </td>
+        </tr>   
+        <tr>
+            <td>
+                <label style="font-size:19pt;">Customer Support</label>
+            </td>
+            <td colspan="2">
+            </td>
+        </tr>
+        <tr>            
+            <td colspan="3">
+                <br/>
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <label style="color:red;">* Required Field</label>
+            </td>
+            <td>
+            </td>
+            <td>
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <label for="email">*Email:</label>
+            </td>
+            <td>
+                <input  id="email" maxlength="80" name="email" size="20" type="text" />
+            </td>
+            <td>
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <label for="email">*Confirm Email:</label>
+            </td>
+            <td>
+                <input  id="confirm_email__c" maxlength="80" name="confirm_email__c" size="20" type="text" />
+            </td>
+            <td>
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <label>*First Name:</label>
+            </td>
+            <td>
+                <input  id="firstname" maxlength="80" name="firstname" size="20" type="text" />
+            </td>
+            <td>
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <label>*Last Name:</label>
+            </td>
+            <td>
+                <input  id="lastname" maxlength="80" name="lastname" size="20" type="text" />
+            </td>
+            <td>
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <label for="phone">*Phone Number:</label>
+            </td>
+            <td>
+                <input  id="phone" maxlength="40" name="phone" size="20" type="text" />
+            </td>
+            <td>
+            </td>
+        </tr>       
+        <tr>
+            <td>
+                <label>*Institution:</label>
+            </td>
+            <td>
+                <input type="text" />
+            </td>
+            <td>
+            </td>
+        </tr>
+        <tr>            
+            <td colspan="3">
+                <br/>
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <label>*What is the nature of your issue?:</label>
+            </td>
+            <td>
+                <select>
+                    <option value=""></option>
+                    <option value="test">test</option>
+                </select> 
+            </td>
+            <td>
+            </td>
+        </tr>
+        
+        <!--<label for="subject">Subject</label><input  id="subject" maxlength="80" name="subject" size="20" type="text" /><br>
+
+        <label for="description">Description</label><br>-->
+    </table>
+    <table style="border:1px solid black;" width="100%">
+        <tr>
+            <td colspan="2">
+                <label style="color:red;">Fields marked with an asterisk(*) are required for case creation.</label>
+            </td>
+        </tr>
+        <tr>            
+            <td colspan="2">
+                <br/>
+                <br/>
+                <br/>
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <label>WebAssign Username</label>
+            </td>
+            <td>
+                <input type="text" />
+                <br/><br/>
+            </td>           
+        </tr>
+        <tr>
+            <td>
+                <label>I am...</label>
+            </td>
+            <td>
+                <select>
+                    <option value=""></option>
+                    <option value="Student">Student</option>
+                    <option value="Instructor">Instructor</option>
+                </select>
+                <br/><br/>
+            </td>           
+        </tr>
+        <tr>
+            <td>
+                <label>Instructor Name</label>
+            </td>
+            <td>
+                <input type="text" />
+            </td>           
+        </tr>
+        <tr>
+            <td colspan="2">
+                <label style="font-size:10pt;"><i>If you indicated that you are a student user, please provide your instructor's name.</i></label>
+                <br/><br/>
+            </td>           
+        </tr>
+        <tr>
+            <td>
+                <label>Problem Description:</label><label style="font:color:red;"> *</label>
+            </td>
+            <td>
+                <textarea name="description"></textarea>
+                <br/><br/>
+            </td>           
+        </tr>
+    </table>
+    <br/>
+    <br/>
+    <a href="">Add Participants</a><br/>
+    <a href="">Add An Attachment</a><br/><br/>
+    <input type="submit" name="submit" value="Create Case"/>
+
+</form>
+
+</apex:page>

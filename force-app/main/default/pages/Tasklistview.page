@@ -1,0 +1,78 @@
+<apex:page sidebar="false" standardController="Task" extensions="extTasklistview">
+       
+    
+    <script>
+        function createnewTask(){
+            window.top.location.href = "/00T/e?retURL=/home/home.jsp";
+        }
+    </script>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.6.1/jquery.min.js"></script>
+    
+    <apex:includeScript value="/support/console/31.0/integration.js"/>
+    <apex:includeScript value="/soap/ajax/31.0/connection.js"/>
+   
+
+    <style> 
+    .tableContainer
+        {
+            height:100px; 
+            width: 100%;
+            overflow: auto;
+        } 
+             
+    .floatingStyle 
+    { 
+        position:relative; 
+    } 
+    </style>
+    <script>
+    $(document).ready(function() {
+        $('.floatingHeaderTable').vfFloatingHeaders();
+    });
+    </script>
+    
+    <script>
+    function openTab(recordid) {
+        srcUp('/' + recordid + '&isdtp=vw');
+    }
+    </script>
+    <apex:form id="frm">
+        <apex:pageBlock >
+            <apex:pageBlockButtons location="top">
+                <apex:commandButton value="New" onclick="createnewTask();" />
+            </apex:pageBlockButtons>
+            <apex:outputPanel styleClass="tableContainer" layout="block">
+            <apex:pageblockTable styleclass="floatingHeaderTable" value="{!lstTask}" var="tsk">
+                <apex:column headerValue="Complete">
+                    <apex:outputlink value="/{!tsk.id}/e?close=1&retURL=/home/home.jsp">X</apex:outputlink>
+                </apex:column>
+                <apex:column headerValue="Date">
+                    <apex:outputText value="{0,date,MM/dd/yyyy}">
+                        <apex:param value="{!tsk.ActivityDate}" /> 
+                    </apex:outputText>
+                    
+                </apex:column>
+                
+                <apex:column headerValue="Status">
+                    <apex:outputLabel value="{!tsk.status}"></apex:outputLabel>
+                </apex:column>
+                <apex:column headerValue="Subject">
+                    
+                    <apex:outputlink onclick="openTab('{!tsk.id}');" >{!tsk.Subject}cc</apex:outputlink>
+                </apex:column>
+                <apex:column headerValue="Name">
+                    <apex:outputlink value="/{!tsk.whoid}">{!tsk.who.Name}</apex:outputlink>
+                </apex:column>
+                <apex:column headerValue="Related To">
+                    <apex:outputlink value="/{!tsk.whatid}">{!tsk.what.Name}</apex:outputlink>
+                </apex:column>
+                <apex:column headerValue="Employee">
+                    <apex:outputlink rendered="{!tsk.whoid != null && contains(tsk.whoid,"003")}"  value="/{!mapAccount[tsk.whoid].id}">{!mapAccount[tsk.whoid].Name}</apex:outputlink>
+                </apex:column>
+            </apex:pageblockTable>
+            </apex:outputPanel>
+        </apex:pageBlock>
+        ppp
+       
+    </apex:form>
+</apex:page>

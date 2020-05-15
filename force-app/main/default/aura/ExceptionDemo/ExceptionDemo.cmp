@@ -1,0 +1,38 @@
+<aura:component controller="ErrorHandlingDemo">
+    <aura:attribute name="message" type="String"/>
+    <br></br>
+    <br></br>
+    <table>
+        <tr>
+            <td>
+            	<ui:outputText aura:id="nameOutput" value="Last Name"/>
+            </td>
+            <td>
+        		<ui:inputText aura:id="lastname" placeholder="Last Name"/>
+                
+            </td>
+        </tr>
+        <br></br>
+    	<tr>
+            <td>
+            	<ui:outputText aura:id="PhoneOutput" value="Phone"/>
+            </td>
+            <td>
+            	<ui:inputText aura:id="phoneNum" placeholder="Phone"/>
+            </td>
+        </tr>    
+    </table>
+    <br></br>
+    <br></br>
+    <ui:button label="Insert Contact" press="{!c.showError}"/>
+    <br/>
+    <ui:outputText value="{!v.message}"/>
+    <br></br>
+    <br></br><br></br>
+    <br></br>
+    <p>Click the button to trigger the controller to throw an error.</p>
+    <div aura:id="div1"></div>
+
+    <lightning:button label="Throw an Error" onclick="{!c.throwErrorForKicks}"/>
+    
+</aura:component>

@@ -1,0 +1,9 @@
+<apex:page >
+    <script type="text/javascript">
+        function cancel() {  
+            window.opener.location.href = '/a0Zi000000Fesz3';
+            window.close();
+        }
+    </script>
+    <button class="slds-button slds-button--brand slds-m-right--medium SE_BGcolor" type="button" onClick="javascript:cancel();return false;">Cancel</button>
+</apex:page>

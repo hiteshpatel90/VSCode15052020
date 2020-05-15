@@ -1,0 +1,73 @@
+<apex:page StandardController="Fattura__c" extensions="CreaNewFatturaCtrl" showHeader="false">
+<apex:pageBlock title="Nuova fattura">
+
+    
+
+<apex:form >
+
+    <apex:pageBlock id="pbMain">  
+
+    <apex:pageBlockButtons location="Both">
+                <apex:commandButton value="Salva" action="{!saveRecord}"/>
+                <apex:commandButton value="Annulla" action="{!cancelRecord}"/>                  
+    </apex:pageBlockButtons>
+     
+  
+                 
+    <apex:pageBlockSection title="Informazioni" collapsible="FALSE">
+  
+                <apex:inputField value="{!Fattura__c.Numero_fattura__c}"/>
+                <apex:inputField value="{!Fattura__c.Nome_Fattura__c}"/>
+                <apex:inputField value="{!Fattura__c.preventivo__c}" />
+                <apex:inputField value="{!Fattura__c.Motivo_stato__c}"/>  
+                <apex:inputField value="{!Fattura__c.Banca__c }"/>
+                <apex:inputField value="{!Fattura__c.ID_Fattura_SFDC__c}"/>
+                <apex:inputField value="{!Fattura__c.Cliente_di_fatturazione__c }"/>
+                                                                                                               
+                </apex:pageblockSection>
+                    
+   <apex:pageBlockSection title="Informazioni pagamento e IVA" collapsible="FALSE" >
+   
+                <apex:inputField value="{!Fattura__c.Modalit_di_pagamento__c}"/>
+                <apex:inputField value="{!Fattura__c.Annotazioni__c}"/>
+                <apex:inputField value="{!Fattura__c.IVA__c }"/>                      
+              </apex:pageblockSection> 
+      
+    <apex:pageBlockSection title="Amministrazione" collapsible="FALSE" >
+    
+                <apex:inputField value="{!Fattura__c.Data_emissione__c}"/>
+                <apex:inputField value="{!Fattura__c.Data_pagamento__c}"/>
+                <apex:inputField value="{!Fattura__c.Data_scadenza__c}"/>                                   
+                <apex:inputField value="{!Fattura__c.Scadenza__c}"/>
+                <apex:inputField value="{!Fattura__c.Scadenza_pagam__c}"/>
+                <apex:inputField value="{!Fattura__c.Data_annull__c}"/>
+                <apex:inputField value="{!Fattura__c.Data_revisione__c}"/>
+          </apex:pageblockSection>
+ 
+  <apex:pageBlockSection columns="1"  title="Righe offerta" collapsible="FALSE" id="pbs">
+     <apex:variable var="i" value="{!0}"/>                                                                                             
+    <apex:pageblocktable value="{!qli}" var="roff">
+    
+                    <apex:column headervalue="Aggiungi">
+                         
+                    <apex:commandLink styleClass="btn" value="+" action="{!AddRow}">
+                        <apex:param name="selectedIndex" value="{!i}" assignTo="{!selectedIndex}"/> 
+                        </apex:commandLink>                                                                    
+                    </apex:column> 
+                                 
+                    
+                    <apex:column value="{!roff.ListPrice}" headervalue="Prezzo di listino" />
+                    <apex:column value="{!roff.UnitPrice}" headervalue="Prezzo di vendita" />
+                    <apex:column value="{!roff.Quantity}" headervalue="Quantità" />
+                    <apex:column value="{!roff.Importo_IVA__c}" headervalue="Importo IVA" />
+                    <apex:column value="{!roff.Totale__c}" headervalue="Totale" />
+                    <apex:column value="{!roff.Importo_ancora_da_fatturare__c}" headervalue="Importo ancora da fatturare" />
+                    <apex:column value="{!roff.Description}" headervalue="Descrizione riga offerta" />
+                    <apex:variable var="i" value="{!i+1}"/>
+    </apex:pageblocktable>               
+    </apex:pageblockSection>  
+                    
+   </apex:pageBlock>                                              
+  </apex:form>                                                         
+ </apex:pageBlock>
+</apex:page>

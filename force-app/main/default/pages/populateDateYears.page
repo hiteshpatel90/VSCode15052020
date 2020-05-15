@@ -1,0 +1,3 @@
+<apex:page >
+    {!YEAR(Today())}
+</apex:page>

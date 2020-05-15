@@ -1,0 +1,4 @@
+<apex:page >
+    <iframe width="560" height="315"  src="http://www.google.com" frameborder="0"></iframe>
+
+</apex:page>

@@ -1,0 +1,247 @@
+<apex:page controller="LiveChat_PostChat_Form" showHeader="false">
+    <apex:includeScript value="/support/console/29.0/integration.js"/>
+    <script src="/soap/ajax/20.0/connection.js" type="text/javascript"></script>
+    <script
+    src="https://code.jquery.com/jquery-3.1.0.js"
+    integrity="sha256-slogkvB1K3VOkzAI8QITxV3VzpOnkeNVsKvtkYLMjfk="
+    crossorigin="anonymous"></script>
+     <script src="//ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>
+      <script src="//cdnjs.cloudflare.com/ajax/libs/jquery-form-validator/2.3.26/jquery.form-validator.min.js"></script>
+      <script>
+      $.validate({
+        lang: 'es'
+      });
+      </script>
+    <style>
+    body {
+    
+    padding: 0 !important;
+    margin: 0 !important;
+    border: solid 5px #cfcfcf;
+    height:640px !important;
+    }
+        textarea{
+            width:100%;
+            height:100px;
+        }
+        #pnl{
+            padding: 13%;
+        }
+        #rn_ChatLaunchButton_27_Button{
+            color: #fff;
+            text-shadow: 1px 1px 1px #111111;
+            width: 144px;
+            height: 35px;
+            border: solid 1px #206485;
+            background: linear-gradient(to bottom, #4cb0df 0%,#02628e 99%);
+        }
+        .scale{
+            font-weight: 400;
+            font-size: 15px;
+        }
+        a.window_close {
+
+    background-repeat: no-repeat;
+    background-attachment: inherit;
+    background-position: 0px 0px;
+    position: fixed !important;
+    top: 0px !important;
+    left: 0px !important;
+    width: 42px !important;
+    height: 43px !important;
+    color: #cfcfcf !important;
+}
+    </style>  
+    <body>
+    <a class="window_close" href="JavaScript:window.close()">Close
+    </a>  
+    <div id="pnl">
+        <table>
+            <tr>
+                <td class="scale">
+               Thank you for contacting Lenovo. If you could talk this brief one question survey about how we did today,<br/>
+                        we'd really appreciate it!<br/><br/>
+                </td>
+            </tr> 
+            <tr>
+                <td class="scale">
+                    Based on this chat, on a scale of 1-9, where 9 is most favorable and 1 being least favorable,<br/>
+                    how likely is it that you would recommend Lenovo to a friend or colleague?
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    <span id="errorId"></span><br/>
+                    <table width="90%">
+                        <tr>
+                            <td align="center">
+                                <input type="radio" name="scale" value="1" required="required"/> 
+                            </td>
+                            <td align="center">
+                                <input type="radio" name="scale" value="2"/> 
+                            </td>
+                            <td align="center">
+                                <input type="radio" name="scale" value="3"/> 
+                            </td>
+                            <td align="center">
+                                <input type="radio" name="scale" value="4"/> 
+                            </td>
+                            <td align="center">
+                                <input type="radio" name="scale" value="5"/> 
+                            </td>
+                            <td align="center">
+                                <input type="radio" name="scale" value="6"/> 
+                            </td>
+                            <td align="center">
+                                <input type="radio" name="scale" value="7"/> 
+                            </td>
+                            <td align="center">
+                                <input type="radio" name="scale" value="8"/> 
+                            </td>
+                            <td align="center">
+                                <input type="radio" name="scale" value="9"/> 
+                            </td>
+                        </tr>
+                        <tr>
+                            <td align="center" style="font-size: 15px;font-weight: bold;">
+                                1
+                            </td>
+                            <td align="center" style="font-size: 15px;font-weight: bold;">
+                                2
+                            </td>
+                            <td align="center" style="font-size: 15px;font-weight: bold;">
+                                3
+                            </td>
+                            <td align="center" style="font-size: 15px;font-weight: bold;">
+                                4
+                            </td>
+                            <td align="center" style="font-size: 15px;font-weight: bold;">
+                                5 
+                            </td>
+                            <td align="center" style="font-size: 15px;font-weight: bold;">
+                                6
+                            </td>
+                            <td align="center" style="font-size: 15px;font-weight: bold;">
+                                7 
+                            </td>
+                            <td align="center" style="font-size: 15px;font-weight: bold;">
+                                8 
+                            </td>
+                            <td align="center" style="font-size: 15px;font-weight: bold;">
+                                9 
+                            </td>
+                        </tr>
+                    </table>
+               </td>
+            </tr>            
+            <tr>
+                <td class="scale">
+                    Please tell us how we can improve your experience: <br/>
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    <textarea row="15" col="18" id="commentId" required="required"/>
+                </td>
+            </tr>
+            <tr>
+                <td col="2" align="center">
+                    <input type="button" onclick="onSubmit()" value="Submit" id="rn_ChatLaunchButton_27_Button" style="margin-top:5px;"/>
+                    <input type="hidden" value="{!$CurrentPage.parameters.chatKey}" id="chatKeyId"/>
+                    <input type="hidden" value="{!$CurrentPage.parameters.chatDetails}" id="chatKeyId1"/>
+                    <input type="hidden" value="{!$CurrentPage.parameters.startTime}" id="starttimeIdhdn"/>
+                    <input type="hidden" value="{!$CurrentPage.parameters.chatKey}" id="chatKeyIdhdn"/>
+                </td>
+            </tr>
+        </table>  
+    </div>
+    <div id="pnl1" class="scale" style="display:none;padding: 43% 10%;font-size: 16px;">
+        Thank you for your feedback and thank you for contacting Lenovo!
+    </div>
+    <div id="abandoned" style="display: none;padding: 43% 10%;font-size: 16px;">
+          Thank you for contacting Lenovo chat, we are either closed or experiencing technical difficulties, we apologize for any inconvenience this may have caused you.
+      </div>
+    <script>
+        function onSubmit(){  
+            var isChatAliveBool = isChatAlive();
+            if(isChatAliveBool){      
+                var comment = $('#commentId').val();
+                var radio = $('input[name=scale]:checked').val();
+                var ckid = $('#chatKeyId').val();
+                var starttimehdn = $('#starttimeIdhdn').val();
+                var chatKeyIdhdn1 = $('#chatKeyIdhdn').val();
+                console.log('------------------------');
+                console.log($('input[name=scale]:checked').length);
+                 
+                if($('input[name=scale]:checked').length === 0){
+                    $('#errorId').text('Scale is required, please select anyone of them from 1-9!').css('color','red');
+                    return null;
+                }
+                
+                Visualforce.remoting.Manager.invokeAction(
+                    '{!$RemoteAction.LiveChat_PostChat_Form.createFeedback}',
+                    radio,comment, ckid, starttimehdn , chatKeyIdhdn1,
+                    function(result, event){
+                        if (event.status) {
+                            // Get DOM IDs for HTML and Visualforce elements like this
+                            console.log(result);  
+                            $('#pnl').hide();
+                            $('#pnl1').show();                  
+                        } else if (event.type === 'exception') {
+                            alert(event.message + "\n" + event.where);
+                        } else {
+                            alert(event.message);
+                        }
+                    }, 
+                    {escape: true}
+                );
+            }
+        }
+        function isChatAlive(){
+            //console.log("{!$CurrentPage.parameters.disconnectedBy}");
+            var requestTime = '{!$CurrentPage.parameters.requestTime}';
+            var startTime = '{!$CurrentPage.parameters.startTime}';
+            // when startTime doesn't have a value, it means the chat never started
+            /*var agentIsOnline = testGetAgentState();
+            if(agentIsOnline){
+                return true;
+            }*/
+            
+            if (!startTime ) {
+                  document.getElementById('pnl').style.display = 'none';
+                  document.getElementById('pnl1').style.display = 'none';
+                  document.getElementById('abandoned').style.display = 'block';
+                  //window.close();
+                  return false;
+            }
+            
+            if('{!isAgentOnline}' == 'true'){
+                document.getElementById('pnl').style.display = 'block';
+                document.getElementById('pnl1').style.display = 'block';
+                document.getElementById('abandoned').style.display = 'none';
+                return false;
+            }else{
+                document.getElementById('pnl').style.display = 'none';
+                document.getElementById('pnl1').style.display = 'none';
+                document.getElementById('abandoned').style.display = 'block';
+                return false;
+            }
+            return true;
+        }
+        function testGetAgentState() {
+            /*sforce.console.chat.getAgentState(function(result) {
+                if (result.success) {
+                    console.log('Agent State:' + result.state);
+                    return true;
+                } else {
+                    console.log('getAgentState has failed');
+                    return false;
+                }
+            });*/
+            return true;
+        }
+        isChatAlive();
+    </script>
+    </body>
+ 
+</apex:page>

@@ -1,0 +1,29 @@
+<aura:component implements="flexipage:availableForRecordHome,force:hasRecordId">
+    
+    <aura:attribute name="recordId" type="String" />
+    <aura:attribute name="record" type="Object" />
+    <aura:attribute name="accountRecord" type="Object" />
+    
+    <force:recordData recordId="{!v.recordId}"
+                      targetRecord="{!v.record}"
+                      targetFields="{!v.accountRecord}"
+                      fields="Id, Name, Industry, Description, Phone"/>
+    
+    <!-- Display a lightning card with details about the record -->
+    <div class="Record Details"> 
+        <lightning:card iconName="standard:account" title="{!v.accountRecord.Name}" >
+            <div class="slds-p-horizontal--small">
+                <p class="slds-text-heading--small">
+                    <lightning:formattedText title="Industry" value="{!v.accountRecord.Industry}" />
+                </p>
+                <p class="slds-text-heading--small">
+                    <lightning:formattedText title="Description" value="{!v.accountRecord.Description}" />
+                </p>
+                <p class="slds-text-heading--small">
+                    <lightning:formattedPhone title="Phone" value="{!v.accountRecord.Phone}" />
+                </p>
+            </div>
+        </lightning:card>
+    </div>
+    
+</aura:component>

@@ -1,0 +1,7 @@
+<aura:component implements="force:appHostable,flexipage:availableForAllPageTypes">
+    
+    <ui:button label="Navigate to C1" press="{!c.Navigate}"/>
+    
+    {!v.body}
+	
+</aura:component>

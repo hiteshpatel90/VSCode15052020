@@ -1,0 +1,13 @@
+<apex:page controller="ctrlbarGraphCountry" showHeader="false" sidebar="false">          
+    <apex:chart height="250" width="350" data="{!BarchartData}"> 
+        <apex:legend position="bottom"/>
+        <apex:axis type="Numeric" position="left" dashSize="2" grid="true" fields="isLondon,isNewyork,isJalisco,isBari,isGranada" title="Record Count">
+            <apex:chartLabel />
+        </apex:axis>
+        <apex:axis type="Category" position="bottom" fields="Contry" title="Country">
+            <apex:chartLabel rotate="315"/>            
+        </apex:axis>
+        <apex:barSeries orientation="vertical" stacked="true" axis="left" xField="Contry" yField="isLondon,isNewyork,isJalisco,isBari,isGranada" title="London,New York,Jalisco,Bari">
+        </apex:barSeries>
+    </apex:chart>         
+</apex:page>

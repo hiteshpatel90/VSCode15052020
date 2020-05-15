@@ -1,0 +1,19 @@
+<apex:page >
+    <script src="/soap/ajax/36.0/connection.js" type="text/javascript"></script>
+    <script>
+        
+
+        var cLogEntry = new sforce.SObject("Account"); 
+           
+        var res = sforce.connection.create([cLogEntry]);
+        
+        alert(res[0].getBoolean("success"));
+        alert(res[0].errors.message);
+        if (res[0].getBoolean("success")) {
+            log("new account created with id " + res[0].id);
+        } else {
+        
+        }
+                        
+    </script>
+</apex:page>

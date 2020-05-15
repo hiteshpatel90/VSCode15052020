@@ -1,0 +1,16 @@
+<apex:page >
+    <apex:slds />
+    <apex:includeScript value="/lightning/lightning.out.js"/>
+    <script>
+        $Lightning.use("c:accountReportApp", function() {
+            $Lightning.createComponent(
+                "c:accountReportCmp",
+                {},
+                "accountList",
+                function(cmp) {
+                });
+            });
+    </script>  
+    <div id="accountList">
+    </div>
+</apex:page>

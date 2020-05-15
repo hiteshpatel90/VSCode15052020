@@ -1,0 +1,7 @@
+<apex:page controller="InvoiceController" applyHtmlTag="false" 
+
+applyBodyTag="false" showHeader="false" sidebar="false">
+<html>
+<span>Here is some dynamic PDF data:  <apex:outputText value="{!ContactName}" escape="false"/></span>
+</html>
+</apex:page>

@@ -1,0 +1,18 @@
+<apex:page standardController="Quote" extensions="extsignQuote">
+    <apex:form >
+        <apex:pageBlock title="Quote PDFs">
+            <apex:pageBlockButtons >
+                <apex:commandButton value="Sign PDF"/>
+                <apex:commandButton value="Cancel"/>
+            </apex:pageBlockButtons>
+            <apex:pageBlockTable value="{!lstwrapQuoteDocument}" var="wd">
+                <apex:column width="5">
+                    <apex:inputCheckbox value="{!wd.isSelQuotedoc}"/>
+                </apex:column>
+                <apex:column headerValue="Name">
+                    <apex:outputLabel value="{!wd.objQuoteDocument.Name}"/>
+                </apex:column>
+            </apex:pageBlockTable>
+        </apex:pageBlock>
+    </apex:form>
+</apex:page>

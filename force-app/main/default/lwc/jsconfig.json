@@ -1,0 +1,47 @@
+{
+    "compilerOptions": {
+        "experimentalDecorators": true,
+        "baseUrl": ".",
+        "paths": {
+            "c/createAccountRecord": [
+                "createAccountRecord/createAccountRecord.js"
+            ],
+            "c/helloWebComponent": [
+                "helloWebComponent/helloWebComponent.js"
+            ],
+            "c/helloWorld": [
+                "helloWorld/helloWorld.js"
+            ],
+            "c/Leaflet": [
+                "../staticresources/Leaflet/Leaflet.js"
+            ],
+            "c/decoratorex": [
+                "decoratorex/decoratorex.js"
+            ],
+            "c/withoutTrackDecorator": [
+                "withoutTrackDecorator/withoutTrackDecorator.js"
+            ],
+            "c/apiDecoratorExample": [
+                "apiDecoratorExample/apiDecoratorExample.js"
+            ],
+            "c/sendDocumentToParticipant": [
+                "sendDocumentToParticipant/sendDocumentToParticipant.js"
+            ],
+            "c/auraPubsub": [
+                "auraPubsub/auraPubsub.js"
+            ],
+            "c/pubsub": [
+                "pubsub/pubsub.js"
+            ]
+        }
+    },
+    "include": [
+        "**/*",
+        "../../../../.sfdx/typings/lwc/**/*.d.ts"
+    ],
+    "typeAcquisition": {
+        "include": [
+            "jest"
+        ]
+    }
+}

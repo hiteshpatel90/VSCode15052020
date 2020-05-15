@@ -1,0 +1,5 @@
+<apex:page showHeader="false" sidebar="false">
+Test
+<apex:iframe src="https://www.google.com" width="150" height="150"/>
+<apex:iframe src="http://www.salesforce.com" scrolling="true" id="theIframe"/>
+</apex:page>

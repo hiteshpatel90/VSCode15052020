@@ -1,0 +1,26 @@
+<apex:page sidebar="false">
+<apex:sectionHeader title="About App"/>
+<apex:outputPanel style="width:55%;float:left;padding:0 10px 0" layout="block">
+	This 100% native Force App extracts object and field metadata information from your org and stores them as custom objects in same org. Once you complete to store metadata in custom objects, you can use Salesforce report to analyze DB schema or Salesforce Analytic Snapshots to manage DB schema version.<br /><br />
+
+	【How to start】<br />
+	1. Click "Settings" tab and press "Go!" button to show "All" view<br /><br />
+	2. Press "All SObjects" button to load all object names into Settings Object<br /><br />
+	3. Delete names which you are not interested in regarding metadata<br/>
+	Please check enough disk to store metadata before snapshot. 
+	In case your org is Developer Edition, please reduce target objects at Setting tab. <br/>
+	You need 4.5MB to store all object metadata info of default org<br/><br />
+	5. Click "SanpShot" tab and press "Sanpshot" button<br/><br />
+	6. Please wait for around 10 mins without closing this page until you will see SObjects Metadata have been created message <br/>
+	after the completion and do not press SnapShot button twice.<br/><br />
+	7. After completion, please click "SObject" tab<br/><br />
+	<a href="{!URLFOR($Resource.z_doc)}" target="_blank"><b>Complete Getting Started Guide</b></a>
+	<br /><br />
+</apex:outputPanel>
+<apex:outputPanel style="width:80%;float:left;padding:0 10px 0" layout="block">
+	<apex:image url="{!URLFOR($Resource.z_img, 'z_1.JPG')}" width="70%" height="70%" />
+	<apex:image url="{!URLFOR($Resource.z_img, 'z_2.JPG')}" width="70%" height="70%" />
+	<apex:image url="{!URLFOR($Resource.z_img, 'z_3.JPG')}" width="70%" height="70%" />
+	<apex:image url="{!URLFOR($Resource.z_img, 'z_4.JPG')}" width="70%" height="70%" />
+</apex:outputPanel>
+</apex:page>

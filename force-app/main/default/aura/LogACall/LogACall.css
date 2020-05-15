@@ -1,0 +1,22 @@
+/** CSS **/
+.THIS .uiButton.btn {
+  background:#BDBDBD !important;
+  font-size: 14px;
+  border-radius: 0.35em;
+  color: #111;
+  display: inline-block;  
+  padding: 0.5em;
+  text-decoration: none;
+  text-transform: uppercase;
+  -webkit-transition: color 0.4s, background-color 0.4s, border 0.4s;
+  transition: color 0.4s, background-color 0.4s, border 0.4s; 
+  margin:5px;
+}
+
+.THIS .uiButton:hover {
+    background:grey !important;
+}
+
+.THIS .insertText{
+    font-size: 20px;
+}

@@ -1,0 +1,1335 @@
+<apex:page id="oppPage" applyBodyTag="false" applyHtmlTag="false" showChat="false" showHeader="false" sidebar="false" showQuickActionVfHeader="false" standardStylesheets="false" controller="CS_ARAccountsCC" extensions="CS_ARCCExtension" docType="html-5.0">
+
+    <apex:composition template="ARtemplate">
+        <apex:define name="bodyContent">  
+        
+            <script src="https://d3js.org/d3.v3.min.js"></script>
+            <script src="https://cdn.rawgit.com/jakezatecky/d3-funnel/v0.7.5/dist/d3-funnel.js"></script>
+            <style>
+                    /* Changing the modal overflow to fix the issue with scrolling issue when 2 modals are present*/
+                .modal {
+                  /* overflow-y:auto; */
+                } 
+                #opportunity-edit-modal .modal-dialog,
+                #opportunity-edit-modal .modal-content,
+                #opportunity-case-modal .modal-dialog,
+                #opportunity-case-modal .modal-content {
+                    /* 80% of window height 
+                    height: 90%; */
+                }
+                
+                #opportunity-edit-modal .modal-body,
+                #opportunity-case-modal .modal-body {
+                /* 100% = dialog height, 120px = header + footer */
+                    max-height: calc(100% - 120px);
+                    overflow-y: scroll;
+                }
+                .border_top_2{
+                    border-top-width: 2px; 
+                }
+                
+                .border_top_none{
+                    border-top-width: 0px; 
+                }
+                
+                .light_border_top_bottom{
+                    border-top: thin solid lightgrey;
+                    border-bottom: thin solid lightgrey;
+                }
+                
+                .grey_border_right{
+                    border-right: thin solid grey;
+                }
+                
+                .menu_btn{
+                    width: 140px;
+                }
+                
+                .font-large {
+                    font-size: large;
+                }
+            
+                .chart_table {
+                    border-top: thin solid lightgrey;
+                }
+                
+                .chart_table tbody tr, .chart_table tfoot tr {
+                    text-align: left;
+                    height: 30px;
+                }
+                /* .ibox{
+                    background-color: white;
+                } */
+                .ibox_border{
+                    border: 1px solid lightgrey;
+                }
+                
+                .ct-series-a .ct-bar {
+                      /* Colour of your bars 
+                      stroke: teal;*/
+                      /* The width of your bars */
+                      stroke-width: 20px;
+                }
+                
+                .fa-2x {
+                
+                    width: 50px;
+                    text-align: center;
+                }
+                
+                
+                
+                /*
+                    From reports
+                */
+                div.stat h4, div.stat h2, div.stat p {
+                    margin: 0px;
+                    font-weight: bold;
+                }
+                h2.cat-title {
+                    margin: 15px;
+                }
+                div.stat > div {
+                    padding: 10px;
+                }
+
+                div.chart {
+                    font-size: 1rem;
+                }
+
+                .text-blue {
+                    color: #325996;
+                }
+                .ct-blue {
+                    stroke: #325996;
+                }
+                .ct-red {
+                    stroke: #ed5565;
+                }
+                .ct-green {
+                    stroke: #9cc984;
+                }
+                .ct-gray {
+                    stroke: #D3D3D3;
+                }                
+
+                div.donut-ytd-quota, div.donut-mtd-quota {
+                    text-align: center;
+                    position: relative;
+                    font-size: 2rem;
+                }
+
+                div.donut-divider-container {
+                    height: 2px;
+                }
+                div.donut-divider-container > div.donut-divider {
+                    background-color: #325996;
+                    padding:0px;
+                    margin:0px;
+                    width:50px; /* this must be the same as the stroke-width for the chart */
+                    height:4px;
+                    float:right
+                }
+                div.donut-divider > div.donut-divider-text {
+                    color: #325996;
+                    width:25px;
+                    text-align:center;
+                    padding: 0px;
+                    margin: 0px;
+                    position: relative; 
+                    left: -26px; 
+                    top: -7px;
+                    font-weight: bold;
+                    font-size: 1.25em;
+                }
+
+                /* .ct-label {
+                    font-size: 2rem;
+
+                } */
+                
+                .readonly-control{
+                    border: lightgray thin solid;
+                    padding-left: 10px;
+                }
+                
+                .related-table{
+                    border: thin solid lightgrey;
+                }
+                
+                .related-table td, .related-table th {
+                    border:none
+                }
+                
+                .related-table caption{
+                    padding-bottom: 0px;
+                    padding-top: 20px;
+                }
+                
+                .muted_label{
+                    padding-top: 0px;
+                    color: #9c9a9a; /*lightgrey;*/
+                    min-height: 25px !important;
+                }
+                
+                .detail_div{
+                    margin-bottom: 25px !important;
+                }
+                
+                .GGrid-content {
+                    border-top-color: #151516 !important;
+                    height: inherit !important;
+                }
+                
+                .subsection_header{
+                    font-size: 18px;
+                    margin-left: 15px;
+                }
+                
+                .fa-border{
+                    background-color: #545454;
+                }
+                .fa-meeting-background{
+                    background-color: #a94442 !important;
+                }
+                .fa-meeting-task{
+                    background-color: #3c763d !important;
+                }
+                .fa-meeting-surgicalcase{
+                    background-color: #337ab7 !important;
+                }
+                .fa-meeting-note{
+                    background-color: #ed5565 !important;
+                }
+                .fa-meeting-log{
+                    background-color: #f8ac59 !important;
+                }
+                
+                .nav-tabs { border-bottom: 2px solid #DDD; }
+                .nav-tabs > li.active > a, .nav-tabs > li.active > a:focus, .nav-tabs > li.active > a:hover { border-width: 0; }
+                .nav-tabs > li > a { border: none; color: #666; }
+                    .nav-tabs > li.active > a, .nav-tabs > li > a:hover { border: none; color: #4285F4 !important; background: transparent; }
+                    .nav-tabs > li > a::after { content: ""; background: #4285F4; height: 2px; position: absolute; width: 100%; left: 0px; bottom: -1px; transition: all 250ms ease 0s; transform: scale(0); }
+                .nav-tabs > li.active > a::after, .nav-tabs > li:hover > a::after { transform: scale(1); }
+                .tab-nav > li > a::after { background: #21527d none repeat scroll 0% 0%; color: #fff; }
+                .tab-pane { padding: 15px 0; }
+                .tab-content{padding:20px}
+                
+               
+                    /*  CSS for breadcrumbs */
+                .breadcrumbs_side{
+                    padding: 5px;
+                }  
+                ul {
+                  list-style: none;
+                  margin: 0px;
+                  padding-left: 0px;
+                }
+                
+                .cf:before, .cf:after {
+                  content: ' ';
+                  display: table;
+                }
+                .cf:after {
+                  clear: both;
+                }
+                .inner {
+                  max-width: 820px;
+                  margin: 0 auto;
+                }
+                
+                .breadcrumbs {
+                  background-color: white;  /*#f5f5f5*/
+                }
+                
+                .breadcrumbs ul {
+                    border: 1px solid #ddd;
+                    border-top-left-radius: 20px;
+                    border-bottom-left-radius: 20px;
+                    border-top-right-radius: 20px;
+                    border-bottom-right-radius: 20px;
+                }
+                
+                .breadcrumbs li {
+                  float: left;
+                  width: 20%;
+                }
+                .breadcrumbs li:first-child a{border-top-left-radius: 20px; border-bottom-left-radius: 20px;  }
+                .breadcrumbs li:last-child a{border-top-right-radius: 20px; border-bottom-right-radius: 20px;  }
+                
+                .breadcrumbs a {
+                  position: relative;
+                  display: block;
+                  padding: 5px;
+                  padding-right: 0 !important;
+                  /* important overrides media queries */
+                  font-size: 12px;
+                  font-weight: bold;
+                  text-align: center;
+                  color: #aaa;
+                  cursor: pointer;
+                  white-space: nowrap;
+                  /*overflow: hidden;*/
+                  text-overflow: clip;
+                }
+                
+                .breadcrumbs a:hover {
+                  background: #eee; /*TODO: need to change*/
+                }
+                .breadcrumbs a.active {
+                  color: white;
+                  background-color: rgb(75, 202, 129);
+                }
+                
+                .breadcrumbs a.current {
+                  color: white;
+                  background-color: rgb(0, 112, 210);
+                }
+                
+                .breadcrumbs a.won {
+                  color: white;
+                  background-color: rgb(4, 132, 75);
+                }
+                
+                .breadcrumbs a.lost {
+                  color: white;
+                  background-color: rgb(212, 80, 76);
+                }
+          
+                .breadcrumbs a.active span:first-child {
+                    display: inline-block;
+                    width: 22px;
+                    height: 22px;
+                    padding: 2px;
+                    margin-right: 5px;
+                    color: white;
+                    border: none;
+                    background-color: rgb(75, 202, 129);
+                }
+                
+                .breadcrumbs a.current span:first-child {
+                    display: inline-block;
+                    height: 22px;
+                    padding: 2px;
+                    /*width: 22px;
+                    margin-right: 5px;
+                    color: white;
+                    border: none;
+                    background-color: rgb(0, 112, 210);*/
+                }
+                
+                .breadcrumbs a.won span:first-child {
+                    display: inline-block;
+                    /*width: 22px;*/
+                    height: 22px;
+                    padding: 2px;
+                    margin-right: 5px;
+                    color: white;
+                    border: none;
+                    background-color: rgb(4, 132, 75);
+                }
+                
+                .breadcrumbs a.lost span:first-child {
+                    display: inline-block;
+                    /* width: 22px; */
+                    height: 22px;
+                    padding: 2px;
+                    margin-right: 5px;
+                    color: white;
+                    border: none;
+                    background-color: rgb(212, 80, 76);
+                }
+                
+                .breadcrumbs a:before,
+                .breadcrumbs a:after {
+                  content: '';
+                  position: absolute;
+                  top: 0;
+                  left: 100%;
+                  z-index: 1;
+                  display: block;
+                  width: 0;
+                  height: 0;
+                  border-top: 16px solid transparent;
+                  border-bottom: 16px solid transparent;
+                  border-left: 8px solid transparent;
+                }
+                
+                .breadcrumbs a:before {
+                  margin-left: 1px;
+                  border-left-color: #d5d5d5;
+                }
+                
+                .breadcrumbs a:after {
+                  border-left-color: white;
+                }
+                
+                .breadcrumbs a:hover:after {
+                  border-left-color: #eee;
+                }
+                
+                .breadcrumbs a.active:after {
+                  border-left-color: rgb(75, 202, 129);
+                }
+                
+                .breadcrumbs a.current:after {
+                  border-left-color: rgb(0, 112, 210);
+                }
+                
+                .breadcrumbs a.won:after {
+                  border-left-color: rgb(4, 132, 75);
+                }
+                
+                .breadcrumbs a.lost:after {
+                  border-left-color: rgb(212, 80, 76);
+                }
+                
+                .breadcrumbs li:last-child a:before,
+                .breadcrumbs li:last-child a:after {
+                  display: none;
+                }
+              
+                @media (max-width: 520px) {
+                    .breadcrumbs_side{
+                        padding: 5px;
+                    } 
+                  .breadcrumbs a {
+                    padding: 5px;
+                  }
+                
+                  .breadcrumbs a:before,
+                  .breadcrumbs a:after {
+                    border-top-width: 16px;
+                    border-bottom-width: 16px;
+                    border-left-width: 8px;
+                  }
+                
+                  .breadcrumbs li a span:first-child {
+                    display: block;
+                    margin: 0 auto;
+                  }
+                
+                  .breadcrumbs li a span:last-child {
+                    display: none;
+                  }
+                }
+                
+                /*
+                    Dependent list table style
+                */
+                .filterable {
+                    margin-top: 15px;
+                }
+                .filterable .panel-heading .pull-right {
+                    margin-top: -20px;
+                }
+                .filterable .filters input[disabled] {
+                    background-color: transparent;
+                    border: none;
+                    cursor: auto;
+                    box-shadow: none;
+                    padding: 0;
+                    padding-top: 11px;
+                    height: auto;
+                }
+                .filterable .filters input[disabled]::-webkit-input-placeholder {
+                    color: #333;
+                }
+                .filterable .filters input[disabled]::-moz-placeholder {
+                    color: #333;
+                }
+                .filterable .filters input[disabled]:-ms-input-placeholder {
+                    color: #333;
+                }
+                .header-left{
+                    text-align: left;
+                    background-color: lightgray;
+                }
+                
+                .muted_label{
+                    padding-top: 0px;
+                    color: #9c9a9a; /*lightgrey;*/
+                    min-height: 25px !important;
+                }
+                
+                 .ag-header-cell-menu-button{
+                    opacity:1 !important;
+                }
+                
+                .pointerclass{
+                    cursor: pointer;
+                }
+                .wrapclass{
+                    word-wrap: break-word;
+                }
+                .ag-header-cell-label {
+                    text-overflow: clip;
+                    overflow: visible;
+                    white-space: normal;
+                    overflow-wrap: break-word;
+                }
+                .axis-grid-cell-href {
+                    cursor: pointer;
+                    color: #3A9DDB ;
+                    font-family: "Helvetica Neue", Helvetica, Arial, sans-serif; 
+                     
+                }
+                .ag-header-cell {
+                    text-align: left !important;
+                    padding-left:2px;
+                }
+                
+                
+            </style>
+            
+            <script type="text/javascript">
+                var OPPORTUNITY_LIST;
+                var LINKED_CASES_LIST;
+                var LINKED_OPPS_LIST;
+                var TOTAL_OPPORTUNITIES_WON;
+                var NO_OF_ROWS_TO_DISPLAY=8;
+                var OPP_STAGE_CLOSED_WON = "Closed - Won";
+                var OPP_STAGE_CLOSED_LOST = "Closed - Lost";
+                var DASHBOARD_FILTER_SELECTION=[];
+                var MAP_TERRITORY_ID_CHILD_IDS={}; 
+                var currentUserId;
+                
+                var accountGridOptions = {
+                    rowSelection: 'single',
+                    suppressRowClickSelection: false,
+                    enableFilter: true,
+                    enableColResize : true,
+                    sizeColumnsToFit: true,
+                    enableSorting: true,
+                    columnDefs: accountGridColDef,
+                    paginationPageSize: 20,
+                    pagination: true,
+                    suppressPaginationPanel: true,
+                    
+                    onFilterChanged: savedFilterHasChanged,
+                    onSortChanged: savedFilterHasChanged,
+                    onDisplayedColumnsChanged: savedFilterHasChanged,
+                    
+                    //debug: true,
+                    icons: { 
+                            menu: '<i class="fa fa-sort-desc" ></i>' 
+                    },
+                    onPaginationChanged: onPaginationPageLoaded 
+                    //autoSizeColumns: true
+                    //getRowHeight: function(params) {
+                        // assuming 50 characters per line, working how how many lines we need
+                    //    if(params.data.Team.length>params.data.SAPName.length)
+                    //    return 25 * (Math.floor(params.data.Team.length / 20) + 1);
+                    //    else
+                    //    return 25 * (Math.floor(params.data.SAPName.length / 20) + 1);
+                    //}
+
+                };
+                function onPaginationPageLoaded() {
+                    console.log('##--onPaginationPageLoaded');
+                        
+                    var currPage = accountGridOptions.api.paginationGetCurrentPage(); 
+                    setText('#lbPageSize', accountGridOptions.api.paginationGetRowCount());
+                    setText('#lbFirstRow', (accountGridOptions.api.paginationGetPageSize() * currPage) + 1);
+                    var allRowsCount = Number(accountGridOptions.api.getModel().getRowCount()); 
+                    var currentPaginationsize = accountGridOptions.api.paginationGetPageSize() * (currPage+1); 
+                    //setText('#lbLastRow', accountGridOptions.api.paginationGetPageSize() * (currPage+1)); 
+                    setText('#lbLastRow', currentPaginationsize > allRowsCount ? allRowsCount: currentPaginationsize ); 
+                    savedFilterHasChanged();
+                }
+                // Added by Swetha -- search filter save functionality -- START
+                function savedFilterHasChanged() {
+                    var currentpageSize = document.getElementById('selPaginationSize').value;
+                    // filters
+                    var newFilter = {
+                        filterModel: accountGridOptions.api.getFilterModel(),
+                        sortModel: accountGridOptions.api.getSortModel(),
+                        PageSize: currentpageSize,
+                        columnState: accountGridOptions.columnApi.getColumnState()
+                    };
+
+                    var newFilterJSON = JSON.stringify(newFilter);
+
+                    if ( typeof window.currentFilterJSON != "undefined" && ( window.currentFilterJSON != newFilterJSON ) ) {
+                        $("span.filter-has-changed").show();
+                    } else {
+                        $("span.filter-has-changed").hide();
+                    }
+                    
+                    $(".filter-error").text("");
+                    $(".filter-success").text("");
+
+                    window.currentFilterJSON = newFilterJSON;
+
+                }
+                // Added by Swetha -- search filter save functionality -- START    
+                function setText(selector, text) {
+                    
+                    $(selector).html(text);
+                    //document.querySelector(selector).innerHTML = text;
+                }
+                
+                function onBtFirst() {
+                    accountGridOptions.api.paginationGoToFirstPage();
+                }
+                
+                function onBtLast() {
+                    accountGridOptions.api.paginationGoToLastPage();
+                }
+                
+                function onBtNext() {
+                    accountGridOptions.api.paginationGoToNextPage();
+                }
+                
+                function onBtPrevious() {
+                    accountGridOptions.api.paginationGoToPreviousPage();
+                }
+                
+                
+                function MyDatasource(rowCount) {
+                    this.rowCount = rowCount;
+                }
+                
+                function onPageSizeChanged(newPageSize) { 
+                    
+                    if(newPageSize != 'All'){
+                        accountGridOptions.api.paginationSetPageSize(Number(newPageSize));
+                    }else{
+                        accountGridOptions.api.paginationSetPageSize(Number(accountGridOptions.api.getModel().getRowCount()));
+                    }
+                    //createNewDatasource();
+                }
+                
+                // when json gets loaded, it's put here, and  the datasource reads in from here.
+                // in a real application, the page will be got from the server.
+                
+                var allOfTheData;
+                    
+                /*function createNewDatasource() {
+                    if (!allOfTheData) {
+                        // in case user selected 'onPageSizeChanged()' before the json was loaded
+                        return;
+                    }
+                
+                    var dataSource = {
+                        //rowCount: ???, - not setting the row count, infinite paging will be used
+                        getRows: function (params) {
+                            // this code should contact the server for rows. however for the purposes of the demo,
+                            // the data is generated locally, a timer is used to give the experience of
+                            // an asynchronous call
+                            console.log('asking for ' + params.startRow + ' to ' + params.endRow);
+                            setTimeout( function() {
+                                // take a chunk of the array, matching the start and finish times
+                                var rowsThisPage = allOfTheData.slice(params.startRow, params.endRow);
+                                // see if we have come to the last page. if we have, set lastRow to
+                                // the very last row of the last page. if you are getting data from
+                                // a server, lastRow could be returned separately if the lastRow
+                                // is not in the current page.
+                                var lastRow = -1;
+                                if (allOfTheData.length <= params.endRow) {
+                                    lastRow = allOfTheData.length;
+                                }
+                                params.successCallback(rowsThisPage, lastRow);
+                            }, 50);
+                        }
+                    };
+                
+                    accountGridOptions.api.setDatasource(dataSource);
+                }*/
+                function setRowData(rowData) {
+                    allOfTheData = rowData;
+                    createNewDatasource();
+                }
+                
+                function replaceAccents(s) {
+                    var r = s.toLowerCase();
+                    r = r.replace(new RegExp('[אבגדהו]', 'g'), 'a');
+                    r = r.replace(new RegExp('ז', 'g'), 'ae');
+                    r = r.replace(new RegExp('ח', 'g'), 'c');
+                    r = r.replace(new RegExp('[טיךכ]', 'g'), 'e');
+                    r = r.replace(new RegExp('[לםמן]', 'g'), 'i');
+                    r = r.replace(new RegExp('ס', 'g'), 'n');
+                    r = r.replace(new RegExp('[עףפץרצ]', 'g'), 'o');
+                    r = r.replace(new RegExp('', 'g'), 'oe');
+                    r = r.replace(new RegExp('[שת]', 'g'), 'u');
+                    r = r.replace(new RegExp('[‎]', 'g'), 'y');
+                    r = r.replace(new RegExp('\\W', 'g'), '');
+                    return r;
+                }
+                
+                var lstProductTeams = [];
+                var PROFICIENCY_TEMPLATE =
+                    '<label style="border: 1px solid lightgrey; margin: 4px; padding: 4px;">'  +
+                    '<input type="checkbox" name="RANDOM"/>' +
+                    'PROFICIENCY_NAME' +
+                    '</label>';
+                var accountGridColDef = [
+                    {headerName: "Account Number", field: "AccountNumber",  headerClass: ['axis-grid-header'],cellClass: ['axis-grid-cell-href'],cellRenderer: cellHeight,
+                        filterParams: {
+                            textFormatter: replaceAccents
+                        }
+                    },
+                    {headerName: "Account", field: "Name", headerClass: ['axis-grid-header'],cellClass: ['axis-grid-cell'],cellRenderer: cellHeight,
+                        filterParams: {
+                            textFormatter: replaceAccents
+                        }
+                    },
+                    {headerName: "SAP Name", field: "SAPName", headerClass: ['axis-grid-header'],cellClass: ['axis-grid-cell-href'],cellRenderer: cellHeight,
+                        filterParams: {
+                            textFormatter: replaceAccents
+                        }
+                    },
+                    {headerName: "City", field: "BillingCity", headerClass: ['axis-grid-header'],cellClass: ['axis-grid-cell'],cellRenderer: cellHeight,
+                        filterParams: {
+                            textFormatter: replaceAccents
+                        }
+                    }, 
+                    {headerName: "State", field: "BillingState", headerClass: ['axis-grid-header'],cellClass: ['axis-grid-cell'],cellRenderer: cellHeight,
+                        filterParams: {
+                            textFormatter: replaceAccents
+                        }
+                    }, 
+                    {headerName: "Team", field: "Team", headerClass: ['axis-grid-header'],cellClass: ['axis-grid-cell'],cellRenderer: cellHeight,
+                        filterParams: {
+                            textFormatter: replaceAccents
+                        }
+                    },
+                    {headerName: "Work Phone", field: "Phone", headerClass: ['axis-grid-header'],cellClass: ['axis-grid-cell-href'],cellRenderer: cellHeight,
+                        filterParams: {
+                            textFormatter: replaceAccents
+                        }
+                    }                   
+                ];
+                
+                    
+                $(document).ready(function() {
+                    
+                    populateAccountList();  
+                    currentUserId = "{!$User.Id}";    
+                    $('#account').addClass('active');
+                    $("h2.title-icon-container i").removeClass().addClass("fa fa-hospital-o"); 
+                    
+                    $("#listingFilter").show();// this will be available in later release.
+                    $("#listingHeader").show();
+                    
+                    
+                    // Added by Swetha -- search filter save functionality -- START
+                    // set and apply a filter
+                    $("ul.filter-menu").on("click", "a.saved-filter", function() {
+
+                        var filter = window.savedFilters[$(this).text()];
+
+                        $("span.selected-filter").text( filter.Name );
+                        
+                        try {
+
+                            $("span.filter-error").text("");
+                            $("span.filter-success").text("");
+
+                            var filterJson = globalDecodeEntities(filter.json__c);
+                            window.currentFilterJSON = filterJson;
+
+                            var filterObj = JSON.parse(filterJson);
+                            
+                            accountGridOptions.api.setFilterModel( filterObj.filterModel );
+                            accountGridOptions.api.setSortModel( filterObj.sortModel );
+                            
+                            document.getElementById('selPaginationSize').value = filterObj.PageSize;
+                            accountGridOptions.api.paginationSetPageSize( filterObj.PageSize );
+                            
+                            accountGridOptions.columnApi.setColumnState( filterObj.columnState );
+                            
+                            $("span.filter-has-changed").hide();
+
+                            
+                        } catch (e) {
+                            console.error(e);
+                            $("span.filter-error").text("Filter corrupted, plese delete it");
+                        }
+
+                        
+
+                        // only show the save if this filter is not readonlg
+                        if ( !$(this).hasClass("readonly") ) {
+                            $("a.filter-save").closest("li").show();
+                            $("a.filter-delete").closest("li").show();
+                        }
+                                                
+                    });
+
+
+
+                    // clear all filters
+                    $("a.filter-clear").on("click", function() {
+                        clearAllGridFilters();
+
+                        $("input.search").val("");
+                        $("span.selected-filter").text("All");
+                        $("a.filter-delete").closest("li").hide();
+                        $("a.filter-save").closest("li").hide();
+                        $("span.filter-error").text("");
+                        $("span.filter-success").text("Filters reset");
+
+                    });
+
+                    $("a.filter-save").on("click", function(e) {
+                        
+                        var filterName = $("span.selected-filter").text();
+                        var filterJson = window.currentFilterJSON;
+
+                        Visualforce.remoting.Manager.invokeAction("CS_ARCCExtension.saveFilterJson", 
+                            filterName, filterJson, "Accounts",
+                            function(result, event) { 
+                                if (event.status) {
+
+                                    $("span.filter-success").text("Your filter has been saved");
+                                    $("span.filter-error").text("");
+                                    $("span.filter-has-changed").hide();
+                                    window.savedFilters[result.Name] = result;
+
+
+                                } else {
+
+                                    $("span.filter-error").text(event.message);
+                                    $("span.filter-success").text("");
+                                }
+
+                            });                    
+                    });
+
+                    $("a.filter-delete").on("click", function(e) {
+                        var filterName = $("span.selected-filter").text();
+                        Visualforce.remoting.Manager.invokeAction("CS_ARCCExtension.deleteFilterJson", 
+                            filterName, "Accounts",
+                            function(result, event) { 
+                                if (event.status) {
+
+                                    $("a.saved-filter:contains('"+filterName+"')").closest("li").remove();
+                                    clearAllGridFilters();
+
+                                    $("span.selected-filter").html("All");
+                                    $("a.filter-delete").closest("li").hide();
+                                    $("a.filter-save").closest("li").hide();
+                                    $("span.filter-success").text("Your filter has been deleted");
+                                    $("span.filter-error").text("");
+
+                                    var savedFilters = $( "li.saved-filter-list" ).nextAll();
+                                    if ( savedFilters.length == 0 ) {
+                                        $( "li.saved-filter-list" ).hide();
+                                    }
+
+                                } else {
+
+                                    $("span.filter-error").text(event.message);
+                                    $("span.filter-success").text("");
+                                }
+
+                            });
+                    });
+
+                    $("a.filter-save-as").on("click", function(e) {
+                    
+                        $("button.filter-menu-btn").addClass("disabled");
+                        $("div.filter-save-as").show();
+                        $("input.filter-name").focus();
+                        $("div.task-add-new").hide();
+                        
+                    });
+
+                    $("button.filter-cancel-save-as").on("click", function(e) {
+                        e.preventDefault();
+                        e.stopPropagation();
+
+                        $("div.filter-save-as").hide();
+                        $("button.filter-menu-btn").removeClass("disabled");
+                        $("input.filter-name").val("");
+                        $("span.filter-error").text("");
+                        $("span.filter-success").text("");
+                        $("div.task-add-new").show();
+                    });
+
+                    $("button.filter-save-as").on("click", function(e) {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        $("span.filter-error").text("");
+
+                        var filterName = $("input.filter-name").val();
+                        if ( filterName.length > 0 ) {
+
+                            filterJson = window.currentFilterJSON;
+
+                            Visualforce.remoting.Manager.invokeAction("CS_ARCCExtension.saveFilterJson", 
+                            filterName, filterJson, "Accounts",
+                            function(result, event) { 
+                                if (event.status) {
+
+                                    $("div.filter-save-as").hide();
+                                    $("button.filter-menu-btn").removeClass("disabled");
+                                    $("input.filter-name").val("");
+
+                                    $("li[role=separator].saved-filter-list").show();
+
+                                    /* Vishnu rel4.3: Added the below to avoid the multiple filter names issue*/
+                                    var existingFilterName = $('a.saved-filter').filter(function(index) { return $(this).text() === result.Name; });
+                                    console.log('##--existingFilterName: ' + existingFilterName);
+                                    if(! existingFilterName ||
+                                        existingFilterName.text() != result.Name){
+
+                                        var filterHtml = "<li><a href='#' class='saved-filter'>"+result.Name+"</a></li>";
+                                        $("li[role=separator].saved-filter-list").after(filterHtml);
+
+                                        var savedFilters = $( "li.saved-filter-list" ).nextAll();
+                                        $("li[role=separator].saved-filter-list").after(
+                                            savedFilters.detach().sort(function(a,b) {
+                                                var aName = $(a).find("a").text().toLowerCase();
+                                                var bName = $(b).find("a").text().toLowerCase();
+                                                return ((aName < bName) ? -1 : ((aName > bName) ? 1 : 0));
+                                            })
+                                        );
+
+                                    }   //  end of if
+                                    /* Vishnu rel4.3: Added the below to avoid the multiple filter names issue*/
+
+                                    $("span.selected-filter").html( result.Name );
+                                    $("a.filter-delete").closest("li").show();
+                                    $("span.filter-success").text("Your filter has been saved");
+                                    $("div.task-add-new").show();
+
+                                    window.savedFilters[result.Name] = result;
+
+                                } else {
+
+                                    $("span.filter-error").text(event.message);
+                                    $("span.filter-success").text("");
+                                }
+
+                            });
+
+                            
+
+                        } else {
+
+                            $("span.filter-error").html("Filter name cannot be blank");
+                            $("span.filter-success").text("");
+                        }
+                        
+
+                    });
+                // Added by Swetha -- search filter save functionality -- END 
+                
+                
+                   }) ;//end of ready 
+                   
+                     var pageNum = 1;
+                     var rowsPerPage = 20;                 
+                    function populateAccountList(){
+                
+                    Visualforce.remoting.Manager.invokeAction("{!$RemoteAction.CS_ARAccountsCC.retrieveProviders}",
+                    function(result, event){ 
+                        
+                        console.log('##--Accounts: ' + JSON.stringify(result));
+                        var rows = [];
+                        for ( var i=0; i < result.length; i++) {
+                                rows.push({
+                                  Id : globalDecodeEntities(result[i].id)||"",
+                                  AccountNumber: globalDecodeEntities(result[i].AccountNumber)||"",
+                                  Name: globalDecodeEntities(result[i].Name)||"",
+                                  SAPName: globalDecodeEntities(result[i].SAPName)||"",
+                                  BillingCity:  globalDecodeEntities(result[i].BillingCity)||"",
+                                  BillingState: globalDecodeEntities(result[i].BillingState)||"",
+                                  Team : globalDecodeEntities(result[i].Team )||"",
+                                  Phone : globalDecodeEntities(result[i].Phone )||""
+                                });
+                                
+                                
+                          }
+                         
+                        new agGrid.Grid(document.querySelector('#accountGrid'), accountGridOptions);
+                        accountGridOptions.rowHeight = 40;
+                        accountGridOptions.api.setColumnDefs(accountGridColDef);
+                       
+                        accountGridOptions.api.setRowData(rows);
+                        accountGridOptions.api.addEventListener("rowSelected", showDetails);                        
+                        accountGridOptions.api.sizeColumnsToFit(); 
+                        $.each(result, function(i, v){
+                            
+                            if(v.Team == undefined || v.Team == null){
+                                return;
+                            }
+                            var splitOptionValue = v.Team.split(",");
+                            console.log('in else'+splitOptionValue);
+                            for (i = 0; i < splitOptionValue.length; i++) {
+                                if(lstProductTeams.indexOf(splitOptionValue[i]) == -1){                                    
+                                    lstProductTeams.push(splitOptionValue[i]);
+                                }
+                                
+                            }
+                        });
+                        
+                    }); //  end of remote call  
+                    
+                }   //  end of populateAccountList  
+                
+                function showDetails(){ 
+                    
+                    accountGridOptions.api.addEventListener("cellClicked", showDetails);
+                    var accDetails = accountGridOptions.api.getSelectedRows();
+                    var cellDetails = accountGridOptions.api.getFocusedCell();
+                    console.log('inside show details======'+accDetails+'cellDetails ==='+cellDetails.column.colId );
+                    if(cellDetails.column.colId=="SAPName" || cellDetails.column.colId=="AccountNumber")
+                    {
+                        document.getElementById("gloabalsearch").value = "";
+                        window.location = "/ARAccountDetail?id=" + accDetails[0].Id ; 
+                    }
+                    else if(cellDetails.column.colId=="Phone" && accDetails[0].Phone!="")                                
+                    {
+                        console.log('tel======'+accDetails[0].Phone);
+                        window.location = "tel:"+accDetails[0].Phone;
+                    }
+                    //window.location = "/axis/ARAccountDetail";                    
+                }   //  end of showDetails
+                
+                
+                // pull in filter list
+                    Visualforce.remoting.Manager.invokeAction("CS_ARCCExtension.retrieveFiltersFor","Accounts", function(filters, event) {
+                        
+                        // store filters in a global associative list by name
+                        window.savedFilters = {};
+
+                        if ( event.status ) {
+                            $("span.filter-error").text("");
+                            $("span.filter-success").text("");
+
+                            filters = filters.sort(function(a,b) {
+                                aName = a.Name.toLowerCase();
+                                aOrdinal = a.Global_Order__c;
+
+                                bName = b.Name.toLowerCase();
+                                bOrdinal = b.Global_Order__c;
+
+                                // first order by ordinal asc then by name desc
+                                var cmp = ((aOrdinal < bOrdinal) ? 1 : ((aName > bName) ? -1 : 0));
+                                if ( cmp == 0 ) {   
+                                    // ordinals are the same, try name
+                                    cmp = ((aName < bName) ? -1 : ((aName > bName) ? 1 : 0));
+                                }
+                                return cmp;
+                            });                        
+
+                            var hasAtLeastOne = false;
+                            for ( var i=0; i < filters.length; i++) {
+
+                                var filter = filters[i];
+
+                                var filterHtml = null;
+                                if ( filter.Global__c == true ) {
+                                    // global filters are readonly
+                                    filterHtml = "<li><a href='#' class='saved-filter readonly'>"+filter.Name+"</a></li>";
+                                } else {
+                                    filterHtml = "<li><a href='#' class='saved-filter'>"+filter.Name+"</a></li>";
+                                }
+                                
+                                $("li[role=separator].saved-filter-list").after(filterHtml);
+
+                                window.savedFilters[filter.Name] = filter;
+                                hasAtLeastOne = true;
+                            }
+
+                            if ( hasAtLeastOne ) {
+                                $("li[role=separator].saved-filter-list").show();                                                           
+                            }
+
+                        } else {
+
+                            $("span.filter-error").text(event.message);
+                            $("span.filter-success").text("");
+                        }
+                                                          
+                    });
+
+
+                    // clears all the filtesr
+                    function clearAllGridFilters() {
+                       /* 
+            Added by Swetha penmethsa on 10.11.2017 for 4.4 release 
+            */ 
+                        window.location.reload();
+                        /*accountGridOptions.api.setFilterModel(null);
+                        accountGridOptions.api.setQuickFilter(null);
+                        accountGridOptions.api.setSortModel(null);
+                        accountGridOptions.columnApi.resetColumnState();
+                        accountGridOptions.api.onFilterChanged();*/
+
+                    }
+                    /* 
+            Added by Swetha penmethsa on 10.11.2017 for 4.4 release 
+            */
+                    // end pager callbacks
+                    
+                      
+                    
+                function clearAllFilters(){
+                    
+                   console.log('clear filter');
+                   accountGridOptions.api.setFilterModel(null);
+                   document.getElementById("gloabalsearch").value = "";
+                   accountGridOptions.api.setQuickFilter(null);
+                    
+                }   //  end of clearAllFilters 
+                 
+                function onFilterChanged(value) {
+                    accountGridOptions.api.setQuickFilter(value);
+                }
+                function designationFilter() {
+                }
+                
+                // Added by Swetha Penmethsa-- Release 4.4  -- Export as CSV functionality -- START 
+                function getBooleanValue(cssSelector) {
+                    return false;
+                    //return document.querySelector(cssSelector).checked === true;
+                }
+                
+                function onBtExport() {
+                    var params = {
+                        skipHeader: getBooleanValue('#skipHeader'),
+                        columnGroups: getBooleanValue('#columnGroups'),
+                        skipFooters: getBooleanValue('#skipFooters'),
+                        skipGroups: getBooleanValue('#skipGroups'),
+                        skipPinnedTop: getBooleanValue('#skipPinnedTop'),
+                        skipPinnedBottom: getBooleanValue('#skipPinnedBottom'),
+                        allColumns: getBooleanValue('#allColumns'),
+                        onlySelected: getBooleanValue('#onlySelected'),
+                        suppressQuotes: getBooleanValue('#suppressQuotes'),
+                        fileName: 'Exported List view.csv',
+                        columnSeparator: ','
+                    };
+                
+                    if (getBooleanValue('#skipGroupR')) {
+                        params.shouldRowBeSkipped = function (params) {
+                            return params.node.data.country.charAt(0) === 'R'
+                        };
+                    }
+                
+                
+                    if (getBooleanValue('#useCellCallback')) {
+                        params.processCellCallback = function (params) {
+                            if (params.value && params.value.toUpperCase) {
+                                return params.value.toUpperCase();
+                            } else {
+                                return params.value;
+                            }
+                        };
+                    }
+                
+                    if (getBooleanValue('#useSpecificColumns')) {
+                        params.columnKeys = ['country', 'bronze'];
+                    }
+                
+                    if (getBooleanValue('#processHeaders')) {
+                        params.processHeaderCallback = function (params) {
+                            return params.column.getColDef().headerName.toUpperCase();
+                        };
+                    }
+                
+                    if (getBooleanValue('#customHeader')) {
+                        params.customHeader = '[[[ This ia s sample custom header - so meta data maybe?? ]]]\n';
+                    }
+                    if (getBooleanValue('#customFooter')) {
+                        params.customFooter = '[[[ This ia s sample custom footer - maybe a summary line here?? ]]]\n';
+                    }
+                
+                    accountGridOptions.api.exportDataAsCsv(params);
+                }
+                
+                // Added by Swetha -- Release- 4.4 --  Export as CSV functionality -- END
+                
+                designationFilter.prototype.init = function (params) {
+                    this.filterChangedCallback = params.filterChangedCallback;
+                    //this.selected = PROFICIENCY_NONE;
+                    this.valueGetter = params.valueGetter;
+                };
+                
+                designationFilter.prototype.getModel = function () {
+
+                };
+            
+                designationFilter.prototype.setModel = function (model) {
+            
+                };
+                
+                designationFilter.prototype.getGui = function () {
+                    var eGui = document.createElement('div'); 
+                    var random = '' + Math.random();
+            
+                    var that = this;
+                    
+                    lstProductTeams.forEach( function (name, index) {
+                        var eFilter = document.createElement('div'); 
+                        var html = PROFICIENCY_TEMPLATE.replace('PROFICIENCY_NAME', name).replace('RANDOM', random); 
+                        eFilter.innerHTML = html;
+                        var eRadio = eFilter.querySelector('input'); 
+                        eGui.appendChild(eFilter);
+                        
+                        console.log('##--getGui.eRadio: '+ JSON.stringify(eRadio));
+                        eRadio.addEventListener('click', function () {
+                            console.log('##--index: '+ index);
+                            that.selected = lstProductTeams[index];
+                            console.log('##--eRadio.checked'+ eRadio.checked); 
+                            //that.model[name] = eRadio.checked;
+                            
+                            console.log('##--getGui.that'+ JSON.stringify(that));
+                            that.filterChangedCallback();
+                        });
+                    });
+            
+                    return eGui;
+                };
+
+                designationFilter.prototype.doesFilterPass = function (params) {
+                    // make sure each word passes separately, ie search for firstname, lastname
+                    var passed = true;
+                    var value = this.valueGetter(params); 
+                    //console.log('##--doesFilterPass.params: '+ JSON.stringify(params));
+                    console.log('##--doesFilterPass.value: '+ value);
+                    console.log('##--doesFilterPass.selected: '+this.selected);
+                    
+                    if(value == undefined || !value.includes(this.selected)){
+                        return false;
+                    }
+                
+                    return passed;
+                };
+                
+                designationFilter.prototype.isFilterActive = function () {
+                    return true;
+                };
+                function cellHeight(params){
+                
+                    return '<span style="line-height: 25px">'+ (params.value) ? globalDecodeEntities(params.value)  : "" +'</span>';
+                }
+
+                
+            </script>
+            <div class="wrapper wrapper-content">
+                <div class="row">
+                    <div class="col-xs-12">
+                        <div class="ibox float-e-margins">
+                            <div class="ibox-title">
+                                <div class="clearfix">
+                                    <div class="pull-left">
+                                        <div id="listingHeader" style="display: none;">
+                                            <div class="text-pull-left">
+                                             <h2>
+                                                    <b><span class="font-large">{!$Label.ARAccounts_AccountCustomers}</span></b>
+                                                    <i class="oppListView-busy fa fa-refresh fa-spin" style="display:none"></i>
+                                                </h2>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    
+                                </div>
+                            </div>  <!-- End of ibox-title -->
+                            
+                            <div class="row">
+                                <div class="col-xs-12">
+                                    <div class="ibox" style="margin-bottom: 0px;">
+                                        <div class="ibox-content">
+                                            <div class="clearfix">  
+                                                                                       
+                                                <div id="listingFilter" style="display: none">
+                                                    <div class="row"> 
+                                                        <div class="col-sm-12" style="padding:0 0 0 0;">
+                                                            <div class="col-sm-4 pull-left" style="padding:0 0 0 0;">
+                                                                <input id="gloabalsearch" type="text" class="search form-control provider-typeahead" placeholder="Search..." oninput="onFilterChanged(this.value)"/>
+                                                            </div>
+                                                            <!-- Added by Swetha -- Save Search Filter -- START -->
+                                                            <div class="form-inline col-xs-12 col-sm-6 col-lg-8 text-right">
+                                                                
+                                                                <div class="form-group" style="margin-right:10px">
+                                                                    <span class="text-danger filter-error"></span>
+                                                                    <span class="text-success filter-success"></span>
+                                                                </div>
+                                                                
+                                                                <div class="btn-group">
+                                                                  <button type="button" class="btn btn-primary filter-menu-btn" style="margin-bottom:0px;min-width:50px">
+                                                                    <span class="filter-has-changed" style="display:none">*</span><i class="fa fa-filter"></i>
+                                                                    <span class="selected-filter">All</span>
+                                                                  </button>
+                                                                  <button type="button" class="btn btn-primary dropdown-toggle filter-menu-btn" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" style="margin-bottom:0px">
+                                                                    <span class="caret"></span>
+                                                                    <span class="sr-only">Toggle Filter Dropdown</span>
+                                                                  </button>
+                                                                  <ul class="dropdown-menu filter-menu">
+                                                                    <li><a href="#" class="filter-save-as">Save As ...</a></li>
+                                                                    <li style="display:none"><a href="#" class="filter-save">Save</a></li>
+                                                                    <li><a href="#" class="filter-clear">Clear</a></li>
+                                                                    <li style="display:none"><a href="#" class="filter-delete">Delete</a></li>
+                                                                    <li role="separator" class="divider saved-filter-list" style="display:none"></li>
+                        
+                                                                  </ul>
+                                                                  <!--  Added by Swetha -- Export as CSV functionality ---Release 4.4 -- START -->
+                                                                  <button type="button" class="btn btn-primary" onclick="onBtExport()" style="margin-bottom:0px;min-width:50px; margin-left:3px; display:{!if(currentUserCanExportListview == true, 'block', 'none;')}">
+                                                                     <span>Export</span>
+                                                                  </button>
+                                                                  <!--  Added by Swetha -- Export as CSV functionality -- Release 4.4 -- END -->
+                                                                </div>                                                
+                                                                <div class="form-group filter-save-as" style="display:none">
+                                                                    <input type="text" class="form-control filter-name" placeholder="Filter Name..."/>
+                                                                    <button class="btn btn-primary filter-save-as" style="margin-bottom:0px">Save</button>
+                                                                    <button class="btn btn-default filter-cancel-save-as" style="margin-bottom:0px">Cancel</button>
+                                                                </div>
+                                                                <!-- Added by Swetha -- Save Search Filter -- END  -->
+                                                                
+                                                               
+                                                                
+                                                            </div>
+                                                            
+                                                        </div>
+                                                    </div> 
+                                                </div>
+                                            
+                                            </div>
+                                        </div>
+                                    </div>
+                                    
+                                </div>
+                            </div> <!-- End of the row --> 
+                            
+                            <!-- Beginning of Accounts List View -->
+                           
+                            <div>
+                                <div id="accountGrid" style="border:thin; border-color:gray;height: 600px;" class="ag-bootstrap"></div>
+                            </div> <!-- End of List View -->
+                            <br/>
+                            <div class="row bootstrap-font">
+                                <div class ="col-sm-6">
+                                    Showing <span class="value" id="lbFirstRow">1</span> to <span class="value" id="lbLastRow">5</span> of <span class="value" id="lbPageSize"></span> rows 
+                                    <select id="selPaginationSize" onchange="onPageSizeChanged(this.value)">
+                                        <option value="20">20</option>
+                                        <option value="40">40</option>
+                                        <option value="60">60</option>
+                                        <option value="80">80</option>
+                                        <option value="100">100</option>
+                                        <option value="All">All</option>
+                                    </select>
+                                    records per page
+                                </div>
+                                <div class="col-sm-6">
+                                    <div class="pull-right">
+                                        <button class="btn btn-xs btn-primary" onclick="onBtFirst()">First</button>
+                                        <button class="btn btn-xs btn-primary" onclick="onBtPrevious()">Previous</button>
+                                        <button class="btn btn-xs btn-primary" onclick="onBtNext()">Next</button>
+                                        <button class="btn btn-xs btn-primary" onclick="onBtLast()" id="btLast">Last</button>   
+                                    </div>
+                                    
+                                </div>
+                            </div> 
+                           
+                    </div>
+                </div>
+            </div>
+        </div>
+        </apex:define>
+    </apex:composition>
+
+</apex:page>

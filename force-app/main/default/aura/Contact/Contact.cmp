@@ -1,0 +1,5 @@
+<aura:component controller="contactList">
+    <aura:registerEvent name="navigateToList" type="force:navigateToList"/>
+
+	<aura:handler name="init" value="{!this}" action="{!c.gotoList}" />
+</aura:component>

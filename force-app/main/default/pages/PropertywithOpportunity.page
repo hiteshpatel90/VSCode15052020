@@ -1,0 +1,34 @@
+<apex:page controller="PropertywithOpportunityCtrl">
+    <apex:sectionHeader title="" subtitle="Property With Opportunities"/>
+    <apex:form >
+        <table>
+            <tr>
+                <th>
+                    Action
+                </th>
+                <th>
+                    Property Name
+                </th>
+                <th>
+                    URL
+                </th>
+            </tr>
+            <apex:repeat value="{!lstProperties}" var="pwo">
+                <tr>
+                    <td>
+                        <apex:commandLink value="Delete" action="{!deleteProperty}">
+                            <apex:param value="{!pwo.id}" assignTo="{!strDeleteProperty}"/>
+                        </apex:commandLink>
+                    </td>
+                    <td>
+                        <apex:outputLink value="/{!pwo.id}">{!pwo.Name}</apex:outputLink>
+                    </td>
+                    <td>
+                        <apex:outputLink value="{!mapPropertyWithURL[pwo.id]}">{!mapPropertyWithURL[pwo.id]}</apex:outputLink>
+                    </td>
+                </tr>
+            </apex:repeat>
+        
+        </table>
+    </apex:form>
+</apex:page>

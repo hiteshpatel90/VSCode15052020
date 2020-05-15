@@ -1,0 +1,30 @@
+<aura:component controller="MyContactListController" implements="forceCommunity:availableForAllPageTypes">
+	<aura:handler name="init" action="{!c.myAction}" value="{!this}" />
+    <aura:attribute name="contacts" type="Contact[]" />
+    <aura:attribute name="test" type="MyContactListController.newClass[]" />
+    <aura:attribute name="test1" type="MyContactListController.newClass1[]" />
+    
+    <table>
+  	 <tr>
+        <td style="vertical-align:top;width:170px;color:white;" class="header">Contact Approval Status :</td>
+    	<td style="width:150px;">    
+              <select onchange="{!c.change}" id="Lst">
+     			<aura:iteration items="{!v.Picklists}" var="pl">
+       				<option >
+     				{!pl}
+       				</option> 
+     			</aura:iteration>   
+  			</select>
+         </td>
+         <td style="vertical-align:top;">   
+             &nbsp;&nbsp;&nbsp;
+             <input class="forceActionLink" type="button" style="color:#2574a9;" value="Search" onclick="{!c.displayContactsByPicklist}"/>
+         </td>
+        </tr>
+    </table>
+    <ul>
+        <aura:iteration items="{!v.contacts}" var="contact">
+        	<li class="minli"> <h3>{!contact.Name}</h3> </li>
+        </aura:iteration>
+    </ul> 
+</aura:component>

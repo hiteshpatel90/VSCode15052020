@@ -1,0 +1,77 @@
+<apex:page controller="poistionController" showHeader="false">
+<script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.3.2/jquery.min.js"></script>
+<script type="text/javascript">
+//Function that calls the controller written in Apex and returns the required data.
+ 
+function selectPosition(id){
+  
+var pos = document.getElementById(id).value;
+ 
+    poistionController.getPositionDetails( pos,
+
+    function(result, event){
+
+         if (event.status && event.result) {
+
+         // Creating the HTML content based on
+
+         //the data returned from positionController and getPositionDetails method.
+
+              var html = '<table>';
+
+           html = html + '<tr><td>Position Name :</td>';
+
+            html = html + '<td>'+event.result[0].Name+'</td></tr>';
+
+            html = html + '<tr><td>Min Pay :</td>';
+
+            html = html + '<td>'+'$'+event.result[0].Min_Pay__c+'</td></tr>';
+
+            html = html + '<tr><td>Max Pay :</td>';
+
+            html = html + '<td>'+'$'+event.result[0].Max_Pay__c+'</td></tr>';
+
+            html = html + '</table>';
+
+            $('#positionDetails').html(html);
+
+      } else {
+
+             alert(event.message);
+
+      }
+
+}, {escape:true});
+ 
+}
+ 
+ </script>
+ 
+   <div align="center" width="550px">
+ 
+      <h1>Congratulations</h1>
+ 
+    
+  <apex:outputText value="Your maximum salary could be AT MAXIMUM {!pos.Max_Pay__c}"/>
+ 
+     
+ 
+      <apex:form >
+ 
+        <apex:selectList value="{!pos}" multiselect="false" size="1" id="positionTitle" onchange="selectPosition('{!$Component.positionTitle}');">
+ 
+         <apex:selectOptions value="{!options}"/>
+ 
+         </apex:selectList>
+ 
+      </apex:form>
+ 
+   </div>
+ 
+   <div id="positionDetails" align="center">
+ 
+         <!-- Position details is displayed here. -->
+ 
+   </div>
+ 
+</apex:page>

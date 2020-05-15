@@ -1,0 +1,47 @@
+<apex:page controller="DisplayRemoteObjectCustomFieldsDetail" sidebar="false" >
+	<apex:sectionHeader title="{!objMetadata.label}" subtitle="Object"/>
+	<apex:pageBlock >
+		<table>
+        	<tr>
+	            <td>
+	                <apex:outputLabel value="Object Name:"/>
+	            </td> 
+                <td>
+                    <b><apex:outputLabel value="{!objMetadata.label}"></apex:outputLabel></b>
+                </td>
+            </tr>
+            <tr>
+            	<td>
+                    <apex:outputLabel value="Object API Name:"/>
+                </td>
+            	<td>
+	                <b><apex:outputLabel value="{!objMetadata.name}"></apex:outputLabel></b>
+	            </td> 
+            </tr>
+		</table>
+		
+		<apex:pageBlockTable value="{!lstFieldMetaData}" var="rec">
+        	<apex:column headerValue="Field Label" > 
+        		<apex:outputText value="{!rec.label}"/>
+        	</apex:column>
+        	<apex:column headerValue="Field Name">
+        		<apex:outputText value="{!rec.name}"/>
+        	</apex:column>
+        	<apex:column headerValue="Data type">
+        		<apex:outputText value="{!rec.type}"/>
+        	</apex:column>
+        	<apex:column headerValue="Length">
+        		<apex:outputText value="{!rec.length}"/>
+        	</apex:column>
+        	<apex:column headerValue="Precision">
+        		<apex:outputText value="{!rec.precision}"/>
+        	</apex:column>relationshipName
+        	<apex:column headerValue="Scale">
+        		<apex:outputText value="{!rec.scale}"/>
+        	</apex:column>
+        	<apex:column headerValue="Relationship Name">
+        		<apex:outputText value="{!rec.relationshipName}"/>
+        	</apex:column>
+		</apex:pageBlockTable>
+	</apex:pageBlock>
+</apex:page>

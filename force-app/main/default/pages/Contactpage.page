@@ -1,0 +1,36 @@
+<apex:page standardController="Contact" extensions="extContactpageController">    
+    <apex:form >
+        <apex:pageBlock title="Contact">
+            <apex:pageblockButtons >
+                <apex:commandButton value="Save" action="{!saveContact}"> </apex:commandButton>      
+                <apex:commandButton value="Cancel" action="{!cancelRecord}"> </apex:commandButton>  
+            </apex:pageblockButtons>
+            <apex:pageBlockSection >
+                <apex:pageblockSectionItem >
+                    <apex:outputLabel value="First Name"></apex:outputLabel>
+                    <apex:inputField value="{!cont.FirstName}"/>
+                </apex:pageblockSectionItem>  
+                <apex:pageblockSectionItem >
+                    <apex:outputLabel value="Last Name"></apex:outputLabel>
+                    <apex:inputField value="{!cont.LastName}"/>
+                </apex:pageblockSectionItem>                
+                <apex:pageblockSectionItem >                
+                    <apex:outputLabel >Country</apex:outputLabel>
+                    <apex:actionRegion immediate="true" >
+                        <apex:selectList value="{!country}" size="1" title="Country" label="Country"> 
+                            <apex:selectOptions value="{!CountryItems}"/> 
+                            <apex:actionsupport event="onchange" reRender="state" >
+                            </apex:actionsupport>                    
+                        </apex:selectList>
+                    </apex:actionRegion>
+                </apex:pageblockSectionItem>                
+                <apex:pageblockSectionItem >
+                    <apex:outputLabel value="State"></apex:outputLabel>
+                    <apex:selectList value="{!state}" id="state" size="1" title="State" label="State"> 
+                        <apex:selectOptions value="{!StateItems}"/> 
+                    </apex:selectList>
+                </apex:pageblockSectionItem>                
+            </apex:pageBlockSection>
+        </apex:pageBlock>
+    </apex:form>
+</apex:page>

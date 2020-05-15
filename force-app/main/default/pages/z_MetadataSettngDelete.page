@@ -1,0 +1,2 @@
+<apex:page standardController="z_MetaDumpSetting__c" recordSetVar="settings" extensions="z_MetadataSettingCont" action="{!deleteSelected}">
+</apex:page>

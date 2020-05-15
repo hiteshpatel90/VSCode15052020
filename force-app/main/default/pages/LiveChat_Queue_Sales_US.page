@@ -1,0 +1,163 @@
+<apex:page showHeader="false" controller="LiveChat_Queue_Sales_US_ctrl">
+<script src="https://code.jquery.com/jquery-3.1.0.js" integrity="sha256-slogkvB1K3VOkzAI8QITxV3VzpOnkeNVsKvtkYLMjfk=" crossorigin="anonymous"></script>
+<script src="/soap/ajax/39.0/connection.js" type="text/javascript"></script>
+<script src="/soap/ajax/39.0/apex.js" type="text/javascript"></script>
+
+<apex:includeScript value="/support/console/37.0/integration.js"/>
+
+<style>
+/*span.liveAgentQueuePosition:empty::before { content: '1'; }*/
+   center{
+       font-size: 17px;
+       /*padding-top:10px;*/
+   } 
+   #liveAgentClientChat.liveAgentStateWaiting {
+// The CSS class that is applied when the chat request is waiting to be accepted
+// See "Waiting State" screenshot below
+}
+#liveAgentClientChat {
+// The CSS class that is applied when the chat is currently engaged
+// See "Engaged State" screenshot below
+}
+#liveAgentClientChat.liveAgentStateEnded {
+// The CSS class that is applied when the chat has ended
+// See "Ended State" screenshot below
+}
+body { overflow: hidden; width: 100%; height: 100%; padding: 0; margin: 0 }
+#waitingMessage { height: 100%; width: 100%; vertical-align: middle; text-align: center;
+display: none; }
+#liveAgentClientChat.liveAgentStateWaiting #waitingMessage { display: table; }
+#liveAgentSaveButton, #liveAgentEndButton { z-index: 2; }
+.liveAgentChatInput {
+height: 25px;
+border-width: 1px;
+border-style: solid;
+border-color: #000;
+padding: 2px 0 2px 4px;
+background: #fff;
+display: block;
+width: 99%;
+}
+.liveAgentSendButton {
+display: block;
+width: 60px;
+height: 31px;
+padding: 0 0 3px;
+position: absolute;
+top: 0;
+right: -67px;
+}
+#liveAgentChatLog {
+    width: auto;
+    height: auto;
+    top: 20px;
+    position: absolute;
+    overflow-y: auto;
+    left: 0px;
+    right: 0;
+    bottom: 33px;
+}
+#setQueueId{
+display:inline-block;
+}
+</style>
+<!--center id="chatQueueId">Thank you for contacting Lenovo <b>{!objQueueInfo.team}!</b>  <br/>
+We currently are experiencing high chat volumes and will take your chat as soon as we can.  Please keep this window open and you will be connected automatically once an agent becomes available.<br/>
+<b style="font-size: 17px;">Your place in queue is currently:  <div id="setQueueId"></div><///b><liveAgent:clientchat ><liveAgent:clientChatMessages /><div id="waitingMessage" class="modal"><span><liveAgent:clientChatQueuePosition /></span></div><div id="chatControls" class="pod"><liveAgent:clientChatEndButton label="End Chat & Take Survey" /> </div><liveAgent:clientChatLog /><div id="chatInput" class="pod"><liveagent:clientChatInput /><liveAgent:clientChatSendButton label="Send"/> </div></liveAgent:clientchat><script type="text/javascript"> document.title = "My Custom Live Chat Window";   </script> </b///></b><br/>
+
+Please note that you are queue to contact our <b>{!objQueueInfo.team}</b> team.  <br/>
+{!objQueueInfo.otherdepartment}<br/>
+<a href="http://shop.lenovo.com/{!objQueueInfo.Countrycode}/en/sales/?menu-id={!objQueueInfo.urlmodifier}">http://shop.lenovo.com/{!objQueueInfo.Countrycode}/en/sales/?menu-id={!objQueueInfo.urlmodifier}</a><br/>
+<br/>
+If you are looking for Tech Support, please call 888-THINK SUPPORT for Think brand products or 888-IDEA SUPPORT for idea brand products.<br/>
+</center>-->
+
+
+<center id="chatWaitingQueueId" style="display:none;font-size:15px">Thank you for contacting Lenovo <b>{!objQueueInfo.team}!</b>  <br/><br/>
+We currently are experiencing high chat volumes and will take your chat as soon as we can.  Please keep this window open and you will be connected automatically once an agent becomes available.<br/><br/>
+<b style="font-size: 17px;">Your place in queue is currently:  <span id="setQueueId">
+<!--<liveAgent:clientChatQueuePosition />-->
+
+</span></b>
+
+</center>
+
+<apex:outputPanel id="opLiveAgentChat">
+<div style="top: 0; left: 0; right: 0; bottom: 0; position: absolute;">
+
+<liveAgent:clientChat >
+<liveAgent:clientChatSaveButton />
+<liveAgent:clientChatEndButton label="End Chat & Take Survey" />
+<div style="top: 0px; left: 2px; right: 5px; bottom: 5px; /*position: absolute;*/ z-index:
+0;padding-top:20px;">
+<liveAgent:clientChatAlertMessage />
+<liveAgent:clientChatStatusMessage />
+<table id="waitingMessage" cellpadding="0" cellspacing="0">
+<tr>
+<td>
+
+
+<center id="chatQueueId" style="display:none;font-size:15px">Thank you for contacting Lenovo <b>{!objQueueInfo.team}!</b>  <br/><br/>
+We currently are experiencing high chat volumes and will take your chat as soon as we can.  Please keep this window open and you will be connected automatically once an agent becomes available.<br/><br/>
+<b style="font-size: 17px;">Your place in queue is currently:  <span id="setQueueId"><liveAgent:clientChatQueuePosition /></span>
+
+<!--<b><liveAgent:clientchat ><liveAgent:clientChatMessages /><div id="waitingMessage" class="modal"><span><liveAgent:clientChatQueuePosition /></span></div><div id="chatControls" class="pod"><liveAgent:clientChatEndButton label="End Chat & Take Survey" /> 
+
+<p>Please take survey on the next page. </p> </div><liveAgent:clientChatLog /><div id="chatInput" class="pod"><liveagent:clientChatInput /><liveAgent:clientChatSendButton label="Send"/> </div></liveAgent:clientchat><script type="text/javascript"> document.title = "My Custom Live Chat Window";   </script> </b>-->
+
+</b><br/>
+
+<!--<apex:image value="{!URLFOR($Resource.LiveChatProgressBar)}" width="80px"/>-->
+<br/>
+Please note that you are queue to contact our <b>{!objQueueInfo.team}</b> team.  <br/><br/>
+{!objQueueInfo.otherdepartment}<br/>
+<!--<a target="_blank" href="http://shop.lenovo.com/{!objQueueInfo.Countrycode}/en/sales/?menu-id={!objQueueInfo.urlmodifier}">http://shop.lenovo.com/{!objQueueInfo.Countrycode}/en/sales/?menu-id={!objQueueInfo.urlmodifier}</a><br/>-->
+<a target="_blank" href="http://shop.lenovo.com/us/en/ordersupport/">http://shop.lenovo.com/us/en/ordersupport/</a><br/>
+
+<br/>
+If you are looking for Tech Support, please call 888-THINK SUPPORT for Think brand products or 888-IDEA SUPPORT for idea brand products.<br/>
+</center>
+<center id="chatQueueId1">
+Please wait while you are connected to an available agent.<br/>
+<!--<apex:image value="{!URLFOR($Resource.LiveChatProgressBar)}" width="80px"/>-->
+</center> 
+
+
+</td>
+</tr>
+</table>
+<div style="top: 0; right: 0; bottom: 41px; left: 0; padding: 0; /*position: absolute;*/
+word-wrap: break-word; z-index: 0;">
+<liveAgent:clientChatLog />
+</div>
+<div style="position: absolute; height: auto; right: 0; bottom: 0; left: 0; margin-right:
+67px;">
+<liveagent:clientChatInput /><liveAgent:clientChatSendButton />
+</div>
+</div>
+</liveAgent:clientChat>
+</div>
+</apex:outputPanel>
+
+  
+<script type="text/javascript">
+    /*$(document).ready(function(){*/
+   
+   
+    
+    sforce.connection.sessionId  = "{!$Api.Session_ID}";
+   
+
+    function acceptSuccess(result){
+        if (result.success == true){
+            alert('Accepting the chat was successful');
+        } else {
+            alert('Accepting the chat was not successful');
+        }
+    }
+
+    
+    
+    
+</script>
+</apex:page>

@@ -1,0 +1,9 @@
+<apex:page controller="mergePermissionSets" label="PermissionSet Creation" >
+    <apex:form >
+    <apex:pageBlock title="Create Permission set">
+        <apex:commandButton action="{!createRiceALLUsersPS}" id="riceAllUserBtn" value="Rice All Permission Set"/>
+        <apex:commandButton action="{!createDepartmentPS}" id="departmentBtn" value="Department Permission Set"/>
+        <apex:commandButton action="{!createSubDepartmentPS}" id="subdepartmentBtn" value="SubDepartment Permission Set"/>
+    </apex:pageBlock>
+    </apex:form>
+</apex:page>

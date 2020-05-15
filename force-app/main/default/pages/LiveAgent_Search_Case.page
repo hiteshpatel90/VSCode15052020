@@ -1,0 +1,90 @@
+<apex:page controller="LiveAgent_Search_Case_ctrl" tabStyle="Case" sidebar="false" showHeader="false">
+    <style>
+        .labelCol vfLabelColTextWrap  first  last {
+            vertical-align: middle !important;
+        }
+        .requiredLoaderBG{
+            background-color: rgb(71,71,71);
+            opacity:0.7;
+            filter:alpha(opacity=70);
+            background-image:url('{!$Resource.ajaxLoadGif}');
+            background-position: center center;
+            background-repeat: no-repeat;
+            height: 100%;
+            left: 0;
+            position: fixed;
+            text-align: center;
+            top: 0;
+            width: 100%;
+            z-index: 9999;
+        }
+        .norecord{
+            width: 100%;
+            border: 1px solid #cac9c9;
+            padding: 5px 0px;
+            margin-top: -1px;
+            text-align: center;
+            display:none;
+            color: red;
+        }
+    </style>
+    <script>
+        function selCaseFunction(caseId, caseStatus){
+            
+            if(caseStatus == 'Closed' || caseStatus == 'Closed by client' || caseStatus == 'Closed for GL'){
+                cloneCase(caseId);
+            }else{                
+                selCase(caseId);
+            }
+        }
+    </script>
+    <apex:Form >
+        <apex:actionFunction name="selCase" action="{!redirectToCaseDetailPage}" reRender="caseDetailpnl" status="ajaxStatus">
+            <apex:param name="seId" assignTo="{!searchCaseId}" value=""/>
+        </apex:actionFunction>
+        <apex:actionFunction name="cloneCase" action="{!cloneCaseRecord}" reRender="caseDetailpnl" status="ajaxStatus">
+            <apex:param name="seId" assignTo="{!searchCaseId}" value=""/>
+        </apex:actionFunction>
+        
+        <apex:actionstatus startStyleClass="requiredLoaderBG" id="ajaxStatus" />
+
+        <apex:pageBlock >            
+            <apex:pageBlockSection columns="1" title="Case Details">
+                <apex:outputPanel >
+                    <apex:outputLabel value="Search for Case " style="font-weight:bold;"></apex:outputLabel>                    
+                    <apex:inputText maxlength="25" value="{!strSearchCase}"/>
+                    <apex:commandButton value="Go!" action="{!redirectToNewCase}"/>
+                
+                    <apex:outputLabel value="Enter search criteria, e.g. serial number, authorization ID Number to attach Chat Transcript to existing Case or leave blank to create a new Case"/>
+                </apex:outputPanel>   
+            </apex:pageBlockSection>
+            
+            
+            <apex:outputPanel id="tblId" layout="block">                 
+                <apex:pageBlockTable value="{!lstCaseSearchResult}" var="cs">
+                    <apex:column headerValue="[SELECT ONE]" style="text-align:center;" headerClass="headecls">
+                         <input type="radio" name="objcase" onclick="selCaseFunction('{!cs.Id}', '{!cs.Status}')" value="{!cs.Id}"/>
+                     </apex:column>
+                    <apex:column headerValue="Case Number">
+                        <apex:outputLink value="/{!cs.id}">{!cs.caseNumber}</apex:outputLink>
+                    </apex:column>
+                    <apex:column headerValue="Account Name" value="{!cs.Account.Name}"/>
+                    <apex:column headerValue="Created Date">
+                        <apex:outputText value="{0,date,MM'/'dd'/'yyyy}">
+                            <apex:param value="{!cs.createddate}" /> 
+                        </apex:outputText>
+                    </apex:column>
+                    <apex:column headerValue="Status" value="{!cs.Status}"/>
+                    <apex:column headerValue="Case Subject" value="{!cs.Subject}"/>
+                    <apex:column headerValue="LOCId" value="{!cs.LocID__c}"/>
+                    <apex:column headerValue="Latest SMSC Record Type 2"  value="{!cs.Latest_SMSC_Record_Type_2__c}"/>                 
+                </apex:pageBlockTable>
+                
+                <div class="norecord" style="display:{!IF(lstCaseSearchResult.size == 0,'block','none')}">
+                No records found that match search criteria.
+                </div>
+            </apex:outputPanel>
+            
+        </apex:pageBlock>
+    </apex:Form>
+</apex:page>

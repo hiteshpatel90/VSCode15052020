@@ -1,0 +1,35 @@
+<aura:component implements="flexipage:availableForAllPageTypes,flexipage:availableForRecordHome,force:hasRecordId,force:lightningQuickAction" access="global">
+    <aura:attribute name="recordError" type="String"/>
+    <aura:attribute name="recordInfo" type="Object" />
+    <aura:attribute name="simpleRecord" type="Object"/>
+    <aura:attribute name="curView" type="String" />    
+    <force:recordData aura:id="recordHandler"
+                      recordId="{!v.recordId}"
+                      layoutType="FULL"
+                      targetRecord="{!v.recordInfo}"  
+                      targetFields="{!v.simpleRecord}"
+                      mode="EDIT"    
+                      />
+    <div class="slds-form--stacked">        
+        <div class="slds-form-element">
+            <lightning:input type="text" label="Name" value="{!v.simpleRecord.Name}" />
+        </div>
+        <div class="slds-form-element">
+            <lightning:select aura:id="accDesc" label="Industry" value="{!v.simpleRecord.Industry}">
+                <option value="">choose one...</option>
+                <option value="Banking">Banking</option>
+                <option value="Apparel">Apparel</option>
+                <option value="Education">Education</option>
+            </lightning:select>
+        </div>
+        <div class="slds-form-element">
+            <lightning:input type="text" label="Description" value="{!v.simpleRecord.Description}" />
+        </div>       
+        
+        
+        <div class="slds-form-element">
+            <lightning:button variant="brand" label="Save"  onclick="{!c.saveRecordCntrlr}"/>
+            <lightning:button label="Cancel"  onclick="{!c.cancelSaveRecord}"/>
+        </div>      
+    </div>		
+</aura:component>

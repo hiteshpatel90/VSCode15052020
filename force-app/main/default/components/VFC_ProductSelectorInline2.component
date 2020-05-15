@@ -1,0 +1,1509 @@
+<apex:component id="myCmp" controller="ProductSelectorInlineController" allowDML="true">
+    <apex:attribute name="quoteIdVal" type="Id" description="Id" assignTo="{!quoteId}" />
+    <!--<apex:attribute name="hideReturnToQuoteButton" type="Boolean" default="false" description="Display Edit" assignTo="{!isEditQLIbuttonDisplay}" />-->
+    <html xmlns="https://www.w3.org/2000/svg" xmlns:xlink="https://www.w3.org/1999/xlink" lang="en">
+    <head>
+        <meta charset="utf-8" />
+        <apex:stylesheet value="{!URLFOR($Resource.SLDS202, 'assets/styles/salesforce-lightning-design-system-vf.min.css')}" />
+        <link href="https://nightly.datatables.net/rowreorder/css/rowReorder.dataTables.css?_=109b9cb63c2c5c8011e87ca59e049839.css" rel="stylesheet" type="text/css" />
+        <style type="text/css">
+            .se--cpqpoc div#SE_pageFooter
+            {
+                padding-top: 0.5rem;
+                padding-bottom: 3rem;
+                padding-right: 1.5rem;
+            }
+            .se--cpqpoc .SE_BGcolor
+            {
+                background-color: #3dcd58;
+                border-color: #3dcd58;
+            }
+            .se--cpqpoc .SE_BGcolor:hover
+            {
+                background-color: #009530;
+            }
+            .se--cpqpoc .SE_BGcolor:focus
+            {
+                background-color: #009530;
+            }
+            
+            <!-- Modified for fix header -->
+            table.sortable thead {
+                background-color:#eee;
+                color:#666666;
+                font-weight: bold;
+                cursor: default;
+            }
+
+            .dataTables_scrollBody{            
+                height: {!tableHeight} !important;
+            }
+            <!-- Modified for fix header -->
+
+            .productsPopup {
+                position: absolute;
+                z-index: 9999;
+                background-color: rgba(255, 255, 255, 1);
+                display: none;
+                border-style: solid;
+                border-width: 1px;
+                border-color: gray;
+                padding: 5px;
+            }
+        </style>
+        <style type="text/css">
+            .tt-menu,
+            .gist {
+                text-align: left;
+            }
+
+            .typeahead,
+            .tt-query,
+            .tt-hint {
+                width: 396px;
+                height: 30px;
+                padding: 8px 12px;
+                font-size: 24px;
+                line-height: 30px;
+                border: 2px solid #ccc;
+                -webkit-border-radius: 8px;
+                -moz-border-radius: 8px;
+                border-radius: 8px;
+                outline: none;
+            }
+
+            .typeahead {
+                background-color: #fff;
+            }
+
+            .typeahead:focus {
+                border: 2px solid #0097cf;
+            }
+
+            .tt-query {
+                -webkit-box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.075);
+                -moz-box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.075);
+                box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.075);
+            }
+
+            .tt-hint {
+                color: #999
+            }
+
+            .tt-menu {
+                width: 422px;
+                margin: 12px 0;
+                padding: 8px 0;
+                background-color: #fff;
+                border: 1px solid #ccc;
+                border: 1px solid rgba(0, 0, 0, 0.2);
+                -webkit-border-radius: 8px;
+                -moz-border-radius: 8px;
+                border-radius: 8px;
+                -webkit-box-shadow: 0 5px 10px rgba(0,0,0,.2);
+                -moz-box-shadow: 0 5px 10px rgba(0,0,0,.2);
+                box-shadow: 0 5px 10px rgba(0,0,0,.2);
+            }
+
+            .tt-suggestion {
+                padding: 3px 20px;
+                font-size: 18px;
+                line-height: 24px;
+            }
+
+            .tt-suggestion:hover {
+                cursor: pointer;
+                color: #fff;
+                background-color: #0097cf;
+            }
+
+            .tt-suggestion.tt-cursor {
+                color: #fff;
+                background-color: #0097cf;
+
+            }
+
+            .tt-suggestion p {
+                margin: 0;
+            }
+
+            .gist {
+                font-size: 14px;
+            }
+        </style>
+
+    </head>
+    <body>
+    <div id="displayMenu" class="productsPopup" />
+
+    <div class="SchneiderCss">
+            <div class="slds-grid">
+                <div class="slds-col">
+                    <apex:image id="theImage" value="{!$Resource.SchneiderLogoImage}" width="150" height="50"/>
+                </div>
+            </div>
+        </div>
+        <div class="se--cpqpoc">
+            <!-- Header -->
+                    <!-- Modified for show only one button at a time Return to Quote/ Edit Quote Lines -->
+                    <div style="position:absolute;margin-top:10px;margin-left:20%;z-index: 2;">
+                       <button style="{!If(isEditQLIbuttonDisplay == true, 'display:block', 'display:none')}" class="slds-button slds-button--brand slds-m-right--medium slds-float--right SE_BGcolor" type="button" target="_top" onClick="javascript:top.window.location.href='{!$Site.Prefix}/apex/ProductSelectorInline2?Id={!objQuote.Id}'">Edit Quote Lines</button>
+                    </div>
+                    <div layout="block" style="position:absolute;margin-top:10px;margin-left:15%;z-index: 2;">                    
+                        <button style="{!If(isEditQLIbuttonDisplay == false, 'display:block', 'display:none')}" class="slds-button slds-button--brand slds-m-right--medium slds-float--right SE_BGcolor" type="button" onClick="return goToQuotePage();">Save and Return to Quote</button>
+                    </div>
+                    <!-- Remove button -->
+                    <div layout="block" style="position:absolute;margin-top:10px;margin-left:26%;z-index: 2;">                    
+                        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<button style="{!If(isEditQLIbuttonDisplay == false, 'display:block', 'display:none')}" class="slds-button slds-button--brand slds-m-right--medium slds-float--right SE_BGcolor" type="button" onClick="removeItem(null);">Remove</button>
+                    </div>
+                    <!-- Add button -->
+                    <!--<div layout="block" style="position:absolute;margin-top:10px;margin-left:41%;z-index: 2;">
+                        <button style="{!If(isEditQLIbuttonDisplay == false, 'display:block', 'display:none')}" class="slds-button slds-button--brand slds-m-right--medium slds-float--right SE_BGcolor" type="button" onClick="addItem(null);">Add</button>
+                    </div>-->
+                    <!-- Remove button -->
+                    <div style="position:absolute;margin-top:10px;margin-left:30%;z-index: 2;">
+                        <button  style="{!If(objQuote.status__c == "Pending", 'display:block', 'display:none')}" class="slds-button slds-button--brand slds-m-right--medium slds-float--right SE_BGcolor" type="button" onClick="window.open('/{!objQuote.Agreement__c}?quoteId={!quoteID}')">Add Agreement Line Item</button>
+                    </div>
+                    <!-- Modified for show only one button at a time Return to Quote/ Edit Quote Lines --> 
+            <!-- End Header -->
+            <!-- Content -->
+            <div class="myapp">
+                <!-- Search Products -->
+
+                <!-- End Search Products -->
+                <!-- Search Results -->
+
+                <!-- End Search Results -->
+                <!-- Quote Line Items -->
+                
+                <!-- Modified for fix header in some styles -->
+                <div class="slds-m-bottom--medium">
+                   <!--<div style="position:absolute;margin-top:10px;margin-left:25%">-->
+                    <div class="slds-card slds-card__header slds-grid" style="width:100%;height:45px;">
+                        <div class="slds-media slds-media--center slds-has-flexi-truncate"  >
+                            <div class="slds-media__body slds-truncate">                            
+                                <a href="javascript:void(0);" class="slds-text-link--reset">
+                                    <span class="slds-text-heading--medium">Selected Products</span>
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="slds-card__body slds-text-align--center">
+                        <!-- Selected Products DataTable -->
+                        <div id="quoteLineItemResults"/>
+                        <!-- End Selected Products DataTable -->
+                    </div>
+                </div>
+                <!-- Modified for fix header in some styles -->
+                <!-- End Quote Line Items -->
+            </div>
+            <!-- End Content -->
+            <!-- Page Footer 
+            <div class="slds-page-header">
+                <button class="slds-button slds-button--brand slds-m-right--medium slds-float--right SE_BGcolor" type="button" onClick="javascript:location.href='/{!objQuote.Id}'">Return to Quote</button>
+            </div>
+             End Page Footer -->
+        </div>
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
+        <script src="/soap/ajax/35.0/connection.js"></script>
+        <script src="/soap/ajax/35.0/apex.js"></script>
+       
+        <!-- jQuery UI CSS -->
+        <script src="{!URLFOR($Resource.jQuery_min)}"></script>
+        <!-- Modified for fix header -->
+        <script src="{!URLFOR($Resource.dataTables_JS)}"></script>     
+        <script src="{!URLFOR($Resource.dataTables_fixedColumns)}"/>
+        <script src="https://twitter.github.io/typeahead.js/releases/latest/typeahead.bundle.js" />
+        <script src="https://cdn.datatables.net/rowreorder/1.1.2/js/dataTables.rowReorder.min.js"></script>
+        <link rel="stylesheet" type="text/css" href="{!URLFOR($Resource.dataTables_CSS)}"/>
+        
+        <script type="text/javascript">
+
+            <!-- Modified for show only one button at a time Return to Quote/ Edit Quote Lines -->
+        var isEditQuantity = '{!!isEditQLIbuttonDisplay}';
+        
+        var QuoteID = "{!quoteID}";
+        var childRow = '';
+        
+        var pricebookID = "{!objQuote.Opportunity_Name__r.Pricebook2Id}";
+        
+        //var grandTotal = 0{!objQuote.Grand_Total__c};
+        var grandTotal = {!IF(ISBLANK(objQuote.Grand_Total__c), '0.00', objQuote.Grand_Total__c)};
+        
+        console.log("quoteID: " + QuoteID);
+        var qliResults = document.getElementById("quoteLineItemResults");
+        var flag='false';
+        var fullTable = '';
+        var dataTable;
+        var tableBody;
+        var counter = 0;
+
+        function getItems()
+        {
+            Visualforce.remoting.Manager.invokeAction(
+            '{!$RemoteAction.ProductSelectorInlineController.fetchItems}',
+                QuoteID,
+                function(result, event)
+                {
+                    if(event.status) {
+                        fullTable = result;
+                        dataTable = document.createElement('table');
+                        dataTable.setAttribute('id', 'example');
+                        dataTable.setAttribute('style', 'margin:0');
+                        dataTable.className = 'slds-table slds-table--bordered slds-table--cell-buffer slds-no-row-hover sortable display nowrap';
+
+                        // add header row
+                        var tableHeader = dataTable.createTHead();
+                        var tableHeaderRow = tableHeader.insertRow();
+
+                        var tableHeaderRowCellIndex = tableHeaderRow.insertCell(0);
+                        tableHeaderRowCellIndex.appendChild(document.createTextNode('Sort Seq.'));
+
+                        var tableHeaderRowCell1 = tableHeaderRow.insertCell(1);
+                        var selAllChkBox = document.createElement('input');
+                        selAllChkBox.setAttribute('type', 'checkbox');
+                        selAllChkBox.setAttribute('id', 'parentCheck');
+                        selAllChkBox.setAttribute('onclick', 'checkAll(this)');
+                        tableHeaderRowCell1.appendChild(selAllChkBox);
+
+                        <!-- Modified for fix header -->
+                        var tableHeaderRowCell2 = tableHeaderRow.insertCell(2);
+                        tableHeaderRowCell2.appendChild(document.createTextNode('Item Num.'));
+                        <!-- Modified for fix header -->
+                        
+                        var tableHeaderRowCell9 = tableHeaderRow.insertCell(3);
+                        tableHeaderRowCell9.appendChild(document.createTextNode('Product'));
+                        tableHeaderRowCell9.setAttribute('scope', 'col');
+                        //tableHeaderRowCell9.setAttribute('class', 'slds-text-heading--label');
+                        
+                        var tableHeaderRowCell66 = tableHeaderRow.insertCell(4);
+                        tableHeaderRowCell66.appendChild(document.createTextNode('Description'));
+                        tableHeaderRowCell66.setAttribute('scope', 'col');
+                        //tableHeaderRowCell66.setAttribute('class', 'slds-text-heading--label');
+                        
+                        var tableHeaderRowCell7 = tableHeaderRow.insertCell(5);
+                        tableHeaderRowCell7.appendChild(document.createTextNode('Qty.'));
+                        tableHeaderRowCell7.setAttribute('scope', 'col');
+                        //tableHeaderRowCell7.setAttribute('class', 'slds-text-heading--label');
+                                                
+                        var tableHeaderRowCell44 = tableHeaderRow.insertCell(6);
+                        tableHeaderRowCell44.appendChild(document.createTextNode('UoM'));
+                        tableHeaderRowCell44.setAttribute('scope', 'col');
+                        //tableHeaderRowCell44.setAttribute('class', 'slds-text-heading--label');
+
+
+                        var tableHeaderRowCell07 = tableHeaderRow.insertCell(7);
+                        tableHeaderRowCell07.appendChild(document.createTextNode('Designation'));
+                        tableHeaderRowCell07.setAttribute('scope', 'col');
+                        //tableHeaderRowCell07.setAttribute('class', 'slds-text-heading--label');
+
+                        var tableHeaderRowCell88 = tableHeaderRow.insertCell(8);
+                        tableHeaderRowCell88.appendChild(document.createTextNode('Product Category'));
+                        tableHeaderRowCell88.setAttribute('scope', 'col');
+                        //tableHeaderRowCell88.setAttribute('class', 'slds-text-heading--label');
+
+                        var tableHeaderRowCell99 = tableHeaderRow.insertCell(9);
+                        tableHeaderRowCell99.appendChild(document.createTextNode('Group'));
+                        tableHeaderRowCell99.setAttribute('scope', 'col');
+                        //tableHeaderRowCell99.setAttribute('class', 'slds-text-heading--label');
+
+                        var tableHeaderRowCell10 = tableHeaderRow.insertCell(10);
+                        tableHeaderRowCell10.appendChild(document.createTextNode('Price Status'));
+                        tableHeaderRowCell10.setAttribute('scope', 'col');
+                        //tableHeaderRowCell10.setAttribute('class', 'slds-text-heading--label');
+
+                        var tableHeaderRowCell11 = tableHeaderRow.insertCell(11);
+                        tableHeaderRowCell11.appendChild(document.createTextNode('Unit List Price'));
+                        tableHeaderRowCell11.setAttribute('scope', 'col');
+                        //tableHeaderRowCell11.setAttribute('class', 'slds-text-heading--label');
+
+                        var tableHeaderRowCell12 = tableHeaderRow.insertCell(12);
+                        tableHeaderRowCell12.appendChild(document.createTextNode('Extended List Price'));
+                        tableHeaderRowCell12.setAttribute('scope', 'col');
+                        //tableHeaderRowCell12.setAttribute('class', 'slds-text-heading--label');
+
+                        var tableHeaderRowCell13 = tableHeaderRow.insertCell(13);
+                        tableHeaderRowCell13.appendChild(document.createTextNode('Purchaser Profile Mult.'));
+                        tableHeaderRowCell13.setAttribute('scope', 'col');
+                        //tableHeaderRowCell13.setAttribute('class', 'slds-text-heading--label');
+
+                        var tableHeaderRowCell14 = tableHeaderRow.insertCell(14);
+                        tableHeaderRowCell14.appendChild(document.createTextNode('Customer Profile Mult.'));
+                        tableHeaderRowCell14.setAttribute('scope', 'col');
+                        //tableHeaderRowCell14.setAttribute('class', 'slds-text-heading--label');
+
+                        var tableHeaderRowCell15 = tableHeaderRow.insertCell(15);
+                        tableHeaderRowCell15.appendChild(document.createTextNode('Normal Net Mult.'));
+                        tableHeaderRowCell15.setAttribute('scope', 'col');
+                        //tableHeaderRowCell15.setAttribute('class', 'slds-text-heading--label');
+
+                        var tableHeaderRowCell16 = tableHeaderRow.insertCell(16);
+                        tableHeaderRowCell16.appendChild(document.createTextNode('Normal Net Ext. Price'));
+                        tableHeaderRowCell16.setAttribute('scope', 'col');
+                        //tableHeaderRowCell16.setAttribute('class', 'slds-text-heading--label');
+
+                        var tableHeaderRowCell17 = tableHeaderRow.insertCell(17);
+                        tableHeaderRowCell17.appendChild(document.createTextNode('System Fix'));
+                        tableHeaderRowCell17.setAttribute('scope', 'col');
+                        //tableHeaderRowCell17.setAttribute('class', 'slds-text-heading--label');
+
+                        var tableHeaderRowCell18 = tableHeaderRow.insertCell(18);
+                        tableHeaderRowCell18.appendChild(document.createTextNode('Req Sell Net Mult.'));
+                        tableHeaderRowCell18.setAttribute('scope', 'col');
+                        //tableHeaderRowCell18.setAttribute('class', 'slds-text-heading--label');
+
+                        var tableHeaderRowCell19 = tableHeaderRow.insertCell(19);
+                        tableHeaderRowCell19.appendChild(document.createTextNode('Req Extended Price'));
+                        tableHeaderRowCell19.setAttribute('scope', 'col');
+                        //tableHeaderRowCell19.setAttribute('class', 'slds-text-heading--label');
+
+                        var tableHeaderRowCell20 = tableHeaderRow.insertCell(20);
+                        tableHeaderRowCell20.appendChild(document.createTextNode('Fix Req Price'));
+                        tableHeaderRowCell20.setAttribute('scope', 'col');
+                        //tableHeaderRowCell20.setAttribute('class', 'slds-text-heading--label');
+
+                        if('{!objQuote.status__c}' == 'Countered'){
+                            var tableHeaderRowCell21 = tableHeaderRow.insertCell(21);
+                            tableHeaderRowCell21.appendChild(document.createTextNode('Proposed Sell Net Mult.'));
+                            tableHeaderRowCell21.setAttribute('scope', 'col');
+                            //tableHeaderRowCell21.setAttribute('class', 'slds-text-heading--label');
+
+                            var tableHeaderRowCell22 = tableHeaderRow.insertCell(22);
+                            tableHeaderRowCell22.appendChild(document.createTextNode('Proposed Ext. Price'));
+                            tableHeaderRowCell22.setAttribute('scope', 'col');
+                            //tableHeaderRowCell22.setAttribute('class', 'slds-text-heading--label');
+
+                            var tableHeaderRowCell23 = tableHeaderRow.insertCell(23);
+                            tableHeaderRowCell23.appendChild(document.createTextNode('Authorized Sell Net Mult.'));
+                            tableHeaderRowCell23.setAttribute('scope', 'col');
+                            //tableHeaderRowCell23.setAttribute('class', 'slds-text-heading--label');
+
+                            var tableHeaderRowCell24 = tableHeaderRow.insertCell(24);
+                            tableHeaderRowCell24.appendChild(document.createTextNode('Authorized Ext. Sell Price'));
+                            tableHeaderRowCell24.setAttribute('scope', 'col');
+                            //tableHeaderRowCell24.setAttribute('class', 'slds-text-heading--label');
+
+                            var tableHeaderRowCell25 = tableHeaderRow.insertCell(25);
+                            tableHeaderRowCell25.appendChild(document.createTextNode('Warranty'));
+                            tableHeaderRowCell25.setAttribute('scope', 'col');
+                            //tableHeaderRowCell25.setAttribute('class', 'slds-text-heading--label');
+
+                            var tableHeaderRowCell26 = tableHeaderRow.insertCell(26);
+                            tableHeaderRowCell26.appendChild(document.createTextNode('FOB'));
+                            tableHeaderRowCell26.setAttribute('scope', 'col');
+                            //tableHeaderRowCell26.setAttribute('class', 'slds-text-heading--label');
+
+                            var tableHeaderRowCell27 = tableHeaderRow.insertCell(27);
+                            tableHeaderRowCell27.appendChild(document.createTextNode('Lead Time'));
+                            tableHeaderRowCell27.setAttribute('scope', 'col');
+                            //tableHeaderRowCell27.setAttribute('class', 'slds-text-heading--label');
+
+
+                            var tableHeaderRowCell28 = tableHeaderRow.insertCell(28);
+                            tableHeaderRowCell28.appendChild(document.createTextNode('Shipping Location'));
+                            tableHeaderRowCell28.setAttribute('scope', 'col');
+                            //tableHeaderRowCell28.setAttribute('class', 'slds-text-heading--label');
+                        }else{
+                            var tableHeaderRowCell23 = tableHeaderRow.insertCell(21);
+                            tableHeaderRowCell23.appendChild(document.createTextNode('Authorized Sell Net Mult.'));
+                            tableHeaderRowCell23.setAttribute('scope', 'col');
+                            //tableHeaderRowCell23.setAttribute('class', 'slds-text-heading--label');
+
+                            var tableHeaderRowCell24 = tableHeaderRow.insertCell(22);
+                            tableHeaderRowCell24.appendChild(document.createTextNode('Authorized Sell Ext. Price'));
+                            tableHeaderRowCell24.setAttribute('scope', 'col');
+                            //tableHeaderRowCell24.setAttribute('class', 'slds-text-heading--label');
+
+                            var tableHeaderRowCell25 = tableHeaderRow.insertCell(23);
+                            tableHeaderRowCell25.appendChild(document.createTextNode('Warranty'));
+                            tableHeaderRowCell25.setAttribute('scope', 'col');
+                            //tableHeaderRowCell25.setAttribute('class', 'slds-text-heading--label');
+
+                            var tableHeaderRowCell26 = tableHeaderRow.insertCell(24);
+                            tableHeaderRowCell26.appendChild(document.createTextNode('FOB'));
+                            tableHeaderRowCell26.setAttribute('scope', 'col');
+                            //tableHeaderRowCell26.setAttribute('class', 'slds-text-heading--label');
+
+                            var tableHeaderRowCell27 = tableHeaderRow.insertCell(25);
+                            tableHeaderRowCell27.appendChild(document.createTextNode('Lead Time'));
+                            tableHeaderRowCell27.setAttribute('scope', 'col');
+                            //tableHeaderRowCell27.setAttribute('class', 'slds-text-heading--label');
+
+                            var tableHeaderRowCell28 = tableHeaderRow.insertCell(26);
+                            tableHeaderRowCell28.appendChild(document.createTextNode('Shipping Location'));
+                            tableHeaderRowCell28.setAttribute('scope', 'col');
+                            //tableHeaderRowCell28.setAttribute('class', 'slds-text-heading--label');
+                        }
+                        tableBody = dataTable.appendChild(document.createElement('tbody'));
+
+                        //var dataRow, dataRowCell1, dataRowCell2, dataRowCell3, dataRowCell4, dataRowCell5, dataRowCell6, dataRowCell7;
+                        //var prodName, prodId, quantity, unitPrice, subtotal, discount, totalPrice;
+
+
+                        <!--  BEGIN: ADD ITEM ROW -->
+                        var tableHeaderProductSelector = tableHeader.insertRow();
+                        tableHeaderRowCellIndex = tableHeaderProductSelector.insertCell(0);
+
+                        var tableHeaderRowCell1a = tableHeaderProductSelector.insertCell(1);
+
+                        <!-- Modified for fix header -->
+                        tableHeaderRowCell2 = tableHeaderProductSelector.insertCell(2);
+                        //tableHeaderRowCell2.appendChild(document.createTextNode('Item Number'));
+                        <!-- Modified for fix header -->
+                        
+                        tableHeaderProductSelector.insertCell(3);
+                        
+
+                        tableHeaderRowCell9 = tableHeaderProductSelector.insertCell(4);
+                        var selectProductDiv = document.createElement('DIV');
+                        selectProductDiv.setAttribute('style', 'overflow: visible;');
+                        selectProductDiv.setAttribute('id', 'chooseProduct');
+
+                        var selectProduct = document.createElement('INPUT');
+                        selectProduct.setAttribute('type', 'text');
+                        selectProduct.setAttribute('class', 'typeahead');
+                        selectProduct.setAttribute('placeholder', 'Search Products');
+                        selectProductDiv.appendChild(selectProduct);
+                        tableHeaderRowCell9.appendChild(selectProductDiv);
+                        
+                        tableHeaderRowCell7 = tableHeaderProductSelector.insertCell(5);
+                        tableHeaderRowCell7.setAttribute('scope', 'col');
+                        tableHeaderRowCell7.setAttribute('class', 'slds-text-heading--label');
+                        var txtTemplateQuantity = document.createElement("INPUT");
+
+                        txtTemplateQuantity.setAttribute('value', '1');
+                        txtTemplateQuantity.setAttribute('id', 'Template_txtQuantity');
+                        txtTemplateQuantity.setAttribute('onClick', 'this.setSelectionRange(0, this.value.length);');
+                        txtTemplateQuantity.setAttribute('title', 'Quantity');
+                        tableHeaderRowCell7.appendChild(txtTemplateQuantity);
+                        
+                        tableHeaderRowCell7.setAttribute('colspan', '24');
+                        tableHeaderRowCell7.setAttribute('class', 'slds-text-heading--label');
+
+                        <!--  END: ADD ITEM ROW -->
+
+                        counter = 0;
+
+                        result.forEach(function (record) {
+                            addRecord(record);
+                        });
+
+                        //1st footer row with grand total
+                        var tableFooter = dataTable.createTFoot();
+                        var tableFooterRow = tableFooter.insertRow();
+                        var tableFooterRowCell1 = tableFooterRow.insertCell(0);
+                        if('{!objQuote.status__c}' == 'Countered'){
+                            tableFooterRowCell1.setAttribute("colspan", 28);
+                        }else{
+                            tableFooterRowCell1.setAttribute("colspan", 26);
+                        }
+                        tableFooterRowCell1.setAttribute("class", "slds-text-heading--label slds-text-align--right");
+                        tableFooterRowCell1.appendChild(document.createTextNode('Grand Total: '));
+                        var tableFooterRowCell2 = tableFooterRow.insertCell(1);
+                        grandTotal = grandTotal || 0;
+                        tableFooterRowCell2.appendChild(document.createTextNode("$" + grandTotal.toFixed(2)));
+                        //write it
+                        if (qliResults.firstChild) {
+                            qliResults.replaceChild(dataTable, qliResults.firstChild);
+                        }
+                        else {
+                            qliResults.appendChild(dataTable);
+                        }
+
+                        $('#chooseProduct .typeahead').typeahead({
+                                    menu: $('#displayMenu'),
+                                },
+                                {
+                                    source: queryProducts,  // calls our remoting function
+                                    name: 'Products',
+                                    display: 'Name',
+                                    async: true,
+                                    templates: {
+                                        empty: [
+                                            '<div class="empty-message">',
+                                            'No matching products',
+                                            '</div>'
+                                        ].join('\n')
+                                        ,suggestion: function(c) {
+                                            return '<p><strong>' + c.Name + ' - </strong>' + (c.Product2.ProductCode || '') + '-' + (c.Product2.Designation__c || '') + '-' + (c.Product2.Category_ID__c || '') + '-$' + c.UnitPrice.toFixed(2) + '</p>';
+                                        }
+                                    }
+
+                                }).on('typeahead:selected', function (event, item) {
+                            setSelectedValue(this, item, event);
+                            // console.log('typeahead:selected => ' + datum.id);
+                        }).on('typeahead:autocompleted', function (object, datum) {
+                            setSelectedValue(this, datum, object);
+                        }).on('typeahead:open', function(event, item) {
+                            var cp = $('#chooseProduct');
+                            var top = cp.parent().offset().top + 31; // + cp.height;
+                            var left = cp.parent().offset().left + 7;
+
+                            $('#displayMenu').css({top: top, left: left, position:'absolute'});
+                            $('#displayMenu').show();
+                        }).on('typeahead:close', function(event, item) {
+                            $('#displayMenu').hide();
+                        }).keyup(function (ev) {
+                            //console.log('keyup');
+                            // if they press backspace or escape, we want to clear the selection
+                            if (ev.which == 8 || ev.which == 27) {
+                                //console.log('keyup2');
+                                setSelectedValue(this, null, null);
+                            }
+                        });
+
+                        //if (true) $('#chooseProduct').focus();
+
+                    }
+                    else 
+                    {
+                        console.log(event.message);
+                    }
+                }, 
+                {escape: true}
+            );
+        }
+
+        function setSelectedValue( ctrl, pbe, value ) {
+            Visualforce.remoting.Manager.invokeAction(
+                    '{!$RemoteAction.ProductSelectorInlineController.addItem}',
+                    '{!quoteID}',
+                    pbe,
+                    $('#Template_txtQuantity').val(),
+                    function (result, event) {
+                        if(event.status){
+                            console.log('result: ', result);
+                            addRecord(result);
+                        }else{
+                            var errMessageTemp = event.message.split(',');
+                            var errMessage = errMessageTemp[1].split(':');
+                            alert(errMessage[0]);
+                        }
+
+                    });
+        }
+
+        function queryProducts( queryString, syncResults, typeaheadCallback ) {
+            Visualforce.remoting.Manager.invokeAction(
+                    '{!$RemoteAction.ProductSelectorInlineController.searchProductsWithQty}',
+                    queryString,
+                    '{!objQuote.Price_Book__c}',
+                    function (result, event) {
+                        if (event.status) {
+                            //console.log(result);
+                            var dataList = [];
+                            $.each(result, function (i, r) {
+                                //console.dir(r);
+                                dataList.push(r.pbe);
+                            });
+                            //console.dir(dataList);
+                            typeaheadCallback(dataList);
+                        } else {
+                            // TODO: deal with error
+                            alert('Callout error: ' + event.message);
+                            typeaheadCallback([]);
+                        }
+                    },
+                    {escape: false}
+            );
+        }
+
+        <!-- Adds a row to the grid -->
+        function addRecord(record)
+        {
+            console.dir(record);
+           
+            if(record != null && record.ACEWeb_Selector__c == null){
+                var dataRow = tableBody.insertRow();
+                dataRow.setAttribute("class", "dataRow");
+
+                dataRow.setAttribute("id", record.Id);
+
+                var dataRowCellIndex = dataRow.insertCell(0);
+
+                if(record.ACEWeb_Selector__c == null){
+                    counter++;
+                    var rowIndex = document.createTextNode(fetchVal(record.Sort_Sequence_Number__c));
+                    dataRowCellIndex.appendChild(rowIndex);
+                }else{
+                    dataRow.setAttribute("style", "display:none;");
+                }
+
+                var dataRowCell1 = dataRow.insertCell(1);
+                var prodId = document.createElement('input');
+                prodId.setAttribute('value', 'record.Selection_Box__c');
+                prodId.setAttribute('type', 'checkbox');
+                prodId.setAttribute('id', 'CheckInput');
+                prodId.setAttribute('onClick', 'checkOne(this);');
+                prodId.setAttribute('title', record.Id);
+                dataRowCell1.appendChild(prodId);
+
+                var dataRowCell2 = dataRow.insertCell(2);
+                dataRowCell2.setAttribute("style", "text-align: right;");
+                var lin = document.createTextNode(fetchVal(record.Line_Item_Number__c));
+                dataRowCell2.appendChild(lin);
+                
+                
+                var dataRowCell9 = dataRow.insertCell(3);
+                dataRowCell9.setAttribute("style", "text-align: right;");
+                var prdName = '';
+                if(record.Product_Name_Lookup2__c != undefined){
+                    prdName = record.Product_Name_Lookup2__r.Name;
+                }
+                
+                var productCode = document.createTextNode(fetchVal(prdName));
+                if(record.ACEWeb_Selector__c != null)
+                {
+                    var extraSpace = document.createElement("span");
+                    extraSpace.setAttribute('style', 'padding-left:24px;');
+                    dataRowCell9.appendChild(extraSpace);
+
+                    var DOM_img = document.createElement("img");
+                    //DOM_img.src = "https://www.iconarchive.com/download/i87613/icons8/ios7/Arrows-Forward.ico";
+                    DOM_img.src = "https://freevector.co/wp-content/uploads/2011/10/21091-right-curved-arrow1-200x200.png";
+                    DOM_img.setAttribute('height', '18px');
+                    DOM_img.setAttribute('width', '14px');
+                    DOM_img.setAttribute('style', 'vertical-align: 1px; filter: FlipV;-moz-transform: scaleY(-1);-o-transform: scaleY(-1);-webkit-transform: scaleY(-1);transform: scaleY(-1);');
+
+                    dataRowCell9.appendChild(DOM_img);
+
+                    childRow = dataRow.innerHTML;
+
+                    //productCode = document.createTextNode(fetchVal( record.ACEWeb_Selector__r.Product2.ProductCode + '_' + record.Product2.ProductCode));
+                }else if(record != undefined && record.Quote_Line_Items__r != undefined && record.Quote_Line_Items__r.length > 0){
+
+                    var childQLI = '';
+                    for(var i=0;i < record.Quote_Line_Items__r.length; i++){
+                        childQLI += record.Quote_Line_Items__r[i].Id + ',';
+                    }
+
+                    var DOM_img = document.createElement("img");
+                    DOM_img.src = '{!URLFOR($Resource.Minus_Image)}';
+                    DOM_img.setAttribute('height', '24px');
+                    DOM_img.setAttribute('width', '24px');
+                    DOM_img.setAttribute('title', childQLI);
+                    DOM_img.setAttribute('onclick', 'expandCollapse(this)');
+                    DOM_img.setAttribute('style', 'margin-left:-7px;vertical-align: 1px; filter: FlipV;-moz-transform: scaleY(-1);-o-transform: scaleY(-1);-webkit-transform: scaleY(-1);transform: scaleY(-1);');
+
+                    dataRowCell9.appendChild(DOM_img);
+                }
+                dataRowCell9.appendChild(productCode);
+                
+                <!-- Modified for editable qualtity field -->
+                var dataRowCell66 = dataRow.insertCell(4);
+                dataRowCell66.setAttribute("style", "text-align: right;");
+                var prdDesc = '';
+                if(record.Product_Name_Lookup2__c != undefined){
+                    prdDesc = fetchVal(record.Product_Name_Lookup2__r.Description);
+                }
+                
+                if(prdDesc == ''){
+                    prdDesc = fetchVal(record.Line_Item_description__c);
+                }   
+                
+                var description = document.createTextNode(fetchVal(prdDesc));
+                dataRowCell66.appendChild(description);
+                
+                
+                var dataRowCell7 = dataRow.insertCell(5);
+                dataRowCell7.setAttribute("style", "text-align: right;");
+                var orderQty = document.createTextNode(fetchVal(record.Quantity__c));
+                <!-- Modified for editable quantity field -->
+                var txtBox = document.createElement("INPUT");
+                txtBox.setAttribute('value', record.Quantity__c);
+                if(isEditQuantity == 'true'){
+                    txtBox.setAttribute('id', record.Id + '_txtQuantity');
+                    txtBox.setAttribute('title', 'Quantity');
+                    dataRowCell7.appendChild(txtBox);
+                }else{
+                    dataRowCell7.appendChild(orderQty);
+                }
+                
+                var uomName = '';
+                if(record.Product_Name_Lookup2__c != undefined){
+                    uomName = record.Product_Name_Lookup2__r.Unit_Of_Measure__c;
+                }
+                
+                
+
+
+                var dataRowCell44 = dataRow.insertCell(6);
+                dataRowCell44.setAttribute("style", "text-align: right;");
+                var uom = document.createTextNode(fetchVal(uomName));
+                dataRowCell44.appendChild(uom);
+
+
+
+                
+
+                var dataRowCell07 = dataRow.insertCell(7);
+                dataRowCell07.setAttribute("style", "text-align: right;");
+                var designation = document.createTextNode(fetchVal(record.Designation__c));
+                if(isEditQuantity == 'true'){
+                    var txtBoxDes = document.createElement("INPUT");
+                    txtBoxDes.setAttribute('value', fetchVal(record.Designation__c));
+                    txtBoxDes.setAttribute('id', record.Id + '_txtDesignation');
+                    txtBoxDes.setAttribute('title', 'Designation');
+                    dataRowCell07.appendChild(txtBoxDes);
+                }else{
+                    dataRowCell07.appendChild(designation);
+                }
+
+                var dataRowCell88 = dataRow.insertCell(8);
+                dataRowCell88.setAttribute("style", "text-align: right;");
+                var prdCategory = '';
+                if(record.Product_Name_Lookup2__c != undefined && record.Product_Name_Lookup2__r.product_category__c != undefined){
+                    prdCategory = fetchVal(record.Product_Name_Lookup2__r.product_category__r.Name);
+                }
+                var productCategory = document.createTextNode(prdCategory);
+                dataRowCell88.appendChild(productCategory);
+
+                var dataRowCell99 = dataRow.insertCell(9);
+                dataRowCell99.setAttribute("style", "text-align: right;");
+                var grpNumber = document.createTextNode(fetchVal(record.Group_Number__c));
+                dataRowCell99.appendChild(grpNumber);
+
+                var dataRowCell10 = dataRow.insertCell(10);
+                dataRowCell10.setAttribute("style", "text-align: right;");
+                var priceDetermination = document.createTextNode(fetchVal(record.Price_Determination__c));
+                dataRowCell10.appendChild(priceDetermination);
+
+                var dataRowCell11 = dataRow.insertCell(11);
+                dataRowCell11.setAttribute("style", "text-align: right;");
+                var decUnitPrice = fetchVal(record.Unit_List_Price__c);
+                if(decUnitPrice > 0){
+                    decUnitPrice = decUnitPrice.toFixed(2);
+                }
+                var unitListPrice = document.createTextNode("$" + decUnitPrice);
+                dataRowCell11.appendChild(unitListPrice);
+
+                var dataRowCell12 = dataRow.insertCell(12);
+                dataRowCell12.setAttribute("style", "text-align: right;");
+                var decListPrice = fetchVal(record.Extended_List_Price_Formula__c);
+                if(decListPrice > 0){
+                    decListPrice = decListPrice.toFixed(2);
+                }
+                var extendedListPrice = document.createTextNode("$" + decListPrice);
+                dataRowCell12.appendChild(extendedListPrice);
+
+                var dataRowCell13 = dataRow.insertCell(13);
+                dataRowCell13.setAttribute("style", "text-align: right;");
+                var ppmultiplier = document.createTextNode(fetchVal(record.Purchaser_Profile_Multiplier__c));
+                dataRowCell13.appendChild(ppmultiplier);
+
+                var dataRowCell14 = dataRow.insertCell(14);
+                dataRowCell14.setAttribute("style", "text-align: right;");
+                var decCustProfMultiplier = fetchVal(record.Customer_Profile_Multiplier__c);
+                if(decCustProfMultiplier > 0){
+                    decCustProfMultiplier = decCustProfMultiplier.toFixed(1);
+                }
+                var cpmultiplier = document.createTextNode(decCustProfMultiplier);
+                dataRowCell14.appendChild(cpmultiplier);
+
+                var dataRowCell18 = dataRow.insertCell(15);
+                dataRowCell18.setAttribute("style", "text-align: right;");
+                var normalNetMult = document.createTextNode(fetchVal(record.Normal_Net_Multiplier__c));
+                dataRowCell18.appendChild(normalNetMult);
+
+               var dataRowCell20 = dataRow.insertCell(16);
+               dataRowCell20.setAttribute("style", "text-align: right;");
+                var decNormalNetPrice = fetchVal(record.Normal_Net_Extended_Price_Formula__c);
+                if(decNormalNetPrice > 0){
+                    decNormalNetPrice = decNormalNetPrice.toFixed(2);
+                }
+                var normalNetExtPrice = document.createTextNode("$" + decNormalNetPrice);
+                dataRowCell20.appendChild(normalNetExtPrice); 
+
+                var dataRowCell17 = dataRow.insertCell(17);
+                dataRowCell17.setAttribute("style", "text-align: right;");
+                var sysRecommendedFix = document.createTextNode(fetchVal(record.System_Recommended_Fix__c));
+                dataRowCell17.appendChild(sysRecommendedFix);
+
+                var dataRowCell18 = dataRow.insertCell(18);
+                dataRowCell18.setAttribute("style", "text-align: right;");
+                var rsnMultiplier = document.createTextNode(fetchVal(record.Requested_Sell_Net_Multiplier__c));
+                dataRowCell18.appendChild(rsnMultiplier);
+
+                var dataRowCell19 = dataRow.insertCell(19);
+                dataRowCell19.setAttribute("style", "text-align: right;");
+                var decRESNPrice = fetchVal(record.Requested_Extended_Selling_Net_price__c);
+                if(decRESNPrice > 0){
+                    decRESNPrice = decRESNPrice.toFixed(2);
+                }                            
+                var reqExtNetPrice = document.createTextNode("$" + decRESNPrice);                
+                dataRowCell19.appendChild(reqExtNetPrice);   
+                
+                var dataRowCell20 = dataRow.insertCell(20);
+                dataRowCell20.setAttribute("style", "text-align: right;");
+                var decFRPPrice = fetchVal(record.Fix_Requested_Price__c);
+                if(decFRPPrice > 0){
+                    decFRPPrice = decFRPPrice.toFixed(2);
+                }
+                var fixReqPrice = document.createTextNode("$" + decFRPPrice);
+                dataRowCell20.appendChild(fixReqPrice);
+
+                if('{!objQuote.status__c}' == 'Countered'){
+
+                    var dataRowCell21 = dataRow.insertCell(21);
+                    dataRowCell21.setAttribute("style", "text-align: right;");
+                    var psnMultiplier = document.createTextNode(fetchVal(record.Proposed_Sell_Net_Multiplier__c));
+                    dataRowCell21.appendChild(psnMultiplier);
+                    
+                    var dataRowCell22 = dataRow.insertCell(22);
+                    dataRowCell22.setAttribute("style", "text-align: right;");
+                    var decPExtPrice = fetchVal(record.Proposed_Extended_Price__c);
+                    if(decPExtPrice > 0){
+                        decPExtPrice = decPExtPrice.toFixed(2);
+                    }                                
+                    var pExtendedPrice = document.createTextNode("$" + decPExtPrice);
+                    dataRowCell22.appendChild(pExtendedPrice);
+
+
+                    var dataRowCell23 = dataRow.insertCell(23);
+                    dataRowCell23.setAttribute("style", "text-align: right;");
+                    var aSellNMultiplier  = document.createTextNode(fetchVal(record.Authorized_Selling_Net_Multiplier__c));
+                    dataRowCell23.appendChild(aSellNMultiplier);
+
+                    var dataRowCell24 = dataRow.insertCell(24);
+                    dataRowCell24.setAttribute("style", "text-align: right;");
+                    var decAUSNetPrice = fetchVal(record.Authorize_Unit_Selling_Net_Price_Formula__c);
+                    if(decAUSNetPrice > 0){
+                        decAUSNetPrice = decAUSNetPrice.toFixed(2);
+                    }
+                    var reqExtNetPrice = document.createTextNode("$" + decAUSNetPrice);
+                    dataRowCell24.appendChild(reqExtNetPrice); 
+
+                    var dataRowCell25 = dataRow.insertCell(25);
+                    dataRowCell25.setAttribute("style", "text-align: right;");
+                    var warranty = document.createTextNode(fetchVal(record.Warranty__c));
+                    dataRowCell25.appendChild(warranty);
+
+                    var dataRowCell26 = dataRow.insertCell(26);
+                    dataRowCell26.setAttribute("style", "text-align: right;");
+                    var FOB = document.createTextNode(fetchVal(record.FOB__c));
+                    dataRowCell26.appendChild(FOB);
+
+                    var dataRowCell27 = dataRow.insertCell(27);
+                    dataRowCell27.setAttribute("style", "text-align: right;");
+                    var leadTime = document.createTextNode(fetchVal(record.Lead_Time__c));
+                    dataRowCell27.appendChild(leadTime);
+
+                    var dataRowCell28 = dataRow.insertCell(28);
+                    dataRowCell28.setAttribute("style", "text-align: right;");
+                    var shippingLoc = document.createTextNode(fetchVal(record.Shipping_location__c));
+                    dataRowCell28.appendChild(shippingLoc);
+                }else{
+                    var dataRowCell23 = dataRow.insertCell(21);
+                    dataRowCell23.setAttribute("style", "text-align: right;");
+                    var aSellNMultiplier  = document.createTextNode(fetchVal(record.Authorized_Selling_Net_Multiplier__c));
+                    dataRowCell23.appendChild(aSellNMultiplier);
+
+                    var dataRowCell24 = dataRow.insertCell(22);
+                    dataRowCell24.setAttribute("style", "text-align: right;");
+                    var decAUSNetPrice = fetchVal(record.Authorize_Unit_Selling_Net_Price_Formula__c);
+                    if(decAUSNetPrice > 0){
+                        decAUSNetPrice = decAUSNetPrice.toFixed(2);
+                    }
+                    var reqExtNetPrice = document.createTextNode("$" + decAUSNetPrice);
+                    dataRowCell24.appendChild(reqExtNetPrice);
+
+                    var dataRowCell25 = dataRow.insertCell(23);
+                    dataRowCell25.setAttribute("style", "text-align: right;");
+                    var warranty = document.createTextNode(fetchVal(record.Warranty__c));
+                    dataRowCell25.appendChild(warranty);
+
+                    var dataRowCell26 = dataRow.insertCell(24);
+                    dataRowCell26.setAttribute("style", "text-align: right;");
+                    var FOB = document.createTextNode(fetchVal(record.FOB__c));
+                    dataRowCell26.appendChild(FOB);
+
+                    var dataRowCell27 = dataRow.insertCell(25);
+                    dataRowCell27.setAttribute("style", "text-align: right;");
+                    var leadTime = document.createTextNode(fetchVal(record.Lead_Time__c));
+                    dataRowCell27.appendChild(leadTime);
+
+                    var dataRowCell28 = dataRow.insertCell(26);
+                    dataRowCell28.setAttribute("style", "text-align: right;");
+                    var shippingLoc = document.createTextNode(fetchVal(record.Shipping_location__c));
+                    dataRowCell28.appendChild(shippingLoc);
+                }
+            }
+        }
+
+        <!-- Define variable to store selected quote line item ids -->
+        var selQLIId = '';
+        <!-- This function is used to select individual quote line item -->
+        function checkOne(cb){
+            if(selQLIId.indexOf(cb.title)!=-1){
+                selQLIId=selQLIId.replace(cb.title+",","");
+            }else{
+                selQLIId=selQLIId+cb.title+",";
+            }
+            
+        }
+        <!-- This function is used to select individual quote line item -->
+        
+        <!-- This function is used to remove/delete selected quote line items --> 
+        <!-- Added logic to remove multiple quote line items as per user selection - Serge Kandukuri -->
+        function removeItem(){
+            <!-- Added one new parameter for selected quote line item ids -->
+            Visualforce.remoting.Manager.invokeAction(
+            '{!$RemoteAction.ProductSelectorInlineController.removeItem}',
+                QuoteID,
+                selQLIId,
+                function(result, event)
+                {
+                    if(event.status)
+                    {
+                        getItems();
+                        grandTotal = result;
+                    }
+                    else
+                    {
+                        console.log(error.message);
+                    }
+                }, 
+                {escape: true}
+            );
+            if(selQLIId == ''){
+                alert('Please select Quote Line Item');
+            }else{            
+                setTimeout(callafter, 2000);
+            }
+        }
+
+        <!-- This function is used to add a new item selected quote line items -->
+        <!-- Added logic to add quote line items - Jason Curry -->
+        function addItem(){
+            var dataRow = tableBody.insertRow();
+            dataRow.setAttribute("class", "dataRow");
+
+            dataRow.setAttribute("newselector", "true");
+
+            var dataRowCellIndex = dataRow.insertCell(0);
+
+            counter++;
+            var rowIndex = document.createTextNode('');
+            dataRowCellIndex.appendChild(rowIndex);
+
+            var dataRowCell1 = dataRow.insertCell(1);
+            /*var prodId = document.createElement('input');
+            prodId.setAttribute('value', 'record.Selection_Box__c');
+            prodId.setAttribute('type', 'checkbox');
+            prodId.setAttribute('id', 'CheckInput');
+            prodId.setAttribute('onClick', 'checkOne(this);');
+            prodId.setAttribute('title', 'New Item');
+            dataRowCell1.appendChild(prodId);*/
+
+
+
+            /*
+            addRecord({
+                CurrencyIsoCode: 'USD',
+                Extended_Net_Multiplier__c: 0,
+                Line_Item_Number__c: '',
+                Normal_Net_Multiplier__c: 0,
+                Product_Name_Lookup2__r: {
+                    product_category__c: {
+                        CurrencyIsoCode: 'USD',
+                        Name: ''
+                    }
+                },
+                Purchaser_Profile_Multiplier__c: 0,
+                Quantity__c: 1,
+                Quote_Name__c: '',
+                Selection_Box__c: false,
+                Unit_List_Price__c: 0
+            });
+            */
+
+            <!-- Added one new parameter for selected quote line item ids -->
+            /*
+            Visualforce.remoting.Manager.invokeAction(
+                    '{!$RemoteAction.ProductSelectorInlineController.removeItem}',
+                    QuoteID,
+                    selQLIId,
+                    function(result, event)
+                    {
+                        if(event.status)
+                        {
+                            getItems();
+                            grandTotal = result;
+                        }
+                        else
+                        {
+                            console.log(error.message);
+                        }
+                    },
+                    {escape: true}
+            );
+            if(selQLIId == ''){
+                alert('Please select Quote Line Item');
+            }else{
+                setTimeout(callafter, 2000);
+            }
+            */
+        }
+
+
+        <!-- Added logic to remove multiple quote line items as per user selection -->
+        <!-- This function is used to remove/delete selected quote line items -->
+        
+        <!-- This function is used to select all quote line items -->
+        function checkAll(cb){            
+            if(cb.checked==true){
+                var inputElem = document.getElementsByTagName("input");
+                for(var i=0; i<inputElem.length; i++){
+                    if(inputElem[i].id.indexOf("CheckInput")!=-1)
+                    inputElem[i].checked = true;
+                    
+                    if(selQLIId.indexOf(inputElem[i].title)!=-1){
+                        selQLIId=selQLIId.replace(inputElem[i].title+",","");
+                    }else{
+                        selQLIId=selQLIId+inputElem[i].title+",";
+                    }
+                }
+                flag='true'
+            }else{
+                var inputElem = document.getElementsByTagName("input");
+                for(var i=0; i<inputElem.length; i++){
+                    if(inputElem[i].id.indexOf("CheckInput")!=-1)
+                    inputElem[i].checked = false;
+                    
+                    selQLIId = '';
+                }
+                flag='false';
+            }            
+        }        
+        <!-- This function is used to select all quote line items -->
+        
+        function fetchVal(value)
+        {
+            var retVal = "";
+            //console.log('cell value: ' + value);
+            if(typeof value === 'undefined' || value == "undefined")
+            {
+                return retVal;
+            }else{
+                retVal = value;
+                return retVal;
+            }
+        }
+        
+        var OLI = function()
+        {
+           var Id, Quantity, UnitPrice, Discount;
+        };
+        
+        getItems();
+        
+        <!-- Modified for - Added new function to save Quantity field -->
+        function goToQuotePage(){
+            sforce.connection.sessionId = "{!$Api.Session_ID}";
+           
+            var qliRecords = sforce.connection.query("SELECT Id, Designation__c, Quantity__c, Sort_Sequence_Number__c from Quote_Line_Items__c Where Quote_Name__c = '{!quoteID}' order by Line_Item_Number__c");
+            
+            var records = qliRecords.getArray("records");
+            var quantityVal = 0;
+            var needToUpdate;
+            
+            for(var i = 0; i < records.length; i++){
+               if(document.getElementById(records[i].Id+'_txtQuantity') != undefined){
+                    quantityVal = document.getElementById(records[i].Id+'_txtQuantity').value;
+                    needToUpdate = 'false';                    
+                    if(quantityVal != '' && parseInt(records[i].Quantity__c) != quantityVal){
+                        records[i].Quantity__c = quantityVal;                       
+                        needToUpdate = 'true';
+                    }
+                    if(needToUpdate == 'true'){
+                        sforce.connection.update([records[i]]); 
+                    }    
+                }
+                
+                if(document.getElementById(records[i].Id+'_txtDesignation') != undefined){
+                    var designationVal = document.getElementById(records[i].Id+'_txtDesignation').value;
+                    needToUpdate = 'false';                    
+                    if(designationVal != '' && fetchVal(records[i].Designation__c) != designationVal){
+                        records[i].Designation__c = designationVal;                       
+                        needToUpdate = 'true';
+                    }
+                    if(needToUpdate == 'true'){
+                        sforce.connection.update([records[i]]); 
+                    }    
+                }               
+              
+            }
+            
+            var table = document.getElementById('example');
+            var j = 0;
+            var myMap = {}; 
+            for(var i=0; i<table.rows.length;i++){
+                if(table.rows[i].getAttribute('role') != null  && table.rows[i].id != ''){
+                    j += 1;                    
+                    myMap[table.rows[i].id] = j;
+                }
+            }
+                                     
+            document.getElementById('myPage:frm:vfCmp:myCmp:hdnSortSequenceOrder').value = JSON.stringify(myMap);
+            
+            callQuotePageRedirect();
+            return false;
+        }
+        <!-- Modified for - Added new function to save Quantity field -->     
+        
+        <!-- function load after all quote line items is loaded in to table -->  
+        setTimeout(callafter, 2000);
+        
+        <!-- Create Data table with pagination, sorting & drag-drop functionality -->
+        function callafter(){
+            $(document).ready(function() {
+               if('{!objQuote.status__c}' == 'Countered'){
+                   var table = $('#example').DataTable( {
+
+                    rowReorder: true,                        
+                    "aLengthMenu": [[100, -1], [100, "All"]],
+                    "scrollY": 200,
+                    "scrollX": true,                                
+                    "columns": [
+                        null,
+                        null,
+                        null,
+                        null,                            
+                        { "orderDataType": "dom-text-numeric" },
+                        { "orderDataType": "dom-text-numeric" },
+                        null,
+                        null,
+                        null,
+                        null,
+                        null,
+                        null,
+                        null,
+                        null,
+                        null,
+                        null,
+                        null,
+                        null,
+                        null,
+                        null,
+                        null,
+                        null,
+                        null,
+                        null,
+                        null,
+                        null,
+                        null,
+                        null,
+                        null
+                    ]    
+                   } );
+               }else{
+                    var table = $('#example').DataTable( {
+
+                    rowReorder: true,
+                    "aLengthMenu": [[100, -1], [100, "All"]],
+                    "scrollY": 200,
+                    "scrollX": true,
+                    "columns": [
+                        null,
+                        null,
+                        null,
+                        null,
+                        { "orderDataType": "dom-text-numeric" },
+                        { "orderDataType": "dom-text-numeric" },
+                        null,
+                        null,
+                        null,
+                        null,
+                        null,
+                        null,
+                        null,
+                        null,
+                        null,
+                        null,
+                        null,
+                        null,
+                        null,
+                        null,
+                        null,
+                        null,
+                        null,
+                        null,
+                        null,
+                        null,
+                        null
+                    ]
+                   } );
+
+               }
+               
+               <!-- Load Child Rows dynamically -->
+               var parentRowIndex;
+               var addedRow = 0;
+               fullTable.forEach(function(parentRecord){                    
+                    if(parentRecord.Quote_Line_Items__r != undefined && parentRecord.Quote_Line_Items__r.length > 0){
+                        var childQLI = parentRecord.Quote_Line_Items__r;
+                                         
+                        parentRowIndex = document.getElementById(parentRecord.Id).rowIndex - 2 - addedRow;
+                        table.rows(':eq(' + parentRowIndex + ')').every( function () {
+                        var chrows = '';
+                        childQLI.forEach(function(record){
+                            if(record.Sort_Sequence_Number__c == undefined){  
+                                record.Sort_Sequence_Number__c = '';
+                            }
+                            if(record.Designation__c == undefined){  
+                                record.Designation__c = '';
+                            }
+                            
+                            var decUnitPrice = fetchVal(record.Unit_List_Price__c);
+                            if(decUnitPrice > 0){
+                                decUnitPrice = decUnitPrice.toFixed(2);
+                            }
+                            
+                            if(record.Normal_Net_Multiplier__c == undefined){  
+                                record.Normal_Net_Multiplier__c = '';
+                            }
+                            if(record.Extended_Net_Multiplier__c == undefined){  
+                                record.Extended_Net_Multiplier__c = '';
+                            }
+                            
+                            var decNormalNetPrice = fetchVal(record.Normal_Net_Extended_Price_Formula__c);
+                            if(decNormalNetPrice > 0){
+                                decNormalNetPrice = decNormalNetPrice.toFixed(2);
+                            }
+                            
+                            var uomName = '';
+                            if(record.Product_Name_Lookup2__c != undefined && record.Product_Name_Lookup2__r.Unit_Of_Measure__c == undefined){
+                                uomName = fetchVal(record.Product_Name_Lookup2__r.Unit_Of_Measure__c);
+                            }
+                            
+                            if(record.Description__c == undefined){  
+                                record.Description__c = '';
+                            }
+                            if(record.Group_Number__c == undefined){  
+                                record.Group_Number__c = '';
+                            }
+                            
+                            var decListPrice = fetchVal(record.Extended_List_Price_Formula__c);
+                            if(decListPrice > 0){
+                                decListPrice = decListPrice.toFixed(2);
+                            }
+                            
+                            if(record.Purchaser_Profile_Multiplier__c == undefined){  
+                                record.Purchaser_Profile_Multiplier__c = '';
+                            }
+                            var decCustProfMultiplier = fetchVal(record.Customer_Profile_Multiplier__c);
+                            if(decCustProfMultiplier > 0){
+                                decCustProfMultiplier = decCustProfMultiplier.toFixed(1);
+                            }
+                            
+                            var decRESNPrice = fetchVal(record.Requested_Extended_Selling_Net_price__c);
+                            if(decRESNPrice > 0){
+                                decRESNPrice = decRESNPrice.toFixed(2);
+                            }
+                            
+                            var decAUSNetPrice = fetchVal(record.Authorize_Unit_Selling_Net_Price_Formula__c);
+                            if(decAUSNetPrice > 0){
+                                decAUSNetPrice = decAUSNetPrice.toFixed(2);
+                            }
+                            
+                            if(record.Shipping_location__c == undefined){  
+                                record.Shipping_location__c = '';
+                            }
+                            
+                            if(record.Price_Determination__c == undefined){  
+                                record.Price_Determination__c = '';
+                            }
+                            if(record.System_Recommended_Fix__c == undefined){  
+                                record.System_Recommended_Fix__c = '';
+                            }
+                            if(record.Requested_Sell_Net_Multiplier__c == undefined){  
+                                record.Requested_Sell_Net_Multiplier__c = '';
+                            }
+                            
+                            var decFRPPrice = fetchVal(record.Fix_Requested_Price__c);
+                            if(decFRPPrice > 0){
+                                decFRPPrice = decFRPPrice.toFixed(2);
+                            }
+                            
+                            if(record.Proposed_Sell_Net_Multiplier__c == undefined){  
+                                record.Proposed_Sell_Net_Multiplier__c = '';
+                            }
+                            
+                            var decPExtPrice = fetchVal(record.Proposed_Extended_Price__c);
+                            if(decPExtPrice > 0){
+                                decPExtPrice = decPExtPrice.toFixed(2);
+                            }
+                            
+                            if(record.Authorized_Selling_Net_Multiplier__c == undefined){
+                                record.Authorized_Selling_Net_Multiplier__c = '';
+                            }
+
+                            if(record.Warranty__c == undefined){
+                                record.Warranty__c = '';
+                            }
+
+                            if(record.FOB__c == undefined){
+                                record.FOB__c = '';
+                            }
+
+                            if(record.Lead_Time__c == undefined){
+                                record.Lead_Time__c = '';
+                            }
+
+                            var prdCategory = '';
+                            if(record.Product_Name_Lookup2__c != undefined && record.Product_Name_Lookup2__r.product_category__c != undefined){
+                                prdCategory = fetchVal(record.Product_Name_Lookup2__r.product_category__r.Name);
+                            }
+                            
+                            var prdDescription = '';
+                            if(record.Product_Name_Lookup2__c != undefined && record.Product_Name_Lookup2__r.Description != undefined){
+                                prdDescription = fetchVal(record.Product_Name_Lookup2__r.Description);
+                            }
+                            if(prdDescription == ''){
+                                prdDescription = fetchVal(record.Line_Item_description__c);
+                            }
+                            
+                            var prdName = '';
+                            if(record.Product_Name_Lookup2__c != undefined && record.Product_Name_Lookup2__r.Name != undefined){
+                                prdName = fetchVal(record.Product_Name_Lookup2__r.Name);
+                            }
+                            addedRow++;
+                            if('{!objQuote.status__c}' == 'Countered'){
+                                chrows += '<tr id="' + record.Id +'">'+
+                                        '<td></td>'+
+                                        '<td><input type="checkbox" id="CheckInput" onclick="checkOne(this);" title="' + record.Id +'"/></td>'+
+                                        '<td style="text-align: right;">'+record.Line_Item_Number__c+'</td>'+
+                                        '<td style="text-align: right;"><span style="padding-left:24px;"></span><img src="https://freevector.co/wp-content/uploads/2011/10/21091-right-curved-arrow1-200x200.png" height="18px" width="14px" style="vertical-align: 1px; filter: FlipV;-moz-transform: scaleY(-1);-o-transform: scaleY(-1);-webkit-transform: scaleY(-1);transform: scaleY(-1);">' +prdName+ '</td>'+
+                                        '<td style="text-align: right;">'+prdDescription+'</td>'+ 
+                                        '<td style="text-align: right;"><input value="1" id="' + record.Id + '_txtQuantity" title="Quantity" value="' + record.Quantity__c + '"></td>'+                                               
+                                        
+                                        '<td style="text-align: right;">'+uomName+'</td>'+
+                                                                               
+                                        '<td style="text-align: right;"><input id="' + record.Id + '_txtDesignation" title="Designation" value="' + record.Designation__c + '"></td>'+                                        
+                                        '<td style="text-align: right;">'+prdCategory+'</td>'+
+                                        '<td style="text-align: right;">'+record.Group_Number__c+'</td>'+
+                                        '<td style="text-align: right;">'+record.Price_Determination__c+'</td>'+
+                                        '<td style="text-align: right;">$'+decUnitPrice+'</td>'+
+                                        '<td style="text-align: right;">$'+decListPrice+'</td>'+
+                                        '<td style="text-align: right;">'+record.Purchaser_Profile_Multiplier__c+'</td>'+
+                                        '<td style="text-align: right;">'+decCustProfMultiplier+'</td>'+
+                                        '<td style="text-align: right;">'+record.Normal_Net_Multiplier__c+'</td>'+                                        
+                                        '<td style="text-align: right;">$'+decNormalNetPrice+'</td>'+
+                                        '<td style="text-align: right;">'+record.System_Recommended_Fix__c+'</td>'+
+                                        '<td style="text-align: right;">'+record.Requested_Sell_Net_Multiplier__c+'</td>'+
+                                        '<td style="text-align: right;">$'+decRESNPrice+'</td>'+
+                                        '<td style="text-align: right;">$'+decFRPPrice+'</td>'+
+                                        '<td style="text-align: right;">'+record.Proposed_Sell_Net_Multiplier__c+'</td>'+
+                                        '<td style="text-align: right;">$'+decPExtPrice+'</td>'+
+                                        '<td style="text-align: right;">'+record.Authorized_Selling_Net_Multiplier__c+'</td>'+
+                                        '<td style="text-align: right;">$'+decAUSNetPrice+'</td>'+
+                                        '<td style="text-align: right;">'+record.Warranty__c+'</td>'+
+                                        '<td style="text-align: right;">'+record.FOB__c+'</td>'+
+                                        '<td style="text-align: right;">'+record.Lead_Time__c+'</td>'+
+                                        '<td style="text-align: right;">'+record.Shipping_location__c+'</td>'+
+                                    '</tr>'
+                                }else{
+
+                                    chrows += '<tr id="' + record.Id +'">'+
+                                        '<td></td>'+
+                                        '<td><input type="checkbox" id="CheckInput" onclick="checkOne(this);" title="' + record.Id +'"/></td>'+
+                                        '<td style="text-align: right;">'+record.Line_Item_Number__c+'</td>'+
+                                        '<td style="text-align: right;"><span style="padding-left:24px;"></span><img src="https://freevector.co/wp-content/uploads/2011/10/21091-right-curved-arrow1-200x200.png" height="18px" width="14px" style="vertical-align: 1px; filter: FlipV;-moz-transform: scaleY(-1);-o-transform: scaleY(-1);-webkit-transform: scaleY(-1);transform: scaleY(-1);">' +prdName+ '</td>'+
+                                        '<td style="text-align: right;">'+prdDescription+'</td>'+
+                                        '<td style="text-align: right;"><input value="1" id="' + record.Id + '_txtQuantity" title="Quantity" value="' + record.Quantity__c + '"></td>'+
+                                       
+                                        '<td style="text-align: right;">'+uomName+'</td>'+
+                                        
+                                        '<td style="text-align: right;"><input id="' + record.Id + '_txtDesignation" title="Designation" value="' + record.Designation__c + '"></td>'+
+                                        '<td style="text-align: right;">'+prdCategory+'</td>'+
+                                        '<td style="text-align: right;">'+record.Group_Number__c+'</td>'+
+                                        '<td style="text-align: right;">'+record.Price_Determination__c+'</td>'+
+                                        '<td style="text-align: right;">$'+decUnitPrice+'</td>'+
+                                        '<td style="text-align: right;">$'+decListPrice+'</td>'+
+                                        '<td style="text-align: right;">'+record.Purchaser_Profile_Multiplier__c+'</td>'+
+                                        '<td style="text-align: right;">'+decCustProfMultiplier+'</td>'+
+                                        '<td style="text-align: right;">'+record.Normal_Net_Multiplier__c+'</td>'+
+                                        '<td style="text-align: right;">$'+decNormalNetPrice+'</td>'+
+                                        '<td style="text-align: right;">'+record.System_Recommended_Fix__c+'</td>'+
+                                        '<td style="text-align: right;">'+record.Requested_Sell_Net_Multiplier__c+'</td>'+
+                                        '<td style="text-align: right;">$'+decRESNPrice+'</td>'+
+                                        '<td style="text-align: right;">$'+decFRPPrice+'</td>'+
+
+
+                                        '<td style="text-align: right;">'+record.Authorized_Selling_Net_Multiplier__c+'</td>'+
+                                        '<td style="text-align: right;">$'+decAUSNetPrice+'</td>'+
+                                        '<td style="text-align: right;">'+record.Warranty__c+'</td>'+
+                                        '<td style="text-align: right;">'+record.FOB__c+'</td>'+
+                                        '<td style="text-align: right;">'+record.Lead_Time__c+'</td>'+
+                                        '<td style="text-align: right;">'+record.Shipping_location__c+'</td>'+
+                                    '</tr>'
+                                }
+                        });
+                                                  
+                        this.child($(
+                                    chrows
+                                    )
+                                ).show();                                     
+                        } );                                                  
+                    }                        
+               });                                    
+            } );               
+            <!-- Load Child Rows dynamically -->
+        }
+            
+        $.fn.dataTable.ext.order['dom-text-numeric'] = function  ( settings, col ){
+            
+            return this.api().column( col, {order:'index'} ).nodes().map( function ( td, i ) {
+                return $('input', td).val() * 1;
+            } );
+        };
+        <!-- This function is used to expand & collapse Child quote line item rows --> 
+        function expandCollapse(img){        
+            var childQli = img.title.split(",");
+            if(img.src.includes('{!URLFOR($Resource.Plus_Image)}')){
+                for(var i=0;i < childQli.length; i++){           
+                    if(childQli[i] != ''){                    
+                        if(document.getElementById(childQli[i]) != undefined){                        
+                            document.getElementById(childQli[i]).style = 'display:;';
+                        }
+                    }
+                }             
+                img.src = '{!URLFOR($Resource.Minus_Image)}';
+            }else{
+                for(var i=0;i < childQli.length; i++){           
+                    if(childQli[i] != ''){                    
+                        if(document.getElementById(childQli[i]) != undefined){                        
+                            document.getElementById(childQli[i]).style = 'display:none;';
+                        }
+                    }
+                } 
+                img.src = '{!URLFOR($Resource.Plus_Image)}';
+            }
+        
+        }
+        <!-- This function is used to expand & collapse Child quote line item rows --> 
+        </script>            
+        <style type="text/css">
+
+            .empty-message {
+                padding: 5px 10px;
+                text-align: center;
+            }
+
+            .ui-sortable tr {
+                cursor:pointer;
+            }
+                    
+            .ui-sortable tr:hover {
+                background:rgba(244,251,17,0.45);
+            }
+            
+        </style>
+        <!-- Modified for fix header-->
+    </body>
+    </html>
+    <!-- Modified for Quote page redirect -->
+    <apex:inputhidden id="hdnSortSequenceOrder" value="{!strSortSequenceOrder}"/>
+    <apex:actionFunction name="callQuotePageRedirect" action="{!QuotePageRedirect}"/>
+    <!-- Modified for Quote page redirect -->
+</apex:component>

@@ -1,0 +1,40 @@
+<aura:component controller="accountReportController" implements="flexipage:availableForAllPageTypes,force:appHostable">
+  <aura:handler name="init" action="{!c.doInit}" value="{!this}" />
+  <aura:attribute name="accounts" type="Account[]"/>
+    <aura:attribute name="mycolumns" type="List"/>
+    <aura:attribute name="sortedBy" type="String" default="Name"/>
+    <aura:attribute name="sortedDirection" type="String" default="asc"/>
+
+  <aura:handler event="c:accountSearchText" action="{!c.accountSearchTextChange}"/>
+  
+    <div class="slds">
+    <div class="slds-page-header noborderbottom" role="banner"> 
+        <div class="slds-grid">
+    <div class="slds-col slds-align-bottom" style="margin-top:10px">
+         <c:filterComponent />
+    </div>
+</div>
+        
+      <div class="slds-grid">
+        <div class="slds-col slds-has-flexi-truncate">
+          <p class="slds-text-heading--label" style="padding-bottom: 4px;">Filter Accounts</p>
+          
+        </div>
+      </div>
+      
+    </div>   
+  </div>       
+  <div class="slds">
+    
+      
+      <lightning:datatable aura:id="lightningTable"
+                     data="{! v.accounts }"
+                     columns="{! v.mycolumns }"
+                     keyField="Id"
+                     onsort="{!c.updateColumnSorting}"
+                     sortedBy="{!v.sortedBy}"  
+                     sortedDirection="{!v.sortedDirection}"
+                     hideCheckboxColumn="true"></lightning:datatable>
+                           
+  </div>
+</aura:component>

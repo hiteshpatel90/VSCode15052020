@@ -1,0 +1,33 @@
+<aura:component implements="force:appHostable,flexipage:availableForAllPageTypes,lightning:isUrlAddressable,flexipage:availableForRecordHome,force:hasRecordId" access="global" >
+    <!-- 
+    /**
+    * Webkul Software.
+    *
+    * @category  Webkul
+    * @author    Webkul
+    * @copyright Copyright (c) 2010-2016 Webkul Software Private Limited (https://webkul.com)
+    * @license   https://store.webkul.com/license.html
+    */
+    -->
+    <div>
+        <lightning:button label="Information"
+                          variant="brand"
+                          onclick="{!c.showInfoToast}"
+                          >
+        </lightning:button>
+        <lightning:button label="Error"
+                          variant="destructive"
+                          onclick="{!c.showErrorToast}">
+        </lightning:button>
+        <lightning:button label="Warning"
+                          variant="inverse"
+                          onclick="{!c.showWarningToast}"
+                          class="wk_warning">
+        </lightning:button>
+        <lightning:button label="Success"
+                          variant="inverse"
+                          onclick="{!c.showSuccessToast}"
+                          class = "wk_success">
+        </lightning:button>
+    </div>
+</aura:component>

@@ -1,0 +1,21 @@
+<apex:page standardController="opportunity" extensions="TosendEmail" >
+
+<!-- sendEmail is wrapper class 
+--> 
+    <apex:form >
+        <apex:pagemessages ></apex:pagemessages>
+        <apex:pageBlock >
+        
+            <apex:pageBlockTable value="{!wrapperObj}" var="x">
+                <apex:column >
+                    <apex:inputCheckbox value="{!x.checkbox}"/>
+                </apex:column>
+                <apex:column value="{!x.conObj.Contact.Name}"/> 
+                <apex:column value="{!x.conObj.Contact.Email}"/> 
+                  
+            </apex:pageBlockTable>
+            <apex:commandButton value="SendEmail" action="{!send}"/> 
+        
+        </apex:pageBlock>
+    </apex:form>
+ </apex:page>

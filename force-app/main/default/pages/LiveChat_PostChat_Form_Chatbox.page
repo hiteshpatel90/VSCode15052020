@@ -1,0 +1,703 @@
+<apex:page controller="LiveChat_PostChat_Form" standardStylesheets="false" showHeader="false">
+<html lang="en-US">
+    <meta http-equiv="content-type" content="text/html;charset=UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1"/>
+    <link rel="stylesheet" type="text/css" href="https://fonts.googleapis.com/css?family=Roboto:400,100,400italic,700italic,700"/>
+    <link rel="stylesheet" type="text/css" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.3.0/css/font-awesome.min.css"/>
+    
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/2.1.3/jquery.min.js"></script>
+    <script src="https://code.jquery.com/ui/1.11.2/jquery-ui.min.js"></script>
+        
+    <head>  
+        <script>
+            window.lmd={
+                cc:"US",
+                bu:"support",
+                language: "en_US"
+            };
+        </script>
+        <script src="//assets.adobedtm.com/9f0b01d01b963414024fff848ca9d3750437e1fa/satelliteLib-049b1f0ec32513967b9eef550a7aa4db75461d8a.js"></script>
+    
+    <script src="https://code.jquery.com/jquery-3.1.0.js"></script>
+     <script src="//ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>
+      <script src="//cdnjs.cloudflare.com/ajax/libs/jquery-form-validator/2.3.26/jquery.form-validator.min.js"></script>
+      <script>
+      $.validate({
+        lang: 'es'
+      });
+      </script>
+      <apex:includeScript value="https://c.cs28.visual.force.com/support/console/29.0/integration.js"/>
+      
+      <style type="text/css">                
+                body {
+                  
+                  font-family: 'Lato', Arial, sans-serif;
+                  -webkit-font-smoothing: antialiased;
+                  -moz-osx-font-smoothing: grayscale;
+                  background-image: url("{!URLFOR($Resource.chatbox_img, 'img/big/mainchatscreen-desktop.png')}");
+                    background-size: cover;
+                }
+                
+                .call-chat {
+                  width: 280px;
+                  margin: 0 auto;
+                  margin-bottom: 30px;
+                  margin-right: 10px;
+                  right: 10px;
+                  bottom: 30px;
+                  position: absolute;
+                  display: flex;
+                }
+                
+                .open-chat {
+                  height: 46px;
+                  width: 114px;
+                  border-radius: 20px;
+                  border: 0px;
+                  color: #FFF;
+                  font-weight: 600;
+                  position: absolute;
+                  right: 10px;
+                  display: flex;
+                  align-items: center;
+                  cursor: pointer;
+                  justify-content: center;
+                  background-size: cover;
+                  background-image: url("{!URLFOR($Resource.chatbox_img, 'img/big/chat-button.png')}");
+                }
+                
+                .open-chat img {
+                  margin-right: 5px;
+                  margin-left: 5px;
+                }
+                
+                .open-call img{
+                  height: 10px;
+                  margin: 10px;
+                  margin-left: 20px;
+                }
+                
+                
+                .close-chat {
+                  height: 46px;
+                  width: 115px;
+                  border-radius: 20px;
+                  border: 0px;
+                  color: #FFF;
+                  font-weight: 600;
+                  position: absolute;
+                  right: 10px;
+                  display: flex;
+                  align-items: center;
+                  cursor: pointer;
+                  justify-content: center;
+                  background-size: cover;
+                  background-image: url("{!URLFOR($Resource.chatbox_img, 'img/big/chat-button.png')}");
+                }
+                
+                .close-chat img {
+                  margin-right: 5px;
+                  margin-left: 5px;
+                }
+                
+                .open-call {
+                  font-size: 12px;
+                  height: 46px;
+                  width: 280px;
+                  border-radius: 20px;
+                /*  background-color: #f1f1f1; */
+                  border: 0px;
+                  color: #000;
+                  position: absolute;
+                  right: 10px;
+                  text-align:start;
+                  align-items: center;
+                  display: flex;
+                  cursor: default;
+                  background-size: cover;
+                  background-image: url("{!URLFOR($Resource.chatbox_img, 'img/big/chatbutton-desktop.png')}");
+                }
+                
+                #prechatForm{
+                    
+                }
+                
+                #chat {
+                  /*background-size: 324px 396px;
+                  width: 324px;
+                  height: 396px;
+                  margin: 0 auto;
+                  right: 10px;
+                  bottom: 70px;
+                  position: absolute;*/
+                }
+                .chat header {
+                  width: 200px;
+                  margin: 0 auto;
+                  margin-top: 10px;
+                  color: #ffffff;
+                  font-size: 14px;
+                  height: 35px;
+                }
+                
+                #info {
+                  left: 25px;
+                }
+                
+                header img {
+                  height: 35px;
+                  margin-top: 5px;  
+                  position: absolute;
+                }
+                
+                #move {
+                  right: 25px;
+                  cursor: move;
+                }
+                
+                #move:before,
+                #move:after {
+                  display: block;
+                  content: '';
+                  clear: both;
+                }
+                
+                .body {
+                  position: absolute;
+                
+                  width: 324px;
+                  right: 0px;
+                  align-items: center;
+                  margin: 0 auto;
+                  align-content: center;
+                  align-items: center;
+                  text-align: center;
+                }
+                
+                .body p {
+                  color: #fff;
+                  margin: 5px auto;
+                }
+                
+                .chat-button {
+                  width: 240px;
+                  padding: 10px;
+                  margin: 7px;
+                  background-color: #fff;
+                  border-radius: 7px;
+                  border: 0px;
+                }
+                
+                #screen-two {
+                  width: 206px;
+                  margin: 0 auto;
+                  position: relative;
+                  text-align: left;
+                  font-size: 14px;
+                }  
+                
+                #screen-four {
+                  
+                  width: 260px;
+                  margin: 0 auto;
+                  position: relative;
+                  text-align: left;
+                  margin-top: 18px;
+                  font-size: 12px;
+                }  
+                
+                #screen-two input {
+                  border-radius: 10px;
+                  height: 30px;
+                  width: 204px;
+                  border-width: 0px;
+                  padding-left: 10px; 
+                }
+                
+                #submit {
+                  width: 190px;
+                  margin: 0 auto;
+                  display: block;
+                  background: #FF6D00;
+                  margin-top: 20px;
+                  border-radius: 12px;
+                  border-width: 0px; 
+                  color: #fff;
+                  font-size: 16px;
+                }
+                
+                .rating {
+                  display: inline-flex;
+                  color: #fff;
+                  text-align: center;
+                }
+                
+                
+                input[type='radio'] {
+                    -webkit-appearance: none;
+                    width: 12px;
+                    height: 12px;
+                    border: 2px solid white;
+                    border-radius: 50%;
+                    outline: none;
+                }
+                
+                input[type='radio']:hover {
+                  box-shadow:0 0 5px 0px orange inset;
+                }
+                
+                input[type='radio']:before {
+                  content:'';
+                  display:block;
+                  width:60%;
+                  height:60%;
+                  margin: 20% auto;    
+                  border-radius:50%;    
+                }
+                input[type='radio']:checked:before {
+                  background:white;
+                }
+                
+                #comments {
+                    width: 260px;
+                    height: 100px;
+                    border: 0px;
+                } 
+                
+                .chat-buttons {
+                  background-color: #fff;
+                  border-radius: 20px;
+                  border: 1px #888 solid;
+                  font-size: 10px;
+                  padding: 3px 15px 3px 15px;
+                  color: #888;
+                  margin: 5px;
+                }
+                
+                #screen-three {
+                  display: none;
+                  top: 60px;
+                }
+                
+                
+                /*  */
+                
+                .chat-history {
+                  margin: 0 auto;
+                  width: 260px;
+                }
+                
+                .chat-history ul {
+                  margin: 0 auto;
+                  padding: 0px;
+                }
+                .chat .chat-history .message-data {
+                  margin-bottom: 7px;
+                  font-size: 12px;
+                }
+                .chat .chat-history .message-data-time {
+                  color: #a8aab1;
+                  padding-left: 6px;
+                }
+                .chat .chat-history .message {
+                  color: white;
+                  padding: 5px;
+                  font-size: 13px;
+                  font-family: 'Lato', Arial, sans-serif;
+                  text-align: left;
+                  border-radius: 5px;
+                  margin-bottom: 20px;
+                  min-width: 25px;
+                  position: relative;
+                }
+                .chat .chat-history .message:after {
+                content: "";
+                    position: absolute;
+                    top: -7px;
+                    left: 7px;
+                    border-width: 0 8px 8px;
+                    border-style: solid;
+                    border-color: #CCC transparent;
+                    display: block;
+                    width: 0;
+                }
+                .chat .chat-history .you-message {
+                  background: #CCC;
+                  color:#003366;
+                }
+                .chat .chat-history .me-message {
+                  background: #3fa3ae;
+                }
+                .chat .chat-history .me-message:after {
+                  border-color: #3fa3ae transparent;
+                    right: 7px;
+                    top: -7px;
+                    left: auto;
+                    bottom:auto;
+                }
+                .chat .chat-message {
+                  padding: 30px;
+                }
+                .chat .chat-message .fa-file-o, .chat .chat-message .fa-file-image-o {
+                  font-size: 16px;
+                  color: gray;
+                  cursor: pointer;
+                }
+                
+                .chat-ul li{
+                    list-style-type: none;
+                }
+                
+                .align-left {
+                  text-align: left;
+                }
+                
+                .align-right {
+                  text-align: right;
+                }
+                
+                .float-right {
+                  float: right;
+                }
+                
+                .clearfix:after {
+                  visibility: hidden;
+                  display: block;
+                  font-size: 0;
+                  content: " ";
+                  clear: both;
+                  height: 0;
+                }
+                .you {
+                  color: #CCDBDC;
+                }
+                
+                .me {
+                  color: #E9724C;
+                }
+                
+                .block-compose {
+                  display: -webkit-flex;
+                  display: flex;
+                  -webkit-flex-direction: row;
+                  flex-direction: row;
+                  -webkit-align-items: flex-end;
+                  align-items: flex-end;
+                  max-width: 260px;
+                  box-sizing: border-box;
+                  position: relative;
+                  z-index: 2;
+                  margin: 0 auto;
+                  margin-top: 95px;
+                }
+                
+                .block-compose .input-container .input {
+                  word-wrap: break-word;
+                  white-space: pre-wrap;
+                  padding: 5px 10px 0px 10px;
+                  min-height: 20px;
+                  max-height: 42px;
+                  overflow-y: auto;
+                  overflow-x: hidden;
+                  background-color: rgba(255,255,255,0);
+                  position: relative;
+                  width: 260px;
+                  z-index: 1;
+                  -webkit-flex: 1 1 auto;
+                  flex: 1 1 auto;
+                  min-width: 0;
+                  box-sizing: border-box;
+                  font-weight: normal;
+                  transition: height .18s ease-in-out;
+                  line-height: 20px;
+                  font-size: 15px;
+                  min-height: 20px;
+                  border: none;
+                  outline: none;
+                  font-family: 'Lato', Arial, sans-serif;
+                }
+                
+                
+                .no-resize-bar {
+                  resize: none;
+                }
+                
+                #name-conatiner {
+                  display: none;
+                }
+                
+                #proces-name {
+                  width: 196px;
+                  margin: 0px;
+                  text-align: center;
+                  margin-top: 15px;
+                }
+            </style>
+            
+            <link href="{!URLFOR($Resource.LiveChatTheme)}" rel='stylesheet' type='text/css' media='all'/>
+            
+  
+    </head>
+    <body>
+    <!--<a class="window_close" href="JavaScript:window.close()">Close
+    </a>-->
+    <!--Start of review screen-->
+    <div class='chat' id="chat">
+    <div class="body" id="screen-four">
+        <p>Based on this chat, on a scale of 0-10, where 10 is most favaorable and 0 being least favorable, how likely is it that you would recommend Lenovo to a friend or colleague?</p>
+        <div class="rating">
+            <label>                
+                <input type="radio" name="scale" value="1" required="required"/>1
+            </label>
+            <label>
+                <input type="radio" name="scale" value="2"/>2 
+            </label>
+            <label>
+                <input type="radio" name="scale" value="3"/>3
+            </label>
+            <label>
+                <input type="radio" name="scale" value="4"/>4
+            </label>
+            <label>
+                <input type="radio" name="scale" value="5"/>5
+            </label>
+            <label>
+                <input type="radio" name="scale" value="6"/>6
+            </label>
+            <label>
+                <input type="radio" name="scale" value="7"/>7
+            </label>
+            <label>
+                <input type="radio" name="scale" value="8"/>8
+            </label>
+            <label>
+                <input type="radio" name="scale" value="9"/>9
+            </label>
+            <label>
+                <input type="radio" name="scale" value="10"/>10
+            </label>    
+        </div>
+        <p>Please tell us how we can improve your experience:</p>
+        <textarea id="commentId" type="text" class="no-resize-bar" name="review" required="required"/>
+        <button id="submit" onclick="onSubmit()">SUBMIT</button>
+        <input type="hidden" value="{!$CurrentPage.parameters.chatKey}" id="chatKeyId"/>
+        <input type="hidden" value="{!$CurrentPage.parameters.chatDetails}" id="chatKeyId1"/>
+        <input type="hidden" value="{!$CurrentPage.parameters.startTime}" id="starttimeIdhdn"/>
+        <input type="hidden" value="{!$CurrentPage.parameters.chatKey}" id="chatKeyIdhdn"/>
+    </div>
+    </div>
+    <!--End of review screen-->
+  
+  
+    <!--<div id="pnl">
+        <table>
+            <tr>
+                <td class="scale">
+               Thank you for contacting Lenovo. If you could talk this brief one question survey about how we did today, we'd really appreciate it!<br/><br/>
+                </td>
+            </tr> 
+            <tr>
+                <td class="scale">
+                    Based on this chat, on a scale of 0-10, where 10 is most favorable and 0 being least favorable,<br/>
+                    how likely is it that you would recommend Lenovo to a friend or colleague?
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    <span id="errorId"></span><br/>
+                    <table width="90%">
+                        <tr>
+                            <td align="center">
+                                <input type="radio" name="scale" value="0"/> 
+                            </td>
+                            <td align="center">
+                                <input type="radio" name="scale" value="1" required="required"/> 
+                            </td>
+                            <td align="center">
+                                <input type="radio" name="scale" value="2"/> 
+                            </td>
+                            <td align="center">
+                                <input type="radio" name="scale" value="3"/> 
+                            </td>
+                            <td align="center">
+                                <input type="radio" name="scale" value="4"/> 
+                            </td>
+                            <td align="center">
+                                <input type="radio" name="scale" value="5"/> 
+                            </td>
+                            <td align="center">
+                                <input type="radio" name="scale" value="6"/> 
+                            </td>
+                            <td align="center">
+                                <input type="radio" name="scale" value="7"/> 
+                            </td>
+                            <td align="center">
+                                <input type="radio" name="scale" value="8"/> 
+                            </td>
+                            <td align="center">
+                                <input type="radio" name="scale" value="9"/> 
+                            </td>
+                            <td align="center">
+                                <input type="radio" name="scale" value="10"/> 
+                            </td>
+                        </tr>
+                        <tr>
+                            <td align="center" style="font-size: 15px;font-weight: bold;">
+                                0
+                            </td>
+                            <td align="center" style="font-size: 15px;font-weight: bold;">
+                                1
+                            </td>
+                            <td align="center" style="font-size: 15px;font-weight: bold;">
+                                2
+                            </td>
+                            <td align="center" style="font-size: 15px;font-weight: bold;">
+                                3
+                            </td>
+                            <td align="center" style="font-size: 15px;font-weight: bold;">
+                                4
+                            </td>
+                            <td align="center" style="font-size: 15px;font-weight: bold;">
+                                5 
+                            </td>
+                            <td align="center" style="font-size: 15px;font-weight: bold;">
+                                6
+                            </td>
+                            <td align="center" style="font-size: 15px;font-weight: bold;">
+                                7 
+                            </td>
+                            <td align="center" style="font-size: 15px;font-weight: bold;">
+                                8 
+                            </td>
+                            <td align="center" style="font-size: 15px;font-weight: bold;">
+                                9 
+                            </td>
+                            <td align="center" style="font-size: 15px;font-weight: bold;">
+                                10
+                            </td>
+                        </tr>
+                    </table>
+               </td>
+            </tr>            
+            <tr>
+                <td class="scale">
+                    Please tell us how we can improve your experience: <br/>
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    <textarea row="15" col="18" id="commentId" required="required"/>
+                </td>
+            </tr>
+            <tr>
+                <td col="2" align="center">
+                    <input type="button" onclick="onSubmit()" value="Submit" id="rn_ChatLaunchButton_27_Button" style="margin-top:5px;"/>
+                    
+                </td>
+            </tr>
+        </table>  
+    </div>-->
+    <!--<div id="pnl1" class="scale" style="display:none;padding: 43% 10%;font-size: 16px;">       
+        Thank you, we've received your feedback.
+    </div>-->
+    
+    <div id="abandoned" style="display: none;padding: 43% 10%;font-size: 16px;">
+         <!-- Chat is either closed now or we are experiencing technical difficulties.  We apologize for the inconvenience.  Please try again later.-->
+         Thank you for contacting Lenovo chat, we are either closed or experiencing technical difficulties, we apologize for any inconvenience this may have caused you.
+      </div>
+    <div id="clientIdleTimeout" style="display: none;padding: 43% 10%;font-size: 16px;">        
+         Your current Lenovo chat session has ended due to inactivity.  Please do not hesitate to contact us in the future.
+    </div>
+      
+    <script>
+        function onSubmit(){  
+            var isChatAliveBool = isChatAlive();
+            if(isChatAliveBool){      
+                var comment = $('#commentId').val();
+                var radio = $('input[name=scale]:checked').val();
+                var ckid = $('#chatKeyId').val();
+                var starttimehdn = $('#starttimeIdhdn').val();
+                var chatKeyIdhdn1 = $('#chatKeyIdhdn').val();
+                console.log('------------------------');
+                console.log($('input[name=scale]:checked').length);
+                 
+                if($('input[name=scale]:checked').length === 0){
+                    $('#errorId').text('Scale is required, please select anyone of them from 1-9!').css('color','red');
+                    return null;
+                }
+                
+                Visualforce.remoting.Manager.invokeAction(
+                    '{!$RemoteAction.LiveChat_PostChat_Form.createFeedback}',
+                    radio,comment, ckid, starttimehdn , chatKeyIdhdn1,
+                    function(result, event){
+                        if (event.status) {
+                            // Get DOM IDs for HTML and Visualforce elements like this
+                            console.log(result);  
+                            $('#pnl').hide();
+                            $('#pnl1').show();                  
+                        } else if (event.type === 'exception') {
+                            alert(event.message + "\n" + event.where);
+                        } else {
+                            alert(event.message);
+                        }
+                    }, 
+                    {escape: true}
+                );
+            }
+        }
+        function isChatAlive(){
+            //console.log("{!$CurrentPage.parameters.disconnectedBy}");
+            var requestTime = '{!$CurrentPage.parameters.requestTime}';
+            var startTime = '{!$CurrentPage.parameters.startTime}';
+            // when startTime doesn't have a value, it means the chat never started
+            /*var agentIsOnline = testGetAgentState();
+            if(agentIsOnline){
+                return true;
+            }*/
+
+            //var agentIsOnline = testGetAgentState();
+            //alert(agentIsOnline);
+           
+            //alert('{!$CurrentPage.parameters.disconnectedBy}');
+            if (!startTime ) {
+                  //document.getElementById('chat').style.display = 'none';                  
+                  document.getElementById('abandoned').style.display = 'none';
+                  //window.close();
+                  return false;
+            }
+            
+            if('{!isAgentOnline}' == 'true'){
+                document.getElementById('chat').style.display = 'block';                
+                document.getElementById('abandoned').style.display = 'none';
+            }else{
+                document.getElementById('chat').style.display = 'none';                
+                document.getElementById('abandoned').style.display = 'block';
+                return false;
+            }
+            
+            if('{!$CurrentPage.parameters.disconnectedBy}' == 'clientIdleTimeout'){
+                document.getElementById('chat').style.display = 'none';                
+                document.getElementById('abandoned').style.display = 'none';
+                document.getElementById('clientIdleTimeout').style.display = 'block';
+            }
+            
+            return true;
+        }
+        function testGetAgentState() {
+            sforce.console.chat.getAgentState(function(result) {
+                if (result.success) {
+                    alert('Agent State:' + result.state);
+                    return true;
+                } else {
+                    alert('getAgentState has failed');
+                    return false;
+                }
+            });
+            return true;
+        }
+        isChatAlive();
+    </script>
+    <script type="text/javascript">if(typeof _satellite !== "undefined")_satellite.pageBottom(); </script>
+    </body>
+</html>
+</apex:page>

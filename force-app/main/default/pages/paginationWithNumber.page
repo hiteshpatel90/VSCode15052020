@@ -1,0 +1,25 @@
+<apex:page title="Salesforce SOQL Offset Example Using Visualforce" controller="dynamic_visualforce_with_soql_offset" showHeader="false" sidebar="false" readOnly="true" cache="false">
+<apex:sectionHeader subtitle="SOQL Offset Example w/Dynamic Page Buttons" title="Square Root Table"/>
+    
+<apex:form >
+<apex:pageBlock >   
+    
+    <apex:actionFunction action="{!refreshGrid}" name="queryByPage" reRender="myPanel,myButtons" >
+        <apex:param name="firstParam" assignTo="{!selectedPage}" value="" />
+    </apex:actionFunction>
+    
+    <apex:dynamicComponent componentValue="{!myCommandButtons}"/>        
+    
+    <apex:pageBlockSection title="Numbers and their Square Roots (Total List Size: {!total_size})" collapsible="false">
+    <apex:outputPanel id="myPanel">
+    <apex:pageMessages id="theMessages" />
+    <apex:pageBlockTable value="{!numbers}" var="n" align="center">
+        <apex:column value="{!n.Number__c}" />
+        <apex:column value="{!n.Square_Root__c}" />
+        <apex:facet name="footer">Showing Page # {!pageNumber} of {!totalPages}</apex:facet>
+    </apex:pageBlockTable>
+    </apex:outputPanel>
+    </apex:pageBlockSection>    
+</apex:pageBlock>
+</apex:form>
+</apex:page>

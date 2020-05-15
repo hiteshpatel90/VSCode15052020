@@ -1,0 +1,31 @@
+<apex:page controller="DetailsFormController1">
+  <apex:form > 
+  <apex:pageBlock >
+     <apex:pageBlockSection >
+         <apex:inputField value="{!objAccount.Name}" label="Account Name"/> <br/>
+    </apex:pageBlockSection>
+  <apex:commandButton value="copyAddress" action="{!CopyFields}"/>
+<apex:outputpanel rendered="{!(ShowPage==1)}">
+  <apex:pageBlockSection title="Billing Address"  > 
+    <apex:inputField value="{!objAccount.BillStreet__c}" label="Billing Street"/> <br/>   
+     <apex:inputField value="{!objAccount.BillCity__c}" label="Billing City"/> <br/>   
+     <apex:inputField value="{!objAccount.BillState__c}" label="Billing State"/> <br/> 
+      </apex:pageBlockSection>
+  
+   <apex:pageBlockSection > 
+        <apex:inputCheckbox value="{!selected}" label="Address for Rec. & Bill. same?" >
+         <apex:actionSupport action="{!copyFields}" event="onclick" />
+        </apex:inputCheckbox>
+      </apex:pageBlockSection>    
+    <apex:pageBlockSection title="Shippinging Address"  > 
+   <apex:inputField value="{!objAccount.ShipStreet__c}" label="Shipping Street"/> <br/>    
+    <apex:inputField value="{!objAccount.ShipCity__c}" label="Shipping City"/> <br/>   
+     <apex:inputField value="{!objAccount.ShipState__c}" label="Shipping State"/> <br/>   
+     
+ </apex:pageBlockSection>
+    
+</apex:outputpanel>
+  
+</apex:pageBlock>
+  </apex:form>
+</apex:page>

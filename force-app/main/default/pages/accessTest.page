@@ -1,0 +1,4 @@
+<apex:page standardController="Lead" extensions="accessTestExtension">
+    {!$ObjectType.lead.accessible} <br/>
+    {!strLeadAccess}
+</apex:page>

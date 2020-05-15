@@ -1,0 +1,38 @@
+<aura:component controller="opportunityCustomSectionClass" implements="force:appHostable,flexipage:availableForAllPageTypes,flexipage:availableForRecordHome,force:hasRecordId,forceCommunity:availableForAllPageTypes">
+    <ltng:require styles="/resource/SLDS202/assets/styles/salesforce-lightning-design-system-vf.css"/>
+	<aura:attribute name="recordId" type="String"/>
+    
+    <aura:attribute name="objOpportunity" type="Opportunity"/>
+    <aura:handler name="init" value="{!this}" action="{!c.doInit}" />
+    
+     <div class="slds-panel slds-grid slds-grid--vertical slds-nowrap">
+        <div class="slds-form--stacked slds-grow slds-scrollable--y">
+            <div class="slds-panel__section slds-has-divider--bottom">
+                <div class="slds-panel__section">
+                    <div class="slds-form--stacked">
+                        <div class="slds-tabs--scoped">
+                            <div class="slds-form-element">
+                                <label class="slds-form-element__label" for="job">Opportunity Name</label>
+                                <div class="form-group">
+                                    <div class="slds-select_container">
+                                        {!v.objOpportunity.Name}
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="slds-form-element">
+                                <label class="slds-form-element__label" for="job">Opportunity Stage</label>
+                                <div class="form-group">
+                                    <div class="slds-select_container">
+                                        {!v.objOpportunity.StageName}
+                                    </div>
+                                </div>
+                            </div>
+                            
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</aura:component>

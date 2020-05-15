@@ -1,0 +1,38 @@
+<apex:page >
+
+    
+    <div class="liveAgentChatElement" id="liveAgentChatLog">
+        <div id="liveAgentChatLogText">
+            <span class="operator">
+                <span class="name"><strong>Serge:</strong> 
+                </span>
+                <span class="messageText">Hello, thanks for contacting Lenovo. My name is Serge. I am reviewing your information now.       
+                </span>
+            </span>
+            <span class="client">
+                <span class="name"><strong>Me:</strong> </span><span class="messageText">hi</span>
+            </span>
+            <span class="operator">
+                    <span class="name"><strong>Serge:</strong> 
+                </span>
+                <span class="messageText">jj</span>
+            </span>
+            <span class="operator">
+                    <span class="name"><strong>Serge:</strong> 
+                </span>
+                <span class="messageText">kk</span>
+            </span>
+        </div>
+        <span class="operator" id="liveAgentChatLogTyping" style="display: none;"></span>
+    </div>
+    
+    <script>
+        
+        var parent = document.getElementById('liveAgentChatLogText');
+        var sub = parent.getElementsByClassName('operator');
+        alert(sub.length);
+        
+        
+        
+    </script>
+</apex:page>

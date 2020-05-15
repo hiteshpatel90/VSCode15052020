@@ -1,0 +1,31 @@
+<apex:component controller="Opp_Approval_EmailController" access="global" rendered="true">
+    
+    <apex:attribute name="opptyId" assignTo="{!oppId}" type="String" description="Id Opportunity"/>
+    <apex:outputLabel style="font-weight:bold;" value="Facilities Opportunity"></apex:outputLabel>
+    <table style="border: 1px solid black;border-collapse: collapse;">
+        <tr>
+            <th style="border: 1px solid black;">Facility No</th>
+            <th style="border: 1px solid black;">Facility Name</th>
+            <th style="border: 1px solid black;">Account</th>
+            <th style="border: 1px solid black;">Facility-Account</th>
+            <th style="border: 1px solid black;">Created Date</th>
+        </tr>
+        
+    </table>
+    
+    <br/>
+    <br/>
+    <apex:outputLabel style="font-weight:bold;" value="Pricing Information"></apex:outputLabel>
+    <table style="border: 1px solid black;border-collapse: collapse;">
+        <tr>
+            <th style="border: 1px solid black;">Pricing Information Number</th>
+            <th style="border: 1px solid black;">Location</th>
+            <th style="border: 1px solid black;">Average Daily Census</th>
+            <th style="border: 1px solid black;">MPPR Shared?</th>
+            <th style="border: 1px solid black;">Created By</th>
+         </tr>
+       
+    </table>
+    
+    
+</apex:component>

@@ -1,0 +1,10 @@
+<apex:page controller="z_DumpFrontPageCont">
+	<apex:sectionHeader title="{!$Label.z_MetadataDump}"/>
+		<apex:pageBlock >
+   		<apex:outputPanel layout="block">
+                    		<apex:outputText value="{!message}" />
+        </apex:outputPanel> 			
+		</apex:pageBlock>
+	
+	
+</apex:page>

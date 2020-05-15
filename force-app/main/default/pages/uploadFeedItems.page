@@ -1,0 +1,6 @@
+<apex:page controller="ctrluploadFeedItems">
+    <apex:form >
+        <apex:inputFile value="{!blobContent}" filename="samplefile"/>
+        <apex:commandButton value="Upload Feed Post" action="{!uploadFeedPost}"/>
+    </apex:form>
+</apex:page>

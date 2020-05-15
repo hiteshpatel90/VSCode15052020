@@ -1,0 +1,5 @@
+<apex:page id="myPage" title="Quote Product Selector: {!objQuote.Name}" showHeader="false" standardStylesheets="false" sidebar="false" applyHtmlTag="false" applyBodyTag="false" docType="html-5.0" standardController="Quote__c" extensions="ProductSelectorInlineController">
+    <apex:form >
+        <c:VFC_ProductSelectorInline2 id="vfCmp" quoteIdVal="{!objQuote.Id}"/>
+    </apex:form>
+</apex:page>

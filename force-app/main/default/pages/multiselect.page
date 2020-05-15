@@ -1,0 +1,24 @@
+<apex:page controller="multiselect">
+    <apex:form >
+        <apex:panelGrid columns="3" id="abcd">
+            <apex:selectList id="sel1" value="{!leftselected}" multiselect="true" style="width:100px" size="5">
+                <apex:selectOptions value="{!unselectedvalues}" />
+            </apex:selectList>
+                <apex:panelGroup >
+                    <br/>
+                    <apex:commandButton value="add >>" action="{!selectclick}" reRender="abcd"/>
+                    <!--<apex:image value="{!$Resource.multiselected}">
+                        <apex:actionSupport event="onclick" action="{!selectclick}" reRender="abcd"/>
+                    </apex:image>-->
+                    <br/><br/>
+                    <apex:commandButton value="<< Remove" action="{!unselectclick}" reRender="abcd"/>
+                    <!--<apex:image value="{!$Resource.multiunselected}">
+                        <apex:actionSupport event="onclick" action="{!unselectclick}" reRender="abcd"/>
+                    </apex:image>-->
+                </apex:panelGroup>
+            <apex:selectList id="sel2" value="{!rightselected}" multiselect="true" style="width:100px" size="5">
+                <apex:selectOptions value="{!SelectedValues}" />
+            </apex:selectList>
+        </apex:panelGrid>
+    </apex:form>
+</apex:page>

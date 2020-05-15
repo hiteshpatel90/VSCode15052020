@@ -1,0 +1,30 @@
+<!-------------------------------------------------------------------------------------------
+- Type             : visualforce Page
+- Name             : opportunityHistory
+- Created by       : 
+- Created Date     : 30th April 2016
+- Last Modified    : 30th April 2016
+- Purpose          : page used to display Field Tracking history for Opportunity sObject
+---------------------------------------------------------------------------------------------->
+<apex:page standardController="Opportunity" extensions="HistoryExtension" sidebar="false" showHeader="false">
+    <apex:form >
+        <apex:pageblock title="Opportunity Field History">  
+            <apex:outputlabel value="No records to display" rendered="{!If(lstFieldHistory.size > 0, false, true)}"></apex:outputlabel>
+            <apex:pageblockTable value="{!lstFieldHistory}" var="fh" rendered="{!If(lstFieldHistory.size > 0, true, false)}">
+                <apex:column headervalue="Date" width="300">
+ 
+                    <apex:outputField value="{!fh.Edit_Date__c}"/>
+                </apex:column>
+                <apex:column headervalue="User"  width="200">
+                    <apex:outputField value="{!fh.User__c}"/>
+                </apex:column>
+                <apex:column headervalue="Action">
+                    Changed <b>Opportunity {!fh.Field_Event__c}</b> from {!fh.Old_Value__c} to <b>{!fh.New_Value__c}.</b>
+                </apex:column>
+                
+            </apex:pageblockTable>
+            <br/>
+            <apex:commandLink target="_blank" value="Show more »" rendered="{!!isShowmore}" action="{!showMoreHistoryRecord}"/>
+        </apex:pageblock>
+    </apex:form>
+</apex:page>

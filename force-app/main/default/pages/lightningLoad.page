@@ -1,0 +1,7 @@
+<apex:page controller="lightningLoadController">
+    
+    <apex:form id="sectionResults">
+        <c:VT_LightningSpinner importSLDS="true"/>
+        <apex:commandButton action="{!runReport}" reRender="sectionResults" value="Show Report" styleClass="slds-button slds-button--neutral" status="renderLightningSpinner"/>
+    </apex:form>
+</apex:page>

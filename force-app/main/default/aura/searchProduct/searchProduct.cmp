@@ -1,0 +1,65 @@
+<aura:component access="global" implements="force:appHostable">
+	    <ltng:require styles="{!join(',', 
+                          $Resource.CengageResourceCSS + '/CSS/magma.min.css',
+                          $Resource.CengageResourceCSS + '/CSS/Site.css',
+                          $Resource.CengageResourceCSS + '/CSS/icomoon.css')
+                         }" />  
+    
+    
+    <div class="body-content content">
+            
+    
+    <div class="productPage" ng-controller="ProductPageController" ng-app="app">
+       
+        <div class="homeBanner row">
+            <h1 class="col-md-12"><i class="icon icon-angle-left"></i> <a href="PrimaryPage.aspx">Support Home</a></h1>
+        </div>
+        <div class="row" ng-show="showProduct">
+            <div class="col-md-6 col-md-offset-3">
+                <h2>Which Product are you using?</h2>
+                <div class="cenform-group">
+                    <div>
+                        <input type="text" ng-model="searchtext" class="cenform-control" placeholder="Enter the name of your product"/>
+                        <i class="icon icon-search2"></i>
+                        <ul ng-show="isUserTyping()">
+                            <li ng-repeat="p in allProducts | filter:{Name: searchtext}" >
+                                <a href="ArticlePage?ProductId={{p.Id}}">{{p.Name}}</a>
+                            </li>
+                        </ul>
+                        
+                    </div>
+                </div>
+            </div>
+        </div>
+      
+        <div class="row bgGray" ng-show="showProduct">
+            <div class="popularProdsContainer col-md-6 col-md-offset-3">
+                <h3>Popular Products</h3>
+                <ul class="popularProds">
+                    <li ng-repeat="p in popularProducts"><a href="ArticlePage?ProductId={{p.Id}}">{{p.Name}}</a></li>
+                </ul>
+                <hr />
+                <div class="showProductsLink complete" ng-show="prodsAreHidden" ng-click="showProducts()">View complete product list</div>
+                <div class="showProductsLink complete" ng-show="!prodsAreHidden" ng-click="hideProducts()">Hide complete product list</div>
+
+                <div ng-show="showCompleteProducts">
+                    <ul class="popularProds">
+                        <li ng-repeat="p in completeProducts"><a href="ArticlePage?ProductId={{p.Id}}">{{p.Name}}</a></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+        <div class="row" ng-show="!showProduct">
+            <h2>Which service can we help you with?</h2>
+                <div class="col-md-12">
+                    <ul class="allServices">
+                        <li ng-repeat="p in allProducts"><a href="ArticlePage?ProductId={{p.Id}}"><i class="icon icon-angle-right"></i> {{p.Name}}</a></li>
+                    </ul>
+                </div>
+        </div>
+    </div>
+
+        </div>
+
+    
+</aura:component>

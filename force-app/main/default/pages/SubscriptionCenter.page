@@ -1,0 +1,103 @@
+<apex:page standardController="Contact" extensions="SubscriptionCenter" standardStylesheets="true" tabStyle="Contact" >
+
+<apex:form > 
+
+<apex:sectionHeader subtitle="{!contact.Name}" title="Advisor Subscriptions"/>                 
+ 
+<apex:pageBlock >
+
+<apex:pageBlockButtons >
+<apex:commandButton action="{!save}" value="Save" />  
+<apex:inputtext required="true"/>
+<apex:commandButton action="{!gotoAdvisor}" value="Return to Advisor" />  
+<apex:commandButton action="{!unsubscribeAll}" value="Unsubscribe All" />  
+
+</apex:pageBlockButtons> 
+
+<apex:messages />
+
+<apex:outputPanel rendered="{!contact.HasOptedOutOfEmail}">
+
+<apex:pageBlockSection columns="2">
+<apex:inputField value="{!contact.HasOptedOutOfEmail}" />
+<apex:outputText value="This advisor has opted out of email.  Before any subscriptions will be active,
+email-opt-out needs to be unchecked and the advisor re-added into exact target.
+This should be done on the main advisor page."/>
+</apex:pageBlockSection>
+</apex:outputPanel>
+
+<apex:outputPanel rendered="{!Not(contact.HasOptedOutOfEmail)}">
+<apex:pageBlockSection columns="2">
+<apex:inputField value="{!contact.HasOptedOutOfEmail}" />
+<apex:outputText >
+The global opt-out means that no email communications at all will be permitted to go to this advisor. Please check the box if you wish to 
+forbid all email communications (for Ameriprise, Columbia, and RiverSource) to this advisor.
+</apex:outputText>
+</apex:pageBlockSection>
+</apex:outputPanel>
+  
+<apex:pageBlockSection columns="1">
+<apex:pageBlockTable value="{!ElectronicPubs}" var="p" >
+<apex:column ><apex:inputCheckbox value="{!p.Subscribed}"/></apex:column>
+
+<apex:column value="{!p.thePub.name}"><apex:facet name="header">Name</apex:facet></apex:column>
+<apex:column value="{!p.PublicationType}" title="E for Electronic, P for Print"><apex:facet name="header">Type<br/>(E for Electronic,<br/>P for Print)</apex:facet></apex:column>
+
+ 
+<apex:column value="{!p.thePub.Plain_Text_Description__c}"><apex:facet name="header">Description</apex:facet></apex:column>
+<apex:column value="{!p.thePub.Delivery_Timeframe__c}"><apex:facet name="header">Delivery Time Frame</apex:facet></apex:column>
+
+
+<apex:column >
+<apex:outputText value="{0,date,MM/dd/yyyy}"><apex:param value="{!p.SubLastModified}"/></apex:outputText>
+<apex:facet name="header">Last Modified</apex:facet>
+</apex:column> 
+
+<apex:column >
+<apex:outputText value="{!p.SubLastModifiedBy}"/>
+<apex:facet name="header">Subscription<br/>Last Modified By</apex:facet>
+</apex:column>
+
+</apex:pageBlockTable>
+
+</apex:pageBlockSection>
+
+<apex:pageBlockSection columns="1" title="Electronic Mutual Fund Publications">
+        <apex:panelGrid columns="3" id="abcd">
+            <apex:outputText style="font-weight:bold;" value="Not Subscribed"></apex:outputText>
+            <apex:outputText ></apex:outputText>
+            <apex:outputText style="font-weight:bold;" value="Subscribed"></apex:outputText>
+            <apex:selectList id="sel1" value="{!SubscribeTo}" multiselect="true" style="width:350px" size="25">
+                <apex:selectOptions value="{!EMFNotSubsciptionOptions}" />
+            </apex:selectList>
+                <apex:panelGroup >
+                    <br/>
+                    <!--<apex:image value="{!$Resource.multiselected}">
+                        <apex:actionSupport event="onclick" action="{!selectclick}" reRender="abcd"/>
+                    </apex:image>
+                    <br/><br/>
+                    <apex:image value="{!$Resource.multiunselected}">
+                        <apex:actionSupport event="onclick" action="{!unselectclick}" reRender="abcd"/>
+                    </apex:image>-->
+                </apex:panelGroup>
+            <apex:selectList id="sel2" value="{!UnsubscribeTo}" multiselect="true" style="width:350px" size="25">
+                <apex:selectOptions value="{!EMFSubscriptionOptions}" />
+            </apex:selectList>
+        </apex:panelGrid>  
+</apex:pageBlockSection>
+<!--{!ElectronicMutualFundPubs}Ccc-->
+
+<apex:pageBlockTable value="{!ElectronicMutualFundPubs}" var="p"  rendered="false">
+<apex:column ><apex:inputCheckbox value="{!p.Subscribed}"/></apex:column>
+
+<apex:column value="{!p.thePub.Name}"/>
+ 
+</apex:pageBlockTable>
+
+
+
+</apex:pageBlock>
+
+</apex:form>
+
+</apex:page>

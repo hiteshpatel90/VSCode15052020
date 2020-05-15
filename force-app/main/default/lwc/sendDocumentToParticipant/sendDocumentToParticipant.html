@@ -1,0 +1,20 @@
+<template>
+    <lightning-card>
+        <div class="slds-modal__header">
+            <h2 id="modal-heading-01" class="slds-text-heading_medium slds-hyphenate">Confirm and Send mail</h2>
+        </div>
+        <div class="slds-media__body">
+            <br/>
+            <p>Are you sure you want to send this document for signature? </p>
+            <lightning-layout vertical-align="center">
+                <lightning-layout-item padding="around-small">
+                    <p>Research Name : <b>{name}</b></p>
+                    <p>Template Name : <b>{templateName}</b></p>
+                </lightning-layout-item>
+            </lightning-layout>
+        </div>
+        <div slot="footer">
+            <lightning-button variant="brand" label="Send" title="Send" onclick={handleSendClick} class="slds-m-left_x-small"></lightning-button>
+        </div>
+    </lightning-card>
+</template>

@@ -1,0 +1,72 @@
+<apex:page >
+     <script src="https://code.jquery.com/jquery-1.12.4.js"></script>
+    <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
+    <script>
+        function getSelectedText(elementId) {
+            var elt = document.getElementsByClassName(elementId);
+                        
+            if (elt[0].selectedIndex == -1)
+                return null;            
+            return elt[0].options[elt[0].selectedIndex].text;
+        }
+        
+        function checkValue(){
+
+            var caseStatus = getSelectedText('form-control status');
+            
+            var dateElements = document.getElementsByClassName('form-control date start-date clear-on-close');
+            var dateValue = dateElements[0].value;
+            
+            var fullDate = dateValue.split('/');
+            
+            var month = fullDate[0];
+            var day = fullDate[1];
+            
+            var splittime = fullDate[2].split(' ');
+            var year = splittime[0];
+            
+            var hrMin = splittime[1].split(':');
+            var hr = hrMin[0];
+            var min = hrMin[1];
+                        
+            var startTime = new Date(year, month - 1, day, hr, min, 0,0);                        
+            var currentDateTime = new Date();
+            
+            var isPastDate = false;
+            var isFutureDate = false;
+           
+            if (currentDateTime > startTime) {
+                isPastDate = true;
+            }else{
+                isFutureDate = true;
+            }           
+            // Past Date
+            if((caseStatus == 'Pending' || caseStatus == 'Confirmed' || caseStatus == 'Completed') && isPastDate){
+                //alert('Past Case can only be Cancelled.');
+                var spn = document.getElementsByClassName('text-danger save-error')[0]; 
+                alert(spn);         
+                spn.innerHTML = "Past Case can only be Cancelled.";
+                return false;
+            }            
+            // Future Date
+            if(caseStatus == 'Completed' && isFutureDate){
+                //alert('You can not Complete Future Case.');
+                $("#spnCaseStatusValidation").html("You can not Complete Future Case.").show().css("color", "red").css("font-size", "12px");
+                return false;
+            }
+        }
+                        
+    </script>
+    
+     <select class="form-control status" id="caseStatus">
+         <option value="Pending">Pending</option>
+         <option value="Confirmed">Confirmed</option>
+         <option value="Completed">Completed</option>
+         <option value="Cancelled">Cancelled</option>
+     </select>
+     <span class="text-danger save-error"></span>
+     <!-- 11/02/2016 2:30 PM -->
+     <input type="text" class="form-control date start-date clear-on-close" />
+     
+     <button onclick="checkValue();">Check</button>
+</apex:page>

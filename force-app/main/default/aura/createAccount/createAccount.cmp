@@ -1,0 +1,5 @@
+<aura:component implements="forceCommunity:availableForAllPageTypes,lightning:actionOverride,force:hasRecordId,force:hasSObjectName" controller="createContactController" access="global">
+
+    TEST
+	
+</aura:component>

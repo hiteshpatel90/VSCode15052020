@@ -1,0 +1,41 @@
+<aura:component implements="flexipage:availableForAllPageTypes,flexipage:availableForRecordHome,force:hasRecordId,force:lightningQuickAction" access="global" >
+    <aura:attribute name="recordError" type="String"/>
+    <aura:attribute name="recordInfo" type="Object" />
+    <aura:attribute name="simpleRecord" type="Object"/>
+    <aura:attribute name="recordId" type="String"/>
+    <aura:attribute name="curView" type="String" />	
+    <force:recordData aura:id="recordLoader"
+                      recordId="{!v.recordId}"
+                      layoutType="FULL"                      
+                      targetRecord="{!v.recordInfo}"                        
+                      targetFields="{!v.simpleRecord}"    
+                      targetError="{!v.recordError}"
+                      />
+    
+    <div class="slds-form--stacked">
+        <div class="slds-form-element">
+            <label class="slds-form-element__label" for="recordName">Account Name</label>
+            <div class="slds-form-element__control">
+                <ui:outputText value="{!v.simpleRecord.Name}" aura:id="accName"/>
+            </div>
+        </div>
+        
+        <div class="slds-form-element">
+            <label class="slds-form-element__label" for="recordOwnerName">Industry</label>
+            <div class="slds-form-element__control">
+                <ui:outputText value="{!v.simpleRecord.Industry}" aura:id="accIndustry"/>
+            </div>
+        </div>
+        
+        <div class="slds-form-element">
+            <label class="slds-form-element__label" for="accType">Description </label>
+            <div class="slds-form-element__control">
+                <ui:outputText value="{!v.simpleRecord.Description}" aura:id="accDesc"/>
+            </div>
+        </div>
+        
+        <div class="slds-form-element">
+            <lightning:button label="Edit Account"  onclick="{!c.editRecordHandler}"/>                  
+        </div>
+    </div>
+</aura:component>

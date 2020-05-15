@@ -1,0 +1,54 @@
+<!--
+ * @name           VT_LightningSpinner
+ * @author         Aaron Dominguez - www.nube53.com
+ * @date           12 March 2017
+ * @description    actionStatus markup to decorate AJAX calls in SLDS
+ * @Revision       [AD] - 12/03/17 - Initial Version
+ */
+-->
+<apex:component >
+    <script type="text/javascript" src="https://code.jquery.com/jquery-1.7.1.min.js"></script>
+    <!--Attribute Definition -->
+    <apex:attribute name="importSLDS" 
+                    description="Load SLDS CSS or not"  
+                    type="Boolean" 
+                    required="true" 
+                    default="false"/>
+    <!--END Attribute Definition -->
+
+    <!-- Load CSS -->
+    <apex:outputPanel id="resourceLoadingPanel" layout="block" rendered="{!importSLDS}">
+        <apex:slds />
+    </apex:outputPanel>
+    <!-- END Load CSS -->
+
+    <apex:actionStatus id="renderLightningSpinner" rendered="true" onstart="showSpinner();" onstop="hideSpinner();">
+        <apex:facet name="start">
+            <div class="slds-spinner_container slds-hide">
+                <div class="slds-spinner--brand slds-spinner slds-spinner--medium" aria-hidden="false" role="alert">
+                    <div class="slds-spinner__dot-a"></div>
+                    <div class="slds-spinner__dot-b"></div>
+                </div>
+            </div>
+        </apex:facet>
+    </apex:actionStatus>
+
+    <!-- Load JavaScript -->
+    <script>
+        function showSpinner(){
+            console.log('test');
+            $('.slds-spinner_container').removeClass('slds-hide');
+            $('.slds-spinner_container').addClass('slds-show');  
+            var winWidth = $(document).width();
+            var winHeight = $(document).height();
+            $('.slds-spinner_container').css({ 'width': winWidth,'height': winHeight });
+        }
+         
+        function hideSpinner(){                 
+            $('.slds-spinner_container').removeClass('slds-show');
+            $('.slds-spinner_container').addClass('slds-hide');    
+        }
+    </script>
+    <!-- END Load JavaScript -->
+
+</apex:component>

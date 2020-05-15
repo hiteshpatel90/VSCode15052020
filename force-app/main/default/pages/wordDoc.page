@@ -1,0 +1,105 @@
+<apex:page sidebar="false" contentType="application/msword" cache="true">
+    <html>
+        <head>
+            <style>
+                p.MsoHeader, li.MsoHeader, div.MsoHeader{
+                    margin:0in;
+                    margin-top:.0001pt;
+                    mso-pagination:widow-orphan;
+                    tab-stops:center 3.0in right 6.0in;
+                }
+                p.MsoFooter, li.MsoFooter, div.MsoFooter{
+                    margin:0in;
+                    margin-bottom:.0001pt;
+                    mso-pagination:widow-orphan;
+                    tab-stops:center 3.0in right 6.0in;
+                }
+                @page Section1{
+                    size:8.5in 11.0in; 
+                    margin:0.5in 0.5in 0.5in 0.5in;
+                    mso-header-margin:0.5in;
+                    mso-header:h1;
+                    mso-footer:f1; 
+                    mso-footer-margin:0.5in;
+                    mso-paper-source:0;
+                }
+                div.Section1{
+                    page:Section1;
+                }
+                /*Below is the style to prevent the repetition of header and Footer.. Cheers!!!*/
+                table#hrdftrtbl{
+                    margin:0in 0in 0in 9in;
+                }        
+            </style>
+        </head>
+
+        <body>
+            <!-- Content -->
+            <div class="Section1"><!--Section1 div starts-->
+                <!-- Page 1 starts -->
+                <br/>
+                Page 1 Content
+
+                <br clear="all" style="page-break-before:always" />
+
+
+                <!-- Page 2 Starts -->
+                <br/>
+                Page 2 Content
+
+                <br clear="all" style="page-break-before:always" />
+
+                <!-- Page 3 Starts -->
+                <br/>
+                Page 3 Content
+
+                <!--Header and Footer Starts-->
+                <table id='hrdftrtbl' border='1' cellspacing='0' cellpadding='0'>
+                    <tr>
+                        <td>
+                            <!--Header-->
+                            <div style='mso-element:header' id="h1" >
+                                <p class="MsoHeader">
+                                    <table border="1" width="100%">
+                                        <tr>
+                                            <td width="30%">
+                                                Left <br/>Header
+                                            </td>
+                                            <td align="center" width="40%">
+                                                Center<br/> Header
+                                            </td>
+                                            <td align="right" width="30%">
+                                                Right<br/>Header
+                                            </td>
+                                        </tr>
+                                    </table>
+                                </p>
+                            </div>
+                        </td>
+
+                        <td>
+                            <!--Footer-->
+                            <div style='mso-element:footer' id="f1">
+                                <p class="MsoFooter">
+                                    <table width="100%" border="1" cellspacing="0" cellpadding="0">
+                                        <tr>
+                                            <td width="30%">
+                                                Left<br/>Footer
+                                            </td>
+                                            <td align="center" width="40%">
+                                                Center<br/>Footer
+                                            </td>
+                                            <td align="right" width="30%">
+                                                Page <span style='mso-field-code: PAGE '></span> of <span style='mso-field-code: NUMPAGES '></span>
+                                            </td>
+                                        </tr>
+                                    </table>
+                                </p>
+                            </div>
+                        </td>
+                    </tr>
+                </table>
+            </div><!--Section1 div ends-->
+        </body>
+    </html>
+</apex:page>

@@ -1,0 +1,5 @@
+<apex:page standardController="Account" extensions="extExportAccountwithOracle"  contentType="text/csv#exportAccounts.csv">"Oracle_Customer_Number","Total" 
+    <apex:repeat value="{!lstAggAccount}" var="acc">        
+        {!acc['orcleNum']},{!acc['total']}
+    </apex:repeat>
+</apex:page>

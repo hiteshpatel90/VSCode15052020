@@ -1,0 +1,7 @@
+<design:component>
+	<design:attribute name="FirstName" Label = "First Name"></design:attribute>
+    <design:attribute name="LastName" Label = "Last Name"></design:attribute>
+    <design:attribute name="Email" Label = "Email"></design:attribute>
+    <design:attribute name="Phone" Label = "Phone"></design:attribute>
+    <design:attribute name="BgColor" Label = "Background Color"></design:attribute>
+</design:component>

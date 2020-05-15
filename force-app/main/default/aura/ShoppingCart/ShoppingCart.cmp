@@ -1,0 +1,58 @@
+<aura:component >
+    <aura:attribute name="items" type="Product__c[]"/>
+    <aura:attribute name="total" type="Integer" default="0"/>
+    <aura:handler event="c:AddToCart" action="{!c.handleAddToCartEvent}"/>
+
+    <div class="col-lg-9 col-md-9 col-sm-12">
+        <div class="col-lg-12 col-sm-12">
+            <span class="title">YOUR BASKET</span>
+        </div>
+        <aura:renderIf isTrue="{!v.items.length > 0}">
+        <div class="col-lg-12 col-sm-12 hero-feature">
+            <table class="table table-bordered tbl-cart">
+                <thead>
+                    <tr>
+                        <td class="hidden-xs">Icon</td>
+                        <td>Product Name</td>
+                        <td>Release Date</td>
+                        <td>Product Version</td>
+                        <td>File Size</td>
+                    </tr>
+                </thead>
+                <tbody>
+                    <aura:iteration items="{!v.items}" var="item">
+                    <tr>
+                        <td class="hidden-xs"><img src="{!item.Photo__c}" alt="{!item.Name}" title="" width="47" height="47" /></td>
+                        <td>{!item.Name}
+                        </td>
+                        <td>
+                            <!--<select>
+                                <aura:iteration items="{!item.Product_Sizes__r}" var="size">
+                                    <option>{!size.Name}</option>
+                                </aura:iteration>
+                                
+                            </select>-->
+                            <td>{!item.Release_Date__c}</td>
+                        </td>
+                        <td>{!item.Product_Version__c}</td>
+                        <td>{!item.File_Size__c}</td>
+                    </tr>
+                    </aura:iteration>
+                    <!--<tr>
+                        <td colspan="3" align="right">Total Price</td>
+                        <td class="total" colspan="2"><b>$ {!v.total}</b>
+                        </td>
+                    </tr>-->
+                </tbody>
+            </table>
+            <a href="#" class="btn btn-primary"><i class="fa fa-shopping-cart"></i> Confirm your download</a>
+
+        </div>
+        </aura:renderIf>
+        <aura:renderIf isTrue="{!v.items.length == 0}">
+            <div class="col-lg-12 col-sm-12 hero-feature">
+                <p>Your basket is empty. So sad. Use your points to redeem something #awesome!</p>
+            </div>
+        </aura:renderIf>
+    </div>
+</aura:component>

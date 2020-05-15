@@ -1,0 +1,37 @@
+<aura:component access="Global" controller="matrixDemoController"  implements="force:appHostable,flexipage:availableForAllPageTypes,flexipage:availableForRecordHome,force:hasRecordId,forceCommunity:availableForAllPageTypes,force:lightningQuickAction">
+    <aura:attribute name="columnList" type="List"/>
+    <aura:attribute name="rowList" type="List"/>
+    
+    <aura:handler name="init" value="{!this}" action="{!c.doInit}"/> 
+	<div class="slds-m-around--xx-large">
+        <table class="slds-table slds-table--bordered slds-table--cell-buffer">
+            <thead>
+                <tr class="slds-text-title--caps">
+                    <th></th>
+                    <aura:iteration items="{!v.columnList}" var="clm">
+                        
+         			<th style="border: 1px solid black;" class="slds-is-sortable slds-text-title--caps" >
+                        {!clm.strColumnName}
+                        </th>
+                    </aura:iteration>
+                </tr>
+            </thead>
+            
+            <tbody> 
+                <aura:iteration var="row" items="{! v.rowList }">
+                    <tr>
+                        <td width="10%" scope="row">
+                            {!row.strRowName}                            
+                        </td>
+                        <aura:iteration items="{!v.columnList}" var="field">
+                            
+                                <td style="border: 1px solid black;" scope="row">
+                                    
+                                </td>
+                        </aura:iteration>
+                    </tr> 
+                </aura:iteration>
+            </tbody>
+        </table>
+    </div>
+</aura:component>

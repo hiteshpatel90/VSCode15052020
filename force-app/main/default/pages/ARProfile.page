@@ -1,0 +1,2218 @@
+<apex:page controller="CS_ARProfileCC" extensions="CS_ARCCExtension" applyBodyTag="false" applyHtmlTag="false" showChat="false" showHeader="false" sidebar="false" showQuickActionVfHeader="false" standardStylesheets="false" docType="html-5.0">
+    <apex:composition template="ARtemplate">
+        <apex:define name="bodyContent">
+        
+            <html>
+                <style type="text/css">
+                        
+                        #fileDisplayArea {
+                            margin-top: 15px;
+                            width: 150px;
+                            max-width: 150px;
+                            height:150px;
+                            max-height:150px;
+                            overflow:hidden;
+                            border:1px solid #efefef;
+                        }
+                        
+                        .profilepicbox{
+                            position: relative;
+                            top: 0;
+                            left: 0;
+                            right: 0;
+                            bottom: 0;
+                        }
+                        
+                        table.num-col-3 td:nth-child(3) {
+                            text-align:right;
+                        }
+                        table.num-col-3 th:nth-child(3) {
+                            text-align:right;
+                        }
+
+                        .text-blue {
+                            color: #325996;
+                        }
+
+                        .uppercase {
+                            text-transform: uppercase;
+                        }
+
+                        .no-stretch {
+                            word-wrap: break-word;
+                        }
+
+                    </style>
+                <head>
+                    <meta charset="utf-8" />
+                    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+                    <title>{!$Label.CS_ProfileTabTitle}</title>
+                    
+                    
+                    <script>
+                        function showConfirmation(){
+                            $("#cancel-opportunity-modal").modal("show");
+                        }
+                        var teamCalendarColors;
+
+                        function selectColor(picker) {
+                                var colorHEX = picker.toHEXString();
+                                $("#update-color-btn").attr("color-hex", colorHEX);
+                                
+                        }
+
+                        $(document).ready(function() {
+
+                            // set profile link as actice
+                            $('#myProfile').addClass('active');
+
+                            // initialize the responsive tabs plugin
+                            fakewaffle.responsiveTabs(['xs', 'sm']);
+
+
+                            // randomly generated colors from randomColor.js
+                            var colorIdx = 0;
+                            var colors = ["#023fa5", "#ef9708", "#11c638", "#9540e4", "#0fcfc0", "#d33f6a", "#4a6fe3", "#008141", "#8e063b", "#fb5a02", "#751975", "#3e3e3e", "#626871"];
+                            
+
+                            // initialize any date pickers
+                            $(".datepicker.date-only").datetimepicker({
+                                format: 'MM-DD-YYYY'
+                            });
+                            
+                            var getUrlParameter = function getUrlParameter(sParam) {
+                                var sPageURL = decodeURIComponent(window.location.search.substring(1)),
+                                    sURLVariables = sPageURL.split('&'),
+                                    sParameterName,
+                                    i;
+
+                                for (i = 0; i < sURLVariables.length; i++) {
+                                    sParameterName = sURLVariables[i].split('=');
+
+                                    if (sParameterName[0] === sParam) {
+                                        return sParameterName[1] === undefined ? true : sParameterName[1];
+                                    }
+                                }
+                            };
+
+                            var requestedProfile = getUrlParameter("profile");
+                            if ( typeof requestedProfile == "undefined" || requestedProfile.length === 0 ) {
+                                requestedProfile = null;
+                            }
+
+                            $("h2.title-icon-container i").removeClass().addClass("fa fa-user-md");
+                            $("span.notification").text("");
+
+                            // profile object
+                            var profile = {
+                                hasFile: false
+                            };
+
+                            // resolve all the picklist options for the various fields
+                            $("i.profile-busy").show();
+                            Visualforce.remoting.Manager.invokeAction("{!$RemoteAction.CS_ARProfileCC.retrieveCollegiateSportValues}",
+                            function(result, event) { 
+                                for ( var i=0; i < result.length; i++) {
+                                    var txt = globalDecodeEntities(result[i]);
+                                    $("#edit-education-modal select.collegiate-sport").append("<option value='"+txt+"'>"+txt+"</option>");
+                                }          
+                                $("i.profile-busy").hide();
+                            });
+                            $("i.profile-busy").show();
+                            Visualforce.remoting.Manager.invokeAction("{!$RemoteAction.CS_ARProfileCC.retrieveCollegiateSportYearsValues}",
+                            function(result, event) { 
+                                for ( var i=0; i < result.length; i++) {
+                                    var txt = globalDecodeEntities(result[i]);
+                                    $("#edit-education-modal select.collegiate-sport-years").append("<option value='"+txt+"'>"+txt+"</option>");
+                                } 
+                                $("i.profile-busy").hide();         
+                            });
+                            $("i.profile-busy").show();
+                            Visualforce.remoting.Manager.invokeAction("{!$RemoteAction.CS_ARProfileCC.retrieveCountryCodeValues}",
+                            function(result, event) { 
+                                for ( var i=0; i < result.length; i++) {
+                                    var txt = globalDecodeEntities(result[i]);
+                                    $("#edit-contact-modal select.country-code").append("<option value='"+txt+"'>"+txt+"</option>");
+                                }
+                                $("i.profile-busy").hide();          
+                            });    
+                            $("i.profile-busy").show();
+                            Visualforce.remoting.Manager.invokeAction("{!$RemoteAction.CS_ARProfileCC.retrieveRoleInAgencyValues}",
+                            function(result, event) { 
+                                for ( var i=0; i < result.length; i++) {
+                                    var txt = globalDecodeEntities(result[i]);
+                                    $("#edit-contact-modal select.role-in-agency").append("<option value='"+txt+"'>"+txt+"</option>");
+                                }
+                                $("i.profile-busy").hide();          
+                            });
+                            $("i.profile-busy").show();
+                            Visualforce.remoting.Manager.invokeAction("{!$RemoteAction.CS_ARProfileCC.retrieveConsultantLevelValues}",
+                            function(result, event) { 
+                                for ( var i=0; i < result.length; i++) {
+                                    var txt = globalDecodeEntities(result[i]);
+                                    $("#edit-contact-modal select.consultant-level").append("<option value='"+txt+"'>"+txt+"</option>");
+                                }
+                                $("i.profile-busy").hide();          
+                            });                                                        
+                            $("i.profile-busy").show();                        
+                            Visualforce.remoting.Manager.invokeAction("{!$RemoteAction.CS_ARProfileCC.retrieveProfessionalSportValues}",
+                            function(result, event) { 
+                                for ( var i=0; i < result.length; i++) {
+                                    var txt = globalDecodeEntities(result[i]);
+                                    $("#edit-education-modal select.professional-sport").append("<option value='"+txt+"'>"+txt+"</option>");
+                                }
+                                $("i.profile-busy").hide();          
+                            });
+                            $("i.profile-busy").show();
+                            Visualforce.remoting.Manager.invokeAction("{!$RemoteAction.CS_ARProfileCC.retrieveProfessionalSportYearsValues}",
+                            function(result, event) { 
+                                for ( var i=0; i < result.length; i++) {
+                                    var txt = globalDecodeEntities(result[i]);
+                                    $("#edit-education-modal select.professional-sport-years").append("<option value='"+txt+"'>"+txt+"</option>");
+                                }
+                                $("i.profile-busy").hide();          
+                            });  
+                            Visualforce.remoting.Manager.invokeAction("{!$RemoteAction.CS_ARProfileCC.retrieveSalutationValues}",
+                            function(result, event) { 
+                                for ( var i=0; i < result.length; i++) {
+                                    var txt = globalDecodeEntities(result[i]);
+                                    $("#edit-contact-modal select.salutation").append("<option value='"+txt+"'>"+txt+"</option>");
+                                }
+                                $("i.profile-busy").hide();          
+                            }); 
+                            /*
+                            Visualforce.remoting.Manager.invokeAction("{!$RemoteAction.CS_ARProfileCC.retrieveStateValues}",
+                            function(result, event) { 
+                                for ( var i=0; i < result.length; i++) {
+                                    var txt = globalDecodeEntities(result[i]);
+                                    $("#edit-contact-modal select.state").append("<option value='"+txt+"'>"+txt+"</option>");
+                                }
+                                $("i.profile-busy").hide();          
+                            });  
+                                                                                
+                            */
+                            
+                            $("#edit-contact-modal button.opportunity-cancel-btn").on("click", function() {
+                                $("#cancel-opportunity-modal").modal("show");                   
+                            });
+                            
+                             $("#cancel-opportunity-modal button.btn-cancel-opportunity-card").on("click", function(e) {  
+                                                 
+                                $("#cancel-opportunity-modal").modal('hide');
+                                $("#edit-contact-modal").modal('hide');
+                            }); //  end of opp type modal.cancel click
+                            
+                            $("i.profile-busy").show();
+                            Visualforce.remoting.Manager.invokeAction("{!$RemoteAction.CS_ARProfileCC.retrieveClinicalTrainingValues}",
+                            function(result, event) { 
+                                for ( var i=0; i < result.length; i++) {
+                                    var txt = globalDecodeEntities(result[i]);
+                                    $("#edit-education-modal select.clinical-training").append("<option value='"+txt+"'>"+txt+"</option>");
+                                } 
+                                $("i.profile-busy").hide();         
+                            });    
+                            $("i.profile-busy").show();                         
+                            Visualforce.remoting.Manager.invokeAction("{!$RemoteAction.CS_ARProfileCC.retrieveMilitaryStatusValues}",
+                            function(result, event) { 
+                                for ( var i=0; i < result.length; i++) {
+                                    var txt = globalDecodeEntities(result[i]);
+                                    $("#edit-education-modal select.military-status").append("<option value='"+txt+"'>"+txt+"</option>");
+                                }   
+                                $("i.profile-busy").hide();       
+                            }); 
+                            $("i.profile-busy").show();
+                            Visualforce.remoting.Manager.invokeAction("{!$RemoteAction.CS_ARProfileCC.retrieveMilitaryBranchValues}",
+                            function(result, event) { 
+                                for ( var i=0; i < result.length; i++) {
+                                    var txt = globalDecodeEntities(result[i]);
+                                    $("#edit-education-modal select.military-branch").append("<option value='"+txt+"'>"+txt+"</option>");
+                                } 
+                                $("i.profile-busy").hide();         
+                            });                             
+                            $("i.profile-busy").show();
+                            Visualforce.remoting.Manager.invokeAction("{!$RemoteAction.CS_ARProfileCC.retrieveWorkExpCompanyValues}",
+                            function(result, event) { 
+                                for ( var i=0; i < result.length; i++) {
+                                    var txt = globalDecodeEntities(result[i]);
+                                    $("#edit-education-modal select.orthopedic-exp-company").append("<option value='"+txt+"'>"+txt+"</option>");
+                                }
+                                /*$('#edit-education-modal select.orthopedic-exp-company').select2({
+                                                                                              dropdownParent: $('.orthopedic-experience')
+                                                                                            });*/
+                                $("i.profile-busy").hide();         
+                            });
+                            $("i.profile-busy").show();
+                            Visualforce.remoting.Manager.invokeAction("{!$RemoteAction.CS_ARProfileCC.retrieveOrthopedicWorkExpYearsValues}",
+                            function(result, event) { 
+                                for ( var i=0; i < result.length; i++) {
+                                    var txt = globalDecodeEntities(result[i]);
+                                    $("#edit-education-modal select.orthopedic-exp-years").append("<option value='"+txt+"'>"+txt+"</option>");
+                                } 
+                                $("i.profile-busy").hide();         
+                            });
+                            $("i.profile-busy").show();
+                            Visualforce.remoting.Manager.invokeAction("{!$RemoteAction.CS_ARProfileCC.retrieveWorkExpIndustryValues}",
+                            function(result, event) { 
+                                for ( var i=0; i < result.length; i++) {
+                                    var txt = globalDecodeEntities(result[i]);
+                                    $("#edit-education-modal select.work-exp-industry").append("<option value='"+txt+"'>"+txt+"</option>");
+                                } 
+                                $("i.profile-busy").hide();         
+                            });  
+                            $("i.profile-busy").show();
+                            Visualforce.remoting.Manager.invokeAction("{!$RemoteAction.CS_ARProfileCC.retrievePrimaryProductGroupValues}",
+                            function(result, event) { 
+                                for ( var i=0; i < result.length; i++) {
+                                    var txt = globalDecodeEntities(result[i]);
+                                    $("#edit-training-modal select.primary-product-group").append("<option value='"+txt+"'>"+txt+"</option>");
+                                } 
+                                $("i.profile-busy").hide();         
+                            });                             
+                            $("i.profile-busy").show();
+                            Visualforce.remoting.Manager.invokeAction("{!$RemoteAction.CS_ARProfileCC.retrieveWorkExpYearsValues}",
+                            function(result, event) { 
+                                for ( var i=0; i < result.length; i++) {
+                                    var txt = globalDecodeEntities(result[i]);
+                                    $("#edit-education-modal select.work-exp-years").append("<option value='"+txt+"'>"+txt+"</option>");
+                                } 
+                                $("i.profile-busy").hide();         
+                            });
+
+                            // when the file input changes, load the image in the profile image location and enable the button
+                            var fileInput = document.getElementById('fileInput');                                                
+                            fileInput.addEventListener('change', function(e) {
+                                var file = fileInput.files[0];
+                                var reader = new FileReader();
+
+                                reader.onload = function(e) {
+                                    
+                                    profile.hasFile = true;
+                                    profile.fileMimeType = file.type;
+                                    profile.fileName = file.name;
+
+                                    profile.encodedFileContents = e.target.result;
+
+                                    $("div.cprofile-image img").prop("src", e.target.result);
+                                    $("button.btn-save-picture").removeAttr("disabled");
+
+                                }
+                                reader.readAsDataURL(file); 
+                            });
+
+                            // save button pressed
+                            $("button.btn-save-picture").on("click", function(e) {
+                                e.preventDefault();
+                                e.stopPropagation();
+        
+                                profile.aboutMe = $("textarea.about-me").val();
+
+                                var btnTxt = $(this).text();
+                                $(this).text("Saving...");
+                                Visualforce.remoting.Manager.invokeAction("{!$RemoteAction.CS_ARProfileCC.updateProfilePicture}",
+                                profile,
+                                function(result, event) {
+                                    
+                                    $("button.btn-save-picture").text(btnTxt);
+                                    if ( event.status ) {
+                                    
+                                        $("span.success").text("Your changes have been saved");
+                                        $("span.error").text("");
+
+                                        // disable the button, changing the image will re-enable it
+                                        $("button.btn-save-picture").attr("disabled",true);
+                                    } else {
+                                        
+                                        $("span.success").text("");
+                                        $("span.error").text(event.message);
+
+                                    }
+                                });
+
+                            });
+
+                            $("#update-color-btn").on("click", function(e){
+                                e.preventDefault();
+                                e.stopPropagation();
+                                
+                                var currentColor = $("#update-color-btn").attr("color-hex");
+                                //var selectColorHEX = $("input.jscolor").toHEXString();
+                                console.log('select color: ' + currentColor);  
+
+                                if(currentColor == null){
+                                    //Display a message that a color needs to be changed
+                                    $('span.color-update-fail').text('Please change to a different color, and then save.');
+                                    $('span.color-update-success').text('');
+
+                                }  
+                                else if(teamCalendarColors.indexOf(currentColor.toLowerCase()) != -1){
+                                    //This color has been seleted by a teammate
+                                    //Display a meesage that a color needs to be changed
+                                    $('span.color-update-fail').text('The color has been selected by another user in your territory. Please change to a different color.');
+                                    $('span.color-update-success').text('');
+                                } 
+                                else
+                                {
+                                    //Update this user's color
+                                    var updateUserColor = {}
+                                    var currentUserId =  "{!$User.Id}";
+                                    updateUserColor[currentUserId] = currentColor;
+                                    console.log('ready to update color: ' + JSON.stringify(updateUserColor));
+                                    Visualforce.remoting.Manager.invokeAction("{!$RemoteAction.CS_ARCCExtension.updateTeamCalendarColor}", updateUserColor,
+                                    function(result, event){
+                                        console.log('Update user color result: ' + result);
+                                        if(result){
+                                             $('span.color-update-success').text('The color has been updated.');
+                                             $('span.color-update-fail').text('');
+                                        }
+                                        else{
+                                             $('span.color-update-fail').text('Color update faile. Please contact the system administrator.');
+                                             $('span.color-update-success').text('');
+                                        }
+                                    });
+
+                                }
+
+                            });
+
+
+                            
+                            function loadContactTab(requestedProfile) {
+                                
+                                $("i.contact-tab-busy").show(); 
+
+                                Visualforce.remoting.Manager.invokeAction("{!$RemoteAction.CS_ARProfileCC.retrieveProfile}",
+                                requestedProfile, function(profile) {
+                                    // loads the data for the contact tab
+
+                                    var noneStr = "None";                                
+
+                                    var salutationStr = "";
+                                    if ( profile.salutation ) {
+                                        // if there's not a salutation use an empty string, if there is
+                                        // add a space on the end 
+                                        salutationStr += profile.salutation+" ";
+                                    }
+
+                                    $("div.contact div.salutation").text( salutationStr );
+                                    $("div.contact div.first-name").text( globalDecodeEntities(profile.firstName || noneStr) );
+                                    $("div.contact div.last-name").text( globalDecodeEntities(profile.lastName || noneStr) );
+                                    $("div.contact div.email").text( globalDecodeEntities(profile.email || noneStr) );
+                                    $("div.contact div.street").text( globalDecodeEntities(profile.street || noneStr ));
+                                    $("div.contact div.city").text( globalDecodeEntities(profile.city || noneStr) );
+                                    $("div.contact div.state").text( globalDecodeEntities(profile.state || noneStr) );
+                                    $("div.contact div.country-code").text( profile.countryCode || noneStr );
+                                    $("div.contact div.postal-code").text( profile.postalCode || noneStr );
+                                    $("div.contact div.mobile-phone").text( profile.mobilePhone || noneStr );
+                                    $("div.contact div.office-phone").text( profile.officePhone || noneStr );
+                                    $("div.contact div.office-fax").text( profile.officeFax || noneStr );
+                                    $("div.contact div.consultant-level").text(profile.consultantLevel || noneStr);
+                                    $("div.contact div.job-title").text(profile.title || noneStr);
+                                    $("div.contact div.role-in-agency").text(profile.roleInAgency || noneStr);
+                                   
+                                    
+                                    $("i.contact-tab-busy").hide();
+                                    
+                                });
+                            }
+
+                            // load the tab for the first time on page load
+                            loadContactTab(requestedProfile);
+
+                            // opens the contact modal
+                            $("button.edit-contact-btn").on("click", function() {
+                                $("#edit-contact-modal span.error").text("");  
+                                $("#edit-contact-modal select.salutation").val( $.trim($("div.contact div.salutation").text()) );
+                                $("#edit-contact-modal input.first-name").val( $("div.contact div.first-name").text() );
+                                $("#edit-contact-modal input.last-name").val( $("div.contact div.last-name").text() );
+                                $("#edit-contact-modal input.email").val( $("div.contact div.email").text() );
+                                $("#edit-contact-modal input.street").val( $("div.contact div.street").text() );
+                                $("#edit-contact-modal input.city").val( $("div.contact div.city").text() );
+                                $("#edit-contact-modal select.state").val( $("div.contact div.state").text() );
+                                $("#edit-contact-modal select.country-code").val( $("div.contact div.country-code").text() );
+                                $("#edit-contact-modal input.postal-code").val( $("div.contact div.postal-code").text() );
+                                $("#edit-contact-modal input.mobile-phone").val( $("div.contact div.mobile-phone").text() );
+                                $("#edit-contact-modal input.office-phone").val( $("div.contact div.office-phone").text() );
+                                $("#edit-contact-modal input.office-fax").val( $("div.contact div.office-fax").text() );
+                                
+                                $("#edit-contact-modal select.consultant-level").val( $("div.contact div.consultant-level").text() );
+                                $("#edit-contact-modal input.job-title").val( $("div.contact div.job-title").text() );
+                                $("#edit-contact-modal select.role-in-agency").val( $("div.contact div.role-in-agency").text() );
+
+                                
+                                $("#edit-contact-modal").modal("show");
+
+                            });
+
+                            // saves contact updates
+                            $("#edit-contact-modal button.btn-save").on("click", function() {
+                                // Mobile Phone Validation
+                                if(document.getElementById('contactCell').value.length > 0 && document.getElementById('contactCell').value.length != 10){
+                                     $("#spnPhoneStatusCell").html("Invalid Phone Number<br> It should be 10 digits.").show().css("color", "red").css("font-size", "12px");
+                                     return false;
+                                }else{
+                                    $("#spnPhoneStatusCell").html("validated").hide();
+                                }
+                                
+                                // Office Phone validation
+                                if(document.getElementById('contactPhone').value.length > 0 && document.getElementById('contactPhone').value.length != 10){
+                                     $("#spnPhoneStatus").html("Invalid Phone Number<br> It should be 10 digits.").show().css("color", "red").css("font-size", "12px");
+                                     return false;
+                                }else{
+                                     $("#spnPhoneStatus").html("validated").hide();
+                                }
+                                
+                                
+                                // Contact Fax validation
+                                if(document.getElementById('contactFax').value.length > 0 && document.getElementById('contactFax').value.length != 10){
+                                     $("#spnFaxStatus").html("Invalid Fax Number<br> It should be 10 digits.").show().css("color", "red").css("font-size", "12px");
+                                     return false;
+                                }else{
+                                     $("#spnFaxStatus").html("validated").hide();
+                                }
+                                
+                                var btnTxt = $(this).text();
+                                $(this).text("Saving...");
+                                $("i.contact-tab-busy").show();
+                                
+                                var contactUpdates = {
+                                    salutation : $("#edit-contact-modal select.salutation").val(), 
+                                    firstName : $("#edit-contact-modal input.first-name").val(),
+                                    lastName : $("#edit-contact-modal input.last-name").val(),
+                                    email : $("#edit-contact-modal input.email").val(),
+                                    street : $("#edit-contact-modal input.street").val(),
+                                    city : $("#edit-contact-modal input.city").val(),
+                                    state : $("#edit-contact-modal select.state").val(),
+                                    countryCode : $("#edit-contact-modal select.country-code").val(),
+                                    postalCode : $("#edit-contact-modal input.postal-code").val(),
+                                    mobilePhone :$("#edit-contact-modal input.mobile-phone").val(),
+                                    officePhone : $("#edit-contact-modal input.office-phone").val(),
+                                    officeFax : $("#edit-contact-modal input.office-fax").val(),
+                                    consultantLevel : $("#edit-contact-modal select.consultant-level").val(),
+                                    title: $("#edit-contact-modal input.job-title").val(),
+                                    roleInAgency: $("#edit-contact-modal select.role-in-agency").val()
+                                };
+
+
+                                console.log('##--countryCode: '+ $("#edit-contact-modal select.country-code").val());
+                                Visualforce.remoting.Manager.invokeAction("{!$RemoteAction.CS_ARProfileCC.updateProfileSubsetContact}",
+                                contactUpdates, function(result, event) {
+                                    // saves the data and then reloads the tab and closes the modal
+
+                                    $("#edit-contact-modal button.btn-save").text(btnTxt);
+                                    $("i.contact-tab-busy").hide();
+                                    
+                                    if ( event.status ) {
+                                        loadContactTab(result.profileId);
+
+                                        $("#edit-contact-modal").modal("hide");
+                                    } else {
+                                        $("#edit-contact-modal span.error").text(event.message);
+                                    }
+                                    
+                                });
+
+
+                            });
+
+
+                            function loadAccountTab(requestedProfile) {
+                                $("i.account-tab-busy").show();
+
+                                Visualforce.remoting.Manager.invokeAction("{!$RemoteAction.CS_ARProfileCC.retrieveProfile}",
+                                requestedProfile, function(profile) {
+                                    // loads the data for the education tab
+
+                                    var noneStr = "None";                                
+
+
+                                    $("div.account div.username").text( profile.username || noneStr );
+                                    $("div.account div.erp-code").text( profile.erpCode || noneStr );
+                                    $("div.account div.teams").text( profile.teams || noneStr );
+                                    $("div.account div.active").text( profile.active  || noneStr);
+                                    $("div.account div.account-type").text( profile.accountType || noneStr);
+                                    $("div.account div.create-date").text( moment(profile.createDate).format("MM/DD/YYYY"));
+                                    $("div.account div.last-login-date").text(moment(profile.lastLoginDate).format("MM/DD/YYYY"));
+                                    
+                                     //Set the current user calendar color
+                                    console.log('current color : ' + profile.calendarColor);
+                                    
+                                    if(profile.calendarColor != null){
+                                        document.getElementById('color-picker').jscolor.fromString(profile.calendarColor);
+                                    }
+
+                                    //Retrieve team calendar color
+                                    Visualforce.remoting.Manager.invokeAction("{!$RemoteAction.CS_ARProfileCC.retrieveMyTeamCalendarColors}",
+                                    function(result, event) {
+                                        if(profile.calendarColor != null){
+                                            //Remove userColIndex from the team color
+                                            var userColIndex = result.indexOf(profile.calendarColor);
+                                            if(userColIndex != -1){
+                                                console.log('Remove current user color from team color list: ' + result[userColIndex]);
+                                                result.splice(userColIndex, 1);
+                                            }
+                                        }
+                                        else{
+
+                                            console.log('Current user color is empty. Assign the next random color');
+                                            //Assign the next available random color to the user
+                                            while(result.indexOf(colors[colorIdx]) != -1){
+                                                console.log('This color is taken by a teammate: ' + colors[colorIdx] + ' move to the next one.');
+                                                colorIdx++;
+                                            }
+                                            document.getElementById('color-picker').jscolor.fromString(colors[colorIdx]);
+                                            //update this user's color:
+                                            var assignColor = {};
+                                            assignColor["{!$User.Id}"] = colors[colorIdx];
+                                            Visualforce.remoting.Manager.invokeAction("{!$RemoteAction.CS_ARCCExtension.updateTeamCalendarColor}", assignColor,
+                                            function(result, event){
+                                                if(event.status){
+                                                    console.log('Assign current user color: ' + colors[colorIdx]);
+                                                }
+                                            });
+                                        }
+                                        teamCalendarColors = result;
+                                        console.log(teamCalendarColors);
+                                    }); 
+                                    
+                                    $("#calendar-color").show();
+                                    $("i.account-tab-busy").hide();
+
+        
+                                });
+                            }
+                            // load the tab for the first time on page load
+                            loadAccountTab(requestedProfile);                            
+
+                            function loadTrainingTab(requestedProfile) {
+                                $("i.training-tab-busy").show();
+
+                                Visualforce.remoting.Manager.invokeAction("{!$RemoteAction.CS_ARProfileCC.retrieveProfile}",
+                                requestedProfile, function(profile) {
+                                    // loads the data for the education tab
+
+                                    var noneStr = "None";                                
+
+
+                                    if ( profile.hireDate ) {
+                                        $("div.training div.hire-date").text(moment(profile.hireDate).format("MM-DD-YYYY"));
+                                    } else {
+                                        $("div.training div.hire-date").text(noneStr);
+                                    }
+                                    
+                                $("div.training div.primary-product-group").text(globalDecodeEntities(profile.primaryProductGroup) || noneStr);
+                                    
+
+                                    $("i.training-tab-busy").hide();
+        
+                                });
+                            }
+                            // load the tab for the first time on page load
+                            loadTrainingTab(requestedProfile);
+
+                            // save training updates
+                            $("#edit-training-modal button.btn-save").on("click", function(e) {
+                                var btnTxt = $(this).text();
+                                $(this).text("Saving...");
+
+                                var trainingUpdates = {
+                                    hireDate: $("#edit-training-modal input.hire-date").val(),
+                                    primaryProductGroup: $("#edit-training-modal select.primary-product-group").val(),
+                                };
+
+                                Visualforce.remoting.Manager.invokeAction("{!$RemoteAction.CS_ARProfileCC.updateProfileSubsetTraining}",
+                                trainingUpdates, function(result, event) {
+                                    // saves the data and then reloads the tab and closes the modal
+
+                                    $("#edit-training-modal button.btn-save").text(btnTxt);
+                                    $("i.education-tab-busy").hide();
+                                    if ( event.status ) {
+                                        loadTrainingTab(result.profileId);
+                                        $("#edit-training-modal").modal("hide");
+                                    } else {
+                                        $("#edit-training-modal span.error").text(event.message);
+                                    }
+                                    
+                                });
+
+                            });
+
+                            // opens the training modal
+                            $("button.edit-training-btn").on("click", function() {
+                                $("#edit-training-modal span.error").text("");
+
+                                $("#edit-training-modal input.hire-date").val( $("div.training div.hire-date").text() );
+                                $("#edit-training-modal select.primary-product-group").val( $("div.training div.primary-product-group").text() );
+                                
+                                $("#edit-training-modal").modal("show");
+
+                            });
+
+                            function loadEducationTab(requestedProfile) {
+                                $("i.education-tab-busy").show();
+
+                                Visualforce.remoting.Manager.invokeAction("{!$RemoteAction.CS_ARProfileCC.retrieveProfile}",
+                                requestedProfile, function(profile) {
+                                    // loads the data for the education tab
+
+                                    var noneStr = "None";
+
+
+                                    if ( profile.graduateInstitutionId ) {
+                                        $("div.education div.graduate-institution").attr("data-record-id", profile.graduateInstitutionId);
+                                        $("div.education div.graduate-institution").text(globalDecodeEntities(profile.graduateInstitution));
+                                    } else {
+                                        $("div.education div.graduate-institution").text(noneStr);
+                                    }
+
+                                    if ( profile.underGraduateInstitutionId) {
+                                        $("div.education div.undergraduate-institution").attr("data-record-id", profile.undergraduateInstitutionId);
+                                        $("div.education div.undergraduate-institution").text(globalDecodeEntities(profile.underGraduateInstitution));
+                                    } else {
+                                        $("div.education div.undergraduate-institution").text(noneStr);
+                                    }
+
+                                    if ( profile.doctorateInstitutionId ) {
+                                        $("div.education div.doctorate-institution").attr("data-record-id", profile.doctorateInstitutionId);
+                                        $("div.education div.doctorate-institution").text(globalDecodeEntities(profile.doctorateInstitution));
+                                    } else {
+                                        $("div.education div.doctorate-institution").text(noneStr);
+                                    }                                    
+
+                                    $("div.education div.collegiate-sport").text( profile.collegiateSport || noneStr );
+                                    $("div.education div.collegiate-sport-years").text( profile.collegiateSportYears || noneStr );
+                                    $("div.education div.professional-sport").text( profile.professionalSport || noneStr );
+                                    $("div.education div.professional-sport-years").text( profile.professionalSportYears || noneStr );
+                                    $("div.education div.certifications").text( globalDecodeEntities(profile.professionalCertifications) || noneStr );
+                                    $("div.education div.associations").text( globalDecodeEntities(profile.professionalAssociations) || noneStr );
+                                    $("div.education div.sales-training").text( globalDecodeEntities(profile.professionalSalesTraining) || noneStr );
+                                    $("div.education div.clinical-training").text( globalDecodeEntities(profile.clinicalTraining) || noneStr );
+                                    $("div.education div.management-training").text( globalDecodeEntities(profile.managementTraining) || noneStr );
+
+                                    if ( profile.priorORExperience === true ) {
+                                        $("div.education div.prior-OR-experience").text("Yes");
+                                    } else {
+                                        $("div.education div.prior-OR-experience").text("No");
+                                    }
+
+                                    $("div.education div.military-branch").text( profile.militaryBranch || noneStr );
+                                    $("div.education div.military-status").text( profile.militaryStatus || noneStr );
+                                    
+                                    $("div.education div.orthopedic-sales").text( profile.orthopedicExp || noneStr );
+                                    $("div.education div.orthopedic-company").text( globalDecodeEntities(profile.orthopedicCompany) || noneStr );
+                                    $("div.education div.orthopedic-years").text( profile.orthopedicExpYears || noneStr );
+
+                                    $("div.education table.work-experience tbody").empty();
+                                    if ( profile.workExp ) {
+                                        $("div.education table.work-experience").show();
+                                        console.log('##-- workExp:'+profile.workExp);
+                                        var workExpRows = profile.workExp.split("||");
+                                        console.log('##-- workExpRows:'+workExpRows);
+                                        // each row is a semicolon terminated pipe delimitted string
+                                        for ( var i=0;i < workExpRows.length; i++) {
+                                            var workExpRow = workExpRows[i];
+                                            if ( workExpRow.length > 0 ) {
+                                                var workExpCols = workExpRow.split("|");
+                                                var row = "<tr>";
+                                                row += "<td>"+workExpCols[0]+"</td>";
+                                                row += "<td>"+workExpCols[1]+"</td>";
+                                                row += "<td>"+workExpCols[2]+"</td>";
+                                                row += "<td>"+workExpCols[3]+"</td>";
+                                                row += "</tr>";
+                                                $("div.education table.work-experience tbody").append(row);
+                                                
+                                            }
+                                        }
+                                    } else {
+                                        $("div.education table.work-experience").hide();
+                                    }
+
+                                    $("i.education-tab-busy").hide();
+                                });
+
+                            }
+                            // load the tab for the first time on page load
+                            loadEducationTab(requestedProfile);
+
+
+                            // save education updates
+                            
+                            $("#edit-education-modal button.btn-save").on("click", function(e) {
+                                var btnTxt = $(this).text();
+                                $(this).text("Saving...");
+                                
+                                //alert($("select.orthopedic-exp-company").val());
+                                //return false;
+                                var orthoCompany = $("#edit-education-modal select.orthopedic-exp-company").val();
+
+                                var educationUpdates = {
+                                    undergraduateInstitutionId: $("#edit-education-modal input.undergrad-institution").attr("data-record-id"),
+                                    graduateInstitutionId: $("#edit-education-modal input.graduate-institution").attr("data-record-id"),
+                                    doctorateInstitutionId: $("#edit-education-modal input.doctorate-institution").attr("data-record-id"),
+                                    collegiateSport: $("#edit-education-modal select.collegiate-sport").val(),
+                                    collegiateSportYears: $("#edit-education-modal select.collegiate-sport-years").val(),
+                                    professionalSport: $("#edit-education-modal select.professional-sport").val(),
+                                    professionalSportYears: $("#edit-education-modal select.professional-sport-years").val(),
+                                    professionalCertifications: $("#edit-education-modal input.certifications").val(),
+                                    professionalAssociations: $("#edit-education-modal input.associations").val(),
+                                    professionalSalesTraining: $("#edit-education-modal input.sales-training").val(),
+                                    managementTraining: $("#edit-education-modal input.management-training").val(),
+                                    clinicalTraining: $("#edit-education-modal select.clinical-training").val(),
+                                    priorOrExperience: $("#edit-education-modal select.prior-OR-experience").val(),
+                                    militaryBranch: $("#edit-education-modal select.military-branch").val(),
+                                    militaryStatus: $("#edit-education-modal select.military-status").val(),
+                                    orthopedicExp: $("#edit-education-modal select.orthopedic-sales").val(),
+                                    orthopedicCompany: getMultiSelectValues($("#edit-education-modal select.orthopedic-exp-company")),
+                                    orthopedicExpYears: $("#edit-education-modal select.orthopedic-exp-years").val()
+                                };
+
+                                var workExpList = "";
+                                // get the work experience rows as semicolon terminated pipe delimited string
+                                $("#edit-education-modal table.work-experience tbody tr").each(function(e) {
+
+                                    var company = $(this).find("td").eq(0).text();
+                                    var title = $(this).find("td").eq(1).text();
+                                    var industry = $(this).find("td").eq(2).text();
+                                    var years = $(this).find("td").eq(3).text();
+
+                                    // in title since it's free form text replace any pipes or semicolon with a space since we're
+                                    // using those chars for delimitting the row
+                                    title = title.replace(new RegExp('\\|', 'g'), ' ').replace(new RegExp(';', 'g'), ' ');
+
+                                    workExpList += company+"|"+title+"|"+industry+"|"+years+";";
+                                    
+                                });
+                                educationUpdates.workExp = encodeURIComponent(workExpList);
+                                
+                                Visualforce.remoting.Manager.invokeAction("{!$RemoteAction.CS_ARProfileCC.updateProfileSubsetEducation}",
+                                educationUpdates, function(result, event) {
+                                    // saves the data and then reloads the tab and closes the modal
+
+                                    $("#edit-education-modal button.btn-save").text(btnTxt);
+                                    $("i.education-tab-busy").hide();
+
+                                    if ( event.status ) {
+
+                                        loadEducationTab(result.profileId);
+                                        $("#edit-education-modal").modal("hide");
+        
+                                    } else {
+
+                                        $("#edit-education-modal span.error").text(event.message);
+
+                                    }
+                                    
+                                });
+
+                            });
+
+                            // opens the education modal
+                            $("button.edit-education-btn").on("click", function() {
+                                $("#edit-education-modal span.error").text("");
+                                $("#edit-education-modal table.work-experience tbody").empty();            
+
+                                var undergradId = $("div.education div.undergrad-institution").attr("data-record-id");
+                                var graduateId = $("div.education div.graduate-institution").attr("data-record-id");
+                                var doctorateId = $("div.education div.doctorate-institution").attr("data-record-id");
+
+                                $("#edit-education-modal input.undergrad-institution").attr("data-record-id", undergradId);
+                                $("#edit-education-modal input.graduate-institution").attr("data-record-id", graduateId);
+                                $("#edit-education-modal input.doctorate-institution").attr("data-record-id", doctorateId);
+                                
+                                $("#edit-education-modal input.undergrad-institution").val( $("div.education div.undergraduate-institution").text() );
+                                $("#edit-education-modal input.graduate-institution").val( $("div.education div.graduate-institution").text() );
+                                $("#edit-education-modal input.doctorate-institution").val( $("div.education div.doctorate-institution").text() );
+                                $("#edit-education-modal select.collegiate-sport").val($("div.education div.collegiate-sport").text());
+                                $("#edit-education-modal select.collegiate-sport-years").val($("div.education div.collegiate-sport-years").text());
+                                $("#edit-education-modal select.professional-sport").val($("div.education div.professional-sport").text());
+                                $("#edit-education-modal select.professional-sport-years").val($("div.education div.professional-sport-years").text());
+                                $("#edit-education-modal input.certifications").val($("div.education div.certifications").text());
+                                $("#edit-education-modal input.associations").val($("div.education div.associations").text());
+                                $("#edit-education-modal input.sales-training").val($("div.education div.sales-training").text());
+                                $("#edit-education-modal input.management-training").val($("div.education div.management-training").text());
+                                $("#edit-education-modal select.clinical-training").val($("div.education div.clinical-training").text());
+                                
+                                if ( $("div.education div.prior-OR-experience").text() === "Yes" ) {
+                                    $("#edit-education-modal select.prior-OR-experience").val("true");
+                                } else {
+                                    $("#edit-education-modal select.prior-OR-experience").val("false");
+                                }
+                                
+                                $("#edit-education-modal select.military-branch").val($("div.education div.military-branch").text());
+                                $("#edit-education-modal select.military-status").val($("div.education div.military-status").text());
+                                
+                                orthoCompany = $("div.education div.orthopedic-company").text();
+                                
+                                $("#edit-education-modal select.orthopedic-sales").val($("div.education div.orthopedic-sales").text());
+                                $("#edit-education-modal select.orthopedic-exp-years").val($("div.education div.orthopedic-years").text());
+                                if(orthoCompany != null && orthoCompany != 'None' && orthoCompany != ''){
+                                    $("#edit-education-modal div.selected-ortho-comp").empty()
+                                    setSelectedValueByLabel($("#edit-education-modal select.orthopedic-exp-company"), orthoCompany.split(";") );
+                                }
+                                
+                                
+                                /*
+                                
+                                if(orthoCompany != null && orthoCompany != 'None' && orthoCompany != ''){
+                                    $("#edit-education-modal select.orthopedic-exp-company").select2('val', ["Zimmer BioMet","Stryker"]); //orthoCompany.split(";")
+                                } else {
+                                    $("#edit-education-modal select.orthopedic-exp-company").select2('val', '');
+                                }*/
+                                
+                                
+
+                                $("div.education table.work-experience tbody tr").each(function(e) {
+
+                                    var company = $(this).find("td").eq(0).text();
+                                    var title = $(this).find("td").eq(1).text();
+                                    var industry = $(this).find("td").eq(2).text();
+                                    var years = $(this).find("td").eq(3).text();
+
+                                    var row = "<tr>";
+                                    row += "<td>"+company+"</td>";
+                                    row += "<td>"+title+"</td>";
+                                    row += "<td>"+industry+"</td>";
+                                    row += "<td>"+years+"</td>";
+                                    row += "<td><button class='btn btn-xs btn-warning rm-work-exp'>Delete</button></td>";
+                                    row += "</tr>";
+                                    
+                                    $("#edit-education-modal table.work-experience tbody").append(row);
+
+                                });
+
+                                $("#edit-education-modal").modal("show");
+                                // cool tab based multi-select support for picklists
+                                  $("select.multi-select").on("change", function(e) {
+                                     
+                                      var val = $(this).val();
+                                      var isDup = ( $(this).next("div.ctag-list").find("span.ctag[data-record-id='"+val+"']").length > 0 );
+                                      if ( val != "" && !isDup ) {
+                                         var label = $(this).find("option[value='"+val+"']").text();
+                                         var tag = '<span class="ctag alert alert-info" data-record-id="'+val+'">';
+                                         tag += label+'&nbsp;<span data-role="remove-tag"></span></span>';
+                                         $(this).next("div.ctag-list").append(tag);
+                                      }  
+                                      // reset back to "- SElect -"
+                                      $(this).val("");
+                                      
+                                  });
+                                  $(".ctag-list").on("click","[data-role=remove-tag]", function() {
+                                      // removes tags from the tag-list
+                                      $(this).parent().remove();
+                                  }); 
+
+                            });
+
+                            // adds a row of work experience to the education modal
+                            $("#edit-education-modal button.add-work-exp").on("click", function() {
+
+                                var company = $("#edit-education-modal input.work-exp-company").val();
+                                var title = $("#edit-education-modal input.work-exp-job-title").val();
+                                var industry = $("#edit-education-modal select.work-exp-industry").val();
+                                var years = $("#edit-education-modal select.work-exp-years").val();
+
+                                var valid = true;
+                                if ( typeof company === "undefined" || company.length === 0 ) { valid = false; }
+                                if ( typeof title === "undefined" || title.length === 0 ) { valid = false; }
+                                if ( typeof industry === "undefined" || industry.length === 0 ) { valid = false; }
+                                if ( typeof years === "undefined" || years.length === 0 ) { valid = false; }
+
+                                if ( valid === true ) {
+
+                                    var row = "<tr>";
+                                    row += "<td>"+company+"</td>";
+                                    row += "<td>"+title+"</td>";
+                                    row += "<td>"+industry+"</td>";
+                                    row += "<td>"+years+"</td>";
+                                    row += "<td><button class='btn btn-xs btn-warning rm-work-exp'>Delete</button></td>";
+                                    row += "</tr>";
+                                    
+                                    $("#edit-education-modal table.work-experience tbody").append(row);
+                                    
+                                    // reset the input and selects
+                                    $("#edit-education-modal input.work-exp-company").val("");
+                                    $("#edit-education-modal input.work-exp-job-title").val("");
+                                    $("#edit-education-modal select.work-exp-industry option:first").attr("selected","selected").change();
+                                    $("#edit-education-modal select.work-exp-years option:first").attr("selected","selected").change();
+
+                                }
+
+                            });
+
+                            // removes a row of work experience from the education modal
+                            $("#edit-education-modal table.work-experience").on("click","button.rm-work-exp", function(e) {
+                                $(this).closest("tr").remove();
+                            });
+
+                            // institution typeaheads
+                            $("#edit-education-modal input.institution-typeahead").typeahead({
+                                minLength: 2,
+                                source: function(query, onSuccess) {
+                                    Visualforce.remoting.Manager.invokeAction("{!$RemoteAction.CS_ARProfileCC.searchInstitutions}",
+                                    query, function(result, event) {
+                                        if (event.status) {
+                                            onSuccess(result);
+                                        } else {
+                                            console.log("Errors returned but no error handler found");
+                                        }
+                                    });
+                                },
+                                displayText: function(item) {
+                                    return globalDecodeEntities(item.Name);
+                                },
+                                afterSelect: function(item) {
+                                    
+                                    // set the record id on the bound input element
+                                    var input = $(this)[0].$element;
+                                    $(input).attr("data-record-id", item.Id);
+                                }
+                          });
+
+                        });
+                        
+                        
+                        
+                        // Given a select.multi-select retrieve the ctag record ids in a semicolon
+                          // delimitted string
+                          var getMultiSelectValues = function getMultiSelectValues(el) {
+                              var ctags = "";
+                              $(el).next("div.ctag-list").children().each(function() {
+                                  var val = $(this).attr("data-record-id");
+                                  ctags += val+";";
+                              });          
+                              return ctags.substring(0, (ctags.length-1)); // trims off the trailing semicolon
+                          };
+                            
+                          // Marks a select option as selected based on the option label for the given select element (supports multi-select)
+                          var setSelectedValueByLabel = function setSelectedValueByLabel(el, label) {
+                              
+                              if ( Array.isArray(label) ) {
+                                // this is an array of values so a multi-select
+                                
+                                for ( var i=0; i < label.length; i++) {
+                                    // add ctags
+                                    val = "0";
+                                   $(el).find("option").each(function() {
+                                      if ( $(this).text() === label[i] ) {
+                                          val = $(this).val();
+                                            var tag = '<span class="ctag alert alert-info" data-record-id="'+val+'">';
+                                            tag += globalDecodeEntities(label[i])+'&nbsp;<span data-role="remove-tag"></span></span>';
+                                            $(el).next("div.ctag-list").append(tag);
+                                        }
+                                    });             
+                                }
+                                  
+                              } else {
+                                  // single select, just set the val, if we can't find by label then just set the val and hope for the best
+                                  var found = false;
+                                  $(el).find("option").each(function() {
+                                    if ( $(this).text() === label ) {
+                                      val = $(this).val();
+                                        $(el).val(val);
+                                        found = true;
+                                    }
+                                  });
+                    
+                                  if ( !found ) {
+                                    $(el).val(label);
+                                  }
+                              }
+                          };
+                          
+                          // Function for Phone number validation - do not allow to enter characters in phone number field
+                          function isNumberCommaDot(evt) {
+                             var theEvent = evt || window.event;
+                             var key = theEvent.keyCode || theEvent.which;
+                        
+                             if (key === 9 ) { //TAB was pressed
+                             phoneFormate($('#pPersonMobilePhone').val(),theEvent );
+                             init();
+                                return;
+                             }
+                        
+                             key = String.fromCharCode(key);
+                             if (key.length == 0) return;
+                             var regex = /^[0-9,\9\b]*\.?[0-9]*$/;
+                             if (!regex.test(key)) {
+                                 theEvent.returnValue = false;
+                                 if (theEvent.preventDefault) theEvent.preventDefault();
+                             }
+                         }
+                    </script>
+                    
+                </head>
+
+                <body>                
+
+                    <div class="wrapper wrapper-content">
+                        <div class="row animated fadeInRight">
+                            
+                            <div class="col-md-12">
+                                <div class="ibox float-e-margins">
+                                    
+                                    <div class="ibox-content border-left-right" style="padding:25px;">                                            
+                                            <div class="row">
+                                                <div class="col-xs-12">
+
+                                                    <div class="form-group requires-owner">
+                                                        <h2>{!$Label.ARProfile_YourProfile} <i class="fa fa-refresh fa-spin profile-busy" style="display:none"></i></h2>
+                                                    </div>
+
+                                                    <ul class="nav nav-tabs responsive"  role="tablist">
+                                                        <li role="presentation" class="active">
+                                                            <a data-toggle="tab" role="tab" href="#tab-1">
+                                                                {!$Label.ARProfile_Contact}
+                                                                &nbsp;<i class="contact-tab-busy fa fa-refresh fa-spin" style="display:none"></i>
+                                                            </a>
+                                                        </li>
+                                                        <li role="presentation">
+                                                            <a data-toggle="tab" role="tab" href="#tab-2">
+                                                                {!$Label.ARProfile_Account}
+                                                                &nbsp;<i class="account-tab-busy fa fa-refresh fa-spin" style="display:none"></i>
+                                                            </a>
+                                                        </li>
+                                                        <li role="presentation">
+                                                            <a data-toggle="tab" role="tab" href="#tab-3">
+                                                                {!$Label.ARProfile_Training}
+                                                                &nbsp;<i class="training-tab-busy fa fa-refresh fa-spin" style="display:none"></i>
+                                                            </a>
+                                                        </li>
+                                                        <li role="presentation">
+                                                            <a data-toggle="tab" role="tab" href="#tab-4">
+                                                                {!$Label.ARProfile_EducAnd}
+                                                                &nbsp;<i class="education-tab-busy fa fa-refresh fa-spin" style="display:none"></i>
+                                                            </a>
+
+                                                        </li>
+                                                        <!-- per Greg - this will be used in a future version just set display:none so it's operational but hidden -->
+                                                       <!--  <li role="presentation" style="display:none">
+                                                            <a data-toggle="tab" role="tab" href="#tab-5">Subscription</a>
+                                                        </li> -->
+                                                    </ul>
+                                               
+                                                    <div class="tab-content responsive" style="padding-top:10px">
+                                                        
+                                                        <div id="tab-1" role="tabpanel" class="tab-pane contact active">
+                                                            <div class="row">
+                                                                <div class="col-xs-12">
+                                                                    <div class="text-right">
+                                                                        <button class="btn btn-primary btn-xs edit-contact-btn">
+                                                                            <i class="fa fa-pencil-square-o"></i> Edit
+                                                                        </button>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+
+                                                            <div class="row">
+                                                                <div class="col-xs-12">
+                                                                    <h3 class="text-blue">{!$Label.ARProfile_YourProfile}</h3>
+                                                                </div>
+                                                            </div>
+                                                            
+                                                            <div class="row">
+                                                                <div class="col-sm-6">
+                                                                    <div class="row">
+
+                                                                        <div class="col-sm-4">
+                                                                            <label>{!$Label.ARProfile_Name}</label>
+                                                                        </div>
+                                                                        <div class="col-sm-8">
+                                                                            <div class="salutation" style="display:inline"></div>
+                                                                            <div class="first-name" style="display:inline"></div>&nbsp;
+                                                                            <div class="last-name" style="display:inline"></div>
+                                                                        </div>
+                                                                    </div>
+
+                                                                    <div class="row">
+                                                                        <div class="col-sm-4">
+                                                                            <label>{!$Label.ARProfile_JobTitle}</label>
+                                                                        </div>
+                                                                        <div class="col-sm-8">
+                                                                            <div class="job-title"></div>
+                                                                        </div>
+                                                                    </div>
+                                                                    <div class="row">
+                                                                        <div class="col-sm-4">
+                                                                            <label>{!$Label.ARProfile_Role}</label>
+                                                                        </div>
+                                                                        <div class="col-sm-8">
+                                                                            <div class="role-in-agency"></div>
+                                                                        </div>
+                                                                    </div>
+
+                                                                    <div class="row">
+                                                                        <div class="col-sm-4">
+                                                                            <label>{!$Label.ARProfile_ConsultantLevel}</label>
+                                                                        </div>
+                                                                        <div class="col-sm-8">
+                                                                            <div class="consultant-level"></div>
+                                                                        </div>
+                                                                    </div>
+
+                                                                    <div class="row">
+                                                                        <div class="col-sm-4">
+                                                                            <div class="form-group">
+                                                                                <label>{!$Label.ARProfile_Address}</label>
+                                                                            </div>
+                                                                        </div>      
+
+                                                                        <div class="col-sm-8">
+                                                                            <div class="street"></div>
+                                                                            <div class="city" style="display:inline"></div>,&nbsp;
+                                                                            <div class="state" style="display:inline"></div>&nbsp;
+                                                                            <div class="postal-code" style="display:inline"></div>
+                                                                            <div class="country-code"></div>    
+                                                                        </div>
+                                                                    </div>
+
+                                                                </div>
+
+                                                                <div class="col-sm-6">
+
+                                                                    <div class="row">
+                                                                        <div class="col-sm-3">
+                                                                            <label>{!$Label.ARProfile_Email}</label>
+                                                                        </div>
+                                                                        <div class="col-sm-9">
+                                                                            <div class="email no-stretch"></div>
+                                                                        </div>
+                                                                    </div>
+                                                                    <div class="row">
+                                                                        <div class="col-sm-3">
+                                                                            <label>{!$Label.ARProfile_Cell}</label>
+                                                                        </div>
+                                                                        <div class="col-sm-9">
+                                                                            <div class="mobile-phone"></div>
+                                                                        </div> 
+                                                                    </div>
+                                                                    <div class="row">
+                                                                        <div class="col-sm-3">
+                                                                            <label>{!$Label.ARProfile_Phone}</label>
+                                                                        </div>
+                                                                        <div class="col-sm-9">
+                                                                            <div class="office-phone"></div>
+                                                                        </div> 
+                                                                    </div>
+                                                                    <div class="row">
+                                                                        <div class="col-sm-3">
+                                                                            <label>{!$Label.ARProfile_Fax}</label>
+                                                                        </div>
+                                                                        <div class="col-sm-9">
+                                                                            <div class="office-fax"></div>
+                                                                        </div> 
+                                                                    </div> 
+
+                                                                </div>
+                                                            </div>
+                                                            <hr/>
+
+ 
+                                                            <div class="row">
+                                                                
+                                                                <div class="col-sm-6">
+                                                                    <div class="form-group requires-owner">
+                                                                        <label for="exampleInputEmail1">{!$Label.Change_Profile_Image}</label>
+                                                                        <input type="file" id="fileInput"/>
+                                                                    </div>
+                                                                    <div class="save-button requires-owner">
+                                                                        <button class="btn btn-sm btn-primary btn-save-picture" disabled="true">Save Image</button>
+                                                                        <span class="text-danger notification error"></span>
+                                                                        <span class="text-success notification success"></span>
+                                                                    </div>
+                                                                </div>
+                                                            </div>                                                        
+                                                        </div>
+                                                        <div id="tab-2"  role="tabpanel" class="tab-pane account"> 
+                                                            <div class="row">
+                                                                <div class="col-xs-12">
+                                                                    <h3 class="text-blue">{!$Label.ARProfile_Account}</h3>
+                                                                </div>
+                                                            </div>
+                                                            
+                                                            <div class="row">
+                                                                <div class="col-sm-4">
+                                                                    <label>{!$Label.ARProfile_Username}</label>
+                                                                </div>
+                                                                <div class="col-sm-8">
+                                                                    <div class="username"></div>
+                                                                </div>
+                                                            </div>
+                                                           <div class="row">
+                                                                <div class="col-sm-4">
+                                                                    <label>{!$Label.ARProfile_ERP}</label>
+                                                                </div>
+                                                                <div class="col-sm-8">
+                                                                    <div class="erp-code"></div>
+                                                                </div>
+                                                            </div>
+                                                           <div class="row">
+                                                                <div class="col-sm-4">
+                                                                    <label>{!$Label.ARProfile_AccountType}</label>
+                                                                </div>
+                                                                <div class="col-sm-8">
+                                                                    <div class="account-type"></div>
+                                                                </div>
+                                                            </div>
+                                                           <div class="row">
+                                                                <div class="col-sm-4">
+                                                                    <label>{!$Label.ARProfile_Team}</label>
+                                                                </div>
+                                                                <div class="col-sm-8">
+                                                                    <div class="teams"></div>
+                                                                </div>
+                                                            </div>
+                                                           <div class="row">
+                                                                <div class="col-sm-4">
+                                                                    <label>{!$Label.ARProfile_Active}</label>
+                                                                </div>
+                                                                <div class="col-sm-8">
+                                                                    <div class="active uppercase"></div>
+                                                                </div>
+                                                            </div>  
+                                                            <br/><br/>
+                                                           <div class="row">
+                                                                <div class="col-sm-4">
+                                                                    <label>{!$Label.ARProfile_CreateDate}</label>
+                                                                </div>
+                                                                <div class="col-sm-8">
+                                                                    <div class="create-date"></div>
+                                                                </div>
+                                                            </div>                                                                                                    
+                                                           <div class="row">
+                                                                <div class="col-sm-4">
+                                                                    <label>{!$Label.ARProfile_LastLogin}</label>
+                                                                </div>
+                                                                <div class="col-sm-8">
+                                                                    <div class="last-login-date"></div>
+                                                                </div>
+                                                            </div>   
+
+                                                            <hr/>
+                                                            <div class="row">
+                                                                <div class="col-xs-12">
+                                                                    <h3 class="text-blue">Settings</h3>
+                                                                </div>
+                                                            </div>
+
+
+                                                            <div class="row" >
+                                                                <div class="col-lg-6">
+                                                                        <div class="form-group requires-owner">
+                                                                            <label>Calendar Display Color</label>
+                                                                        </div>
+
+                                                                        <div class="calendar-color" id="calendar-color" style="display: none">
+                                                                            <span class="color-update-fail" style="width: 100%; left: 400px;"></span>
+                                                                            <span class="color-update-success" style="width: 100%; left: 400px;"></span>  
+                                                                            <div class="save-button" color-hex="">
+                                                                            <input id="color-picker" class="jscolor {onFineChange:'selectColor(this)'}"/ >
+                                                                                <button id="update-color-btn" class="btm btm-sm btm-primary" style="left: 400px;">Update</button>
+                                                                            </div>
+
+                                                                        </div>   
+                                                                    </div>      
+                                                            </div>
+
+                                                            <hr/>
+
+
+
+                                                        </div>
+                                                        <div id="tab-3"  role="tabpanel" class="tab-pane training">
+                                                            <div class="row">
+                                                                <div class="col-xs-12">
+                                                                    <div class="text-right">
+                                                                        <button class="btn btn-primary btn-xs edit-training-btn">
+                                                                            <i class="fa fa-pencil-square-o"></i> Edit
+                                                                        </button>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                            <div class="row">
+                                                                <div class="col-xs-12">
+                                                                    <h3 class="text-blue">{!$Label.ARProfile_Training}</h3>
+                                                                </div>
+                                                            </div>
+
+
+
+                                                            <div class="row">
+                                                                <div class="col-sm-4">
+                                                                    <label>{!$Label.ARProfile_DateOfHire}</label>
+                                                                </div>
+                                                                <div class="col-sm-8">
+                                                                    <div class="hire-date"></div>
+                                                                </div>
+                                                            </div>
+
+                                                            
+
+                                                            <div class="row">
+                                                                <div class="col-sm-4">
+                                                                    <label>{!$Label.ARProfile_PPGroup}</label>
+                                                                </div>
+                                                                <div class="col-sm-8">
+                                                                    <div class="primary-product-group"></div>
+                                                                </div>
+                                                            </div>
+
+                                                        </div>                                                        
+
+                                                        <div id="tab-4"  role="tabpanel" class="tab-pane education">
+                                                            
+                                                            <div class="row">
+                                                                <div class="col-xs-12">
+                                                                    <div class="text-right">
+                                                                        <button class="btn btn-primary btn-xs edit-education-btn">
+                                                                            <i class="fa fa-pencil-square-o"></i> Edit
+                                                                        </button>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+
+                                                            <div class="row">
+                                                                <div class="col-xs-12">
+                                                                    <h3 class="text-blue">{!$Label.ARProfile_Education}</h3>
+                                                                </div>
+                                                            </div>
+                                                            <div class="row">    
+                                                                <div class="col-sm-4">
+                                                                    <label>{!$Label.ARProfile_Undergraduate}</label>
+                                                                </div>
+                                                                <div class="col-sm-8 ">
+                                                                    <div class="undergraduate-institution"></div>
+                                                                </div>
+                                                            </div> 
+                                                             <div class="row">   
+                                                                <div class="col-sm-4">
+                                                                    <label>{!$Label.ARProfile_Graduate}</label>
+                                                                </div>
+                                                                <div class="col-sm-8">
+                                                                    <div class="graduate-institution"></div>
+                                                                </div>
+                                                            </div>
+                                                            <div class="row">    
+                                                                <div class="col-sm-4">
+                                                                    <label>{!$Label.ARProfile_Doctorate}</label>
+                                                                </div>
+                                                                <div class="col-sm-8">
+                                                                    <div class="doctorate-institution"></div>
+                                                                </div>
+                                                            </div>
+
+                                                            <div class="row" style="margin-top:15px">
+                                                                <div class="col-xs-12">
+                                                                    <h3 class="text-blue">{!$Label.ARProfile_PersonalBackground}</h3>
+                                                                </div>
+                                                            </div>
+
+                                                            <div class="row">
+                                                                <div class="col-sm-8">
+                                                                    <div class="table-responsive">
+                                                                        <table class="table table-condensed" style="margin-bottom:0px">
+                                                                            <thead>
+                                                                                <tr>
+                                                                                    <th style="width:33%">{!$Label.ARProfile_Level}</th>
+                                                                                    <th style="width:33%">{!$Label.ARProfile_SportsPlayed}</th>
+                                                                                    <th style="width:33%">{!$Label.ARProfile_HowManyYears}</th>
+                                                                                </tr>
+                                                                            </thead>
+                                                                            <tbody>
+                                                                                <tr>
+                                                                                    <td>{!$Label.ARProfile_Collegiate}</td>
+                                                                                    <td><div class="collegiate-sport"></div></td>
+                                                                                    <td><div class="collegiate-sport-years"></div></td>
+                                                                                </tr>
+                                                                                <tr>
+                                                                                    <td>{!$Label.ARProfile_Professional}</td>
+                                                                                    <td><div class="professional-sport"></div></td>
+                                                                                    <td><div class="professional-sport-years"></div></td>
+                                                                                </tr>
+                                                                            </tbody>
+                                                                        </table>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                            <br/>
+                                                            <div class="row">   
+                                                                <div class="col-sm-4">
+                                                                    <label>{!$Label.ARProfile_MilitaryBranch}</label>
+                                                                </div>
+                                                                <div class="col-sm-8">
+                                                                    <div class="military-branch"></div>
+                                                                </div>
+                                                            </div>
+                                                            <div class="row">    
+                                                                <div class="col-sm-4">
+                                                                    <label>{!$Label.ARProfile_MilitaryStatus}</label>
+                                                                </div>
+                                                                <div class="col-sm-8">
+                                                                    <div class="military-status"></div>
+                                                                </div>
+                                                            </div>                                                            
+
+                                                            <div class="row" style="margin-top:15px">
+                                                                <div class="col-xs-12">
+                                                                    <h3 class="text-blue">{!$Label.ARProfile_ProfessionalDev}</h3>
+                                                                </div>
+                                                            </div>
+                                                            <div class="row">
+                                                                <div class="col-sm-4">
+                                                                    <label>{!$Label.ARProfile_ProfessionalCert}</label>
+                                                                </div>
+                                                                <div class="col-sm-8">
+                                                                    <div class="certifications"></div>
+                                                                </div>
+                                                            </div>
+                                                            <div class="row">    
+                                                                <div class="col-sm-4">
+                                                                    <label>{!$Label.ARProfile_ProfessionalAsso}</label>
+                                                                </div>
+                                                                <div class="col-sm-8">
+                                                                    <div class="associations"></div>
+                                                                </div>
+                                                            </div> 
+                                                             <div class="row">   
+                                                                <div class="col-sm-4">
+                                                                    <label>{!$Label.ARProfile}</label>
+                                                                </div>
+                                                                <div class="col-sm-8">
+                                                                    <div class="sales-training"></div>
+                                                                </div>
+                                                            </div>
+                                                            <div class="row">    
+                                                                <div class="col-sm-4">
+                                                                    <label>{!$Label.ARProfile_ManagementTP}</label>
+                                                                </div>
+                                                                <div class="col-sm-8">
+                                                                    <div class="management-training"></div>
+                                                                </div>
+                                                            </div>
+
+                                                            <div class="row" style="margin-top:15px">
+                                                                <div class="col-xs-12">
+                                                                    <h3 class="text-blue">{!$Label.ARProfile_WorkExperience}</h3>
+                                                                </div>
+                                                            </div>
+                                                            
+                                                            <div class="row">   
+                                                                <div class="col-sm-4">
+                                                                    <label>{!$Label.ARProfile_ClinicalTrainingWE}</label>
+                                                                </div>
+                                                                <div class="col-sm-8">
+                                                                    <div class="clinical-training"></div>
+                                                                </div>
+                                                            </div>
+                                                            <div class="row">    
+                                                                <div class="col-sm-4">
+                                                                    <label>{!$Label.ARProfile_PriorOrExp}</label>
+                                                                </div>
+                                                                <div class="col-sm-8">
+                                                                    <div class="prior-OR-experience"></div>
+                                                                </div>
+                                                            </div>
+                                                            
+                                                            <div class="row" style="margin-top:15px">
+                                                                <div class="col-xs-12">
+                                                                    <h3 class="text-blue">{!$Label.ARProfile_OrthopedicExp}</h3>
+                                                                </div>
+                                                            </div>
+                                                            
+                                                            <div class="row">   
+                                                                <div class="col-sm-4">
+                                                                    <label>{!$Label.ARProfile_OrthopedicSales}</label>
+                                                                </div>
+                                                                <div class="col-sm-8">
+                                                                    <div class="orthopedic-sales"></div>
+                                                                </div>
+                                                            </div>
+                                                            <div class="row">   
+                                                                <div class="col-sm-4">
+                                                                    <label>{!$Label.ARProfile_OrthopedicCo}</label>
+                                                                </div>
+                                                                <div class="col-sm-8">
+                                                                    <div class="orthopedic-company"></div>
+                                                                </div>
+                                                            </div>
+                                                            <div class="row">    
+                                                                <div class="col-sm-4">
+                                                                    <label>{!$Label.ARProfile_YearsOfExp}</label>
+                                                                </div>
+                                                                <div class="col-sm-8">
+                                                                    <div class="orthopedic-years"></div>
+                                                                </div>
+                                                            </div>
+                                                            
+                                                            <br />
+
+                                                            <div class="row">
+                                                                <div class="col-sm-8">
+                                                                    <div class="table-responsive">
+                                                                        <table class="table table-condensed work-experience" style="margin-bottom:0px">
+                                                                            <thead>
+                                                                                <tr>
+                                                                                    <th style="width:33%">{!$Label.ARProfile_WorkHistory}</th>
+                                                                                    <th style="width:33%">{!$Label.ARProfile_JobTitle}</th>
+                                                                                    <th style="width:33%">{!$Label.ARProfile_Industry}</th>
+                                                                                    <th style="width:33%">{!$Label.ARProfile_HowManyYears}</th>
+                                                                                </tr>
+                                                                            </thead>
+                                                                            <tbody>
+                                                                            </tbody>
+                                                                        </table>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                            <!--
+                                                            <div class="row" style="margin-top:15px">
+                                                                <div class="col-xs-12">
+                                                                    <h3 class="text-blue">Predictive Index results</h3>
+                                                                </div>
+                                                            </div>
+                                                            <div class="row">   
+                                                                <div class="col-sm-12">
+                                                                    <a href="http://www.predictiveindex.com/the-predictive-index" target="blank">{{results Link}}</a>
+                                                                </div>  
+                                                            </div>
+                                                            -->
+                                                        </div>
+                                                        <!-- per Greg - this will be used in a future version just set display:none so it's operational but hidden -->
+                                                        <!-- <div id="tab-5"  role="tabpanel" class="tab-pane subscription" style="display:none">
+                                                            <div class="row">
+                                                                <div class="col-sm-3">
+                                                                    <label>Product Group Experience</label>
+                                                                    <div class="product-group-experience">                                                                
+                                                                    </div>                                                         
+                                                                </div>
+                                                                <div class="col-sm-3">
+                                                                    <label>Email Marketing</label>
+                                                                    <div class="email-marketing">
+                                                                    </div>                                                                  
+                                                                </div>
+                                                                <div class="col-sm-3">
+                                                                    <label>Direct Mail</label>
+                                                                    <div class="direct-mail">
+                                                                    </div>                                                           
+                                                                </div> 
+                                                                <div class="col-sm-3">
+                                                                    <div class="form-group">
+                                                                        <label>Send Mail To</label>
+                                                                        <div class="sendMailTo"></div>
+                                                                    </div>
+                                                                </div>    
+                                                            </div>
+
+                                                        </div> -->
+                                                    
+                                                    </div>
+                                                  
+                                                </div>        
+                                            </div>
+
+                                    </div>
+                                </div>
+                            </div>
+                            
+                        </div>
+                    </div>
+
+                    <!-- edit contact -->
+                    <div class="modal fade modal-authrex" id="edit-contact-modal"  data-backdrop="static" tabindex="-1" role="dialog">
+                        <div class="modal-dialog">
+                            <div class="modal-content">
+                              
+                              <div class="modal-header">
+                                <button type="button" class="close" onclick="showConfirmation();" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                                <h4 class="modal-title"><i class="fa fa-plus-square-o"></i>&nbsp;&nbsp; Edit Contact</h4>
+                              </div>        
+                              
+                                <div class="modal-body">
+                                    <div class="form">
+                                        
+                                        <div class="row">
+                                            <div class="col-xs-12">
+                                                <h3 class="text-blue">{!$Label.ARProfile_Training}</h3>
+                                            </div>
+                                        </div>
+                                        <br/>
+                                        <div class="row">    
+                                            <div class="col-sm-6">
+                                                <label>{!$Label.ARProfile_Salutation}</label>
+                                            </div>
+                                            <div class="col-sm-6">
+                                                <select class="form-control salutation"></select>
+                                            </div>
+                                        </div> 
+                                        <br/>
+                                        <div class="row">    
+                                            <div class="col-sm-6">
+                                                <label>{!$Label.ARProfile_FirstName}</label>
+                                            </div>
+                                            <div class="col-sm-6">
+                                                <input type='text' class="form-control first-name"/>
+                                            </div>
+                                        </div> 
+                                        <br/>    
+                                        <div class="row">    
+                                            <div class="col-sm-6">
+                                                <label>{!$Label.ARProfile_LastName}</label>
+                                            </div>
+                                            <div class="col-sm-6">
+                                                <input type='text' class="form-control last-name"/>
+                                            </div>
+                                        </div> 
+                                        <br/>
+                                        <div class="row">    
+                                            <div class="col-sm-6">
+                                                <label>{!$Label.ARProfile_JobTitle}</label>
+                                            </div>
+                                            <div class="col-sm-6">
+                                                <input type='text' class="form-control job-title"/>
+                                            </div>
+                                        </div> 
+                                        <br/>
+                                        <div class="row">    
+                                            <div class="col-sm-6">
+                                                <label>{!$Label.ARProfile_Role}</label>
+                                            </div>
+                                            <div class="col-sm-6">
+                                                <select class="form-control role-in-agency">
+                                                    <option value="">None</option>
+                                                </select>
+                                            </div>
+                                        </div> 
+                                        <br/>
+                                        <div class="row">    
+                                            <div class="col-sm-6">
+                                                <label>{!$Label.ARProfile_ConsultantLevel}</label>
+                                            </div>
+                                            <div class="col-sm-6">
+                                                <select class="form-control consultant-level">
+                                                    <option value="">None</option>
+                                                </select>
+                                            </div>
+                                        </div>
+                                        
+                                        <br/>  
+                                        <div class="row">    
+                                            <div class="col-sm-6">
+                                                <label>{!$Label.ARProfile_Email}</label>
+                                            </div>
+                                            <div class="col-sm-6">
+                                                <input type='text' class="form-control email"/>
+                                            </div>
+                                        </div> 
+                                        <br/>  
+                                        <div class="row">    
+                                            <div class="col-sm-6">
+                                                <label>{!$Label.ARProfile_Street}</label>
+                                            </div>
+                                            <div class="col-sm-6">
+                                                <input type='text' class="form-control street"/>
+                                            </div>
+                                        </div> 
+                                        <br/>  
+                                        <div class="row">    
+                                            <div class="col-sm-6">
+                                                <label>{!$Label.ARProfile_City}</label>
+                                            </div>
+                                            <div class="col-sm-6">
+                                                <input type='text' class="form-control city"/>
+                                            </div>
+                                        </div> 
+                                        <br/>  
+                                        <div class="row">    
+                                            <div class="col-sm-6">
+                                                <label>{!$Label.ARProfile_State}</label>
+                                            </div>
+                                            <div class="col-sm-6">
+                                            <select class="form-control state">
+                                              <option>Alabama</option>
+                                              <option>Alaska</option>
+                                              <option>Arizona</option>
+                                              <option>Arkansas</option>
+                                              <option>California</option>
+                                              <option>Colorado</option>
+                                              <option>Connecticut</option>
+                                              <option>Delaware</option>
+                                              <option>Dist of Columbia</option>
+                                              <option>Florida</option>
+                                              <option>Georgia</option>
+                                              <option>Hawaii</option>
+                                              <option>Idaho</option>
+                                              <option>Illinois</option>
+                                              <option>Indiana</option>
+                                              <option>Iowa</option>
+                                              <option>Kansas</option>
+                                              <option>Kentucky</option>
+                                              <option>Louisiana</option>
+                                              <option>Maine</option>
+                                              <option>Maryland</option>
+                                              <option>Massachusetts</option>
+                                              <option>Michigan</option>
+                                              <option>Minnesota</option>
+                                              <option>Mississippi</option>
+                                              <option>Missouri</option>
+                                              <option>Montana</option>
+                                              <option>Nebraska</option>
+                                              <option>Nevada</option>
+                                              <option>New Hampshire</option>
+                                              <option>New Jersey</option>
+                                              <option>New Mexico</option>
+                                              <option>New York</option>
+                                              <option>North Carolina</option>
+                                              <option>North Dakota</option>
+                                              <option>Ohio</option>
+                                              <option>Oklahoma</option>
+                                              <option>Oregon</option>
+                                              <option>Pennsylvania</option>
+                                              <option>Rhode Island</option>
+                                              <option>South Carolina</option>
+                                              <option>South Dakota</option>
+                                              <option>Tennessee</option>
+                                              <option>Texas</option>
+                                              <option>Utah</option>
+                                              <option>Vermont</option>
+                                              <option>Virginia</option>
+                                              <option>Washington</option>
+                                              <option>West Virginia</option>
+                                              <option>Wisconsin</option>
+                                              <option>Wyoming</option>
+                                            </select>
+                                            </div>
+                                        </div> 
+                                        <br/>  
+                                        <div class="row">    
+                                            <div class="col-sm-6">
+                                                <label>{!$Label.ARProfile_Zip}</label>
+                                            </div>
+                                            <div class="col-sm-6">
+                                                <input type='text' class="form-control postal-code"/>
+                                            </div>
+                                        </div> 
+                                        <br/>  
+                                        <div class="row">    
+                                            <div class="col-sm-6">
+                                                <label>{!$Label.ARProfile_Country}</label>
+                                            </div>
+                                            <div class="col-sm-6">
+                                                <select class="form-control country-code"></select>
+                                            </div>
+                                        </div> 
+                                        <br/>  
+                                        <div class="row">    
+                                            <div class="col-sm-6">
+                                                <label>{!$Label.ARProfile_Cell}</label>
+                                            </div>
+                                            <div class="col-sm-6">
+                                                <input id="contactCell" type='text' class="form-control mobile-phone" onkeypress='return isNumberCommaDot(event)'/>
+                                                <span id="spnPhoneStatusCell"></span>
+                                            </div>
+                                        </div> 
+                                        <br/>  
+                                        <div class="row">    
+                                            <div class="col-sm-6">
+                                                <label>{!$Label.ARProfile_Phone}</label>
+                                            </div>
+                                            <div class="col-sm-6">
+                                                <input id="contactPhone" type='text' class="form-control office-phone" onkeypress='return isNumberCommaDot(event)'/>
+                                                <span id="spnPhoneStatus"></span>
+                                            </div>
+                                        </div> 
+                                        <br/>  
+                                        <div class="row">    
+                                            <div class="col-sm-6">
+                                                <label>{!$Label.ARProfile_Fax}</label>
+                                            </div>
+                                            <div class="col-sm-6">
+                                                <input id="contactFax" type='text' class="form-control office-fax" onkeypress='return isNumberCommaDot(event)'/>
+                                                <span id="spnFaxStatus"></span>
+                                            </div>
+                                        </div>                                         
+
+                                    </div>
+                                </div>
+                                <div class="modal-footer">
+                                    <span class="error text-danger"></span>
+                                    <button type="button" class="btn btn-default opportunity-cancel-btn">{!$Label.CS_Close}</button>
+                                    <button type="button" class="btn btn-primary btn-save">{!$Label.CS_Save}</button>
+                                </div>    
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- edit training -->
+                    <div class="modal fade modal-authrex" id="edit-training-modal" tabindex="-1" data-backdrop="static" role="dialog">
+                        <div class="modal-dialog">
+                            <div class="modal-content">
+                              
+                              <div class="modal-header">
+                                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                                <h4 class="modal-title"><i class="fa fa-plus-square-o"></i>&nbsp;&nbsp; Edit Training</h4>
+                              </div>        
+                              
+                                <div class="modal-body">
+                                    <div class="form">
+                                        
+                                        <div class="row">
+                                            <div class="col-xs-12">
+                                                <h3 class="text-blue">{!$Label.ARProfile_Training}</h3>
+                                            </div>
+                                        </div>
+                                        <br/>
+
+                                        <div class="row">    
+                                            <div class="col-sm-6">
+                                                <label>{!$Label.ARProfile_DateOfHire}</label>
+                                            </div>
+                                            <div class="col-sm-6">
+                                                <div class="input-group datepicker date-only">
+                                                    <input type='text' class="form-control hire-date" />
+                                                    <span class="input-group-addon"><span class="glyphicon glyphicon-calendar"></span>
+                                                    </span>
+                                                </div>
+                                            </div>
+                                        </div> 
+                                        
+                                        <br/>       
+                                        <div class="row">    
+                                            <div class="col-sm-6">
+                                                <label>{!$Label.ARProfile_PPGroup}</label>
+                                            </div>
+                                            <div class="col-sm-6">
+                                                <select class="form-control primary-product-group">
+                                                    <option value="">None</option>
+                                                </select>
+                                            </div>
+                                        </div>
+
+                                    </div>
+                                </div>
+                                <div class="modal-footer">
+                                    <span class="error text-danger"></span>
+                                    <button type="button" class="btn btn-default" data-dismiss="modal">{!$Label.CS_Close}</button>
+                                    <button type="button" class="btn btn-primary btn-save">{!$Label.CS_Save}</button>
+                                </div>    
+                            </div>
+                        </div>
+                    </div>
+
+
+                    <!-- edit education and work experience -->
+                    <div class="modal fade modal-authrex" id="edit-education-modal" tabindex="-1" data-backdrop="static" role="dialog">
+                      <div class="modal-dialog">
+                        <div class="modal-content">
+                          
+                          <div class="modal-header">
+                            <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                            <h4 class="modal-title"><i class="fa fa-plus-square-o"></i>&nbsp;&nbsp; Edit Education and Work Experience</h4>
+                          </div>        
+                          
+                          <div class="modal-body">
+                            <div class="form">
+                                
+                                <div class="row">
+                                    <div class="col-xs-12">
+                                        <h3 class="text-blue">{!$Label.ARProfile_Education}</h3>
+                                    </div>
+                                </div>
+                                <br/>
+                                <div class="row">    
+                                    <div class="col-sm-12">
+                                        <label>{!$Label.ARProfile_Undergraduate}</label>
+                                    </div>
+                                    <div class="col-sm-12">
+                                        <input class="form-control institution-typeahead undergrad-institution"/>
+                                    </div>
+                                </div> 
+                                <br/>
+                                <div class="row">   
+                                    <div class="col-sm-12">
+                                        <label>{!$Label.ARProfile_Graduate}</label>
+                                    </div>
+                                    <div class="col-sm-12">
+                                        <input class="form-control institution-typeahead graduate-institution"/>
+                                    </div>
+                                </div>
+                                <br/> 
+                                <div class="row">    
+                                    <div class="col-sm-12">
+                                        <label>{!$Label.ARProfile_Doctorate}</label>
+                                    </div>
+                                    <div class="col-sm-12">
+                                        <input class="form-control institution-typeahead doctorate-institution"/>
+                                    </div>
+                                </div>
+                                <div class="row" style="margin-top:15px">
+                                    <div class="col-xs-12">
+                                        <h3 class="text-blue">{!$Label.ARProfile_PersonalBackground}</h3>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-xs-12">
+                                        <div class="table-responsive">
+                                            <table class="table table-condensed" style="margin-bottom:0px">
+                                                <thead>
+                                                    <tr>
+                                                        <th style="width:33%">{!$Label.ARProfile_Level}</th>
+                                                        <th style="width:33%">{!$Label.ARProfile_SportsPlayed}</th>
+                                                        <th style="width:33%">{!$Label.ARProfile_HowManyYears}</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody>
+                                                    <tr>
+                                                        <td>{!$Label.ARProfile_Collegiate}</td>
+                                                        <td>
+                                                            <select class="form-control collegiate-sport">
+                                                                <option value="">None</option>
+                                                            </select>
+                                                        </td>
+                                                        <td>
+                                                            <select class="form-control collegiate-sport-years">
+                                                                <option value="">None</option>
+                                                            </select>
+                                                        </td>
+                                                    </tr>
+                                                    <tr>
+                                                        <td>{!$Label.ARProfile_Professional}</td>
+                                                        <td>
+                                                            <select class="form-control professional-sport">
+                                                                <option value="">None</option>
+                                                            </select>
+                                                        </td>
+                                                        <td>
+                                                            <select class="form-control professional-sport-years">
+                                                                <option value="">None</option>
+                                                            </select>
+                                                        </td>
+                                                    </tr>
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                    </div>
+                                </div>
+                                <br/>
+                                <div class="row">   
+                                    <div class="col-sm-6">
+                                        <label>{!$Label.ARProfile_MilitaryBranch}</label>
+                                    </div>
+                                    <div class="col-sm-6">
+                                        <select class="form-control military-branch">
+                                            <option value="">None</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <br/>
+                                <div class="row">    
+                                    <div class="col-sm-6">
+                                        <label>{!$Label.ARProfile_MilitaryStatus}</label>
+                                    </div>
+                                    <div class="col-sm-6">
+                                        <select class="form-control military-status">
+                                            <option value="">None</option>
+                                        </select>
+                                    </div>
+                                </div>
+
+                                <div class="row" style="margin-top:15px">
+                                    <div class="col-xs-12">
+                                        <h3 class="text-blue">{!$Label.ARProfile_ProfessionalDev}</h3>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-sm-6">
+                                        <label>{!$Label.ARProfile_ProfessionalCert}</label>
+                                    </div>
+                                    <div class="col-sm-6">
+                                        <input class="form-control certifications"/>
+                                    </div>
+                                </div>
+                                <br/>
+                                <div class="row">    
+                                    <div class="col-sm-6">
+                                        <label>{!$Label.ARProfile_ProfessionalAsso}</label>
+                                    </div>
+                                    <div class="col-sm-6">
+                                        <input class="form-control associations"/>
+                                    </div>
+                                </div> 
+                                <br/>
+                                <div class="row">   
+                                    <div class="col-sm-6">
+                                        <label>{!$Label.ARProfile}</label>
+                                    </div>
+                                    <div class="col-sm-6">
+                                        <input class="form-control sales-training"/>
+                                    </div>
+                                </div>
+                                <br/>
+                                <div class="row">    
+                                    <div class="col-sm-6">
+                                        <label>{!$Label.ARProfile_ManagementTP}</label>
+                                    </div>
+                                    <div class="col-sm-6">
+                                        <input class="form-control management-training"/>
+                                    </div>
+                                </div>
+                                <div class="row" style="margin-top:15px">
+                                    <div class="col-xs-12">
+                                        <h3 class="text-blue">{!$Label.ARProfile_WorkExperience}</h3>
+                                    </div>
+                                </div>
+                                
+                                <div class="row">   
+                                    <div class="col-sm-6">
+                                        <label>{!$Label.ARProfile_ClinicalTrainingWE}</label>
+                                    </div>
+                                    <div class="col-sm-6">
+                                        <select class="form-control clinical-training">
+                                            <option value="">None</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <br/>
+                                <div class="row">    
+                                    <div class="col-sm-6">
+                                        <label>{!$Label.ARProfile_PriorOrExp}</label>
+                                    </div>
+                                    <div class="col-sm-6">
+                                        <select class="form-control prior-OR-experience">
+                                            <option value="false">No</option>
+                                            <option value="true">Yes</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <br/>
+                                <div class="row">
+                                    <div class="col-xs-12">
+                                        <div class="table-responsive orthopedic-row">
+
+                                            <table class="table table-condensed orthopedic-experience" style="margin-bottom:0px">
+                                                <thead>
+                                                    <tr>
+                                                        <th style="width:33%">{!$Label.ARProfile_OrthopedicSales}</th>
+                                                        <th style="width:43%">{!$Label.ARProfile_OrthopedicCo}</th>
+                                                        <th style="width:23%">{!$Label.ARProfile_Years}</th>
+                                                    </tr>
+                                                    <tr>
+                                                        <td>
+                                                            <select class="form-control orthopedic-sales">
+                                                                <option value=""></option>
+                                                                <option value="No">No</option>
+                                                                <option value="Yes">Yes</option>
+                                                            </select>
+                                                        </td>
+                                                        <td>
+                                                            <select class="form-control orthopedic-exp-company multi-select" style="width: 100%">
+                                                                <option value=""></option>
+                                                            </select>
+                                                            <div class="selected-ortho-comp ctag-list"></div>
+                                                            <!-- <select class="form-control orthopedic-exp-company" multiple="multiple" style="width: 100%">
+                                                            </select> -->
+                                                        </td>
+                                                        <td>
+                                                            <select class="form-control orthopedic-exp-years">
+                                                                <option value=""></option>
+                                                            </select>
+                                                        </td>
+                                                    </tr>
+                                                </thead>
+                                                <tbody>
+                                                                                 
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                    </div>
+                                </div>
+                                <br/>
+                                <div class="row">
+                                    <div class="col-xs-12">
+                                        <div class="table-responsive">
+
+                                            <table class="table table-condensed work-experience" style="margin-bottom:0px">
+                                                <thead>
+                                                    <tr>
+                                                        <th style="width:22.5%">{!$Label.ARProfile_Company}</th>
+                                                        <th style="width:34.5%">{!$Label.ARProfile_JobTitle}</th>
+                                                        <th style="width:22.5%">{!$Label.ARProfile_Industry}</th>
+                                                        <th style="width:10%">{!$Label.ARProfile_Years}</th>
+                                                        <th style="width:10%">&nbsp;</th>
+                                                    </tr>
+                                                    <tr>
+                                                        <td>
+                                                            <input type="text" class="form-control work-exp-company"/>
+                                                        </td>
+                                                        <td>
+                                                            <input type="text" class="form-control work-exp-job-title"/>
+                                                        </td>
+                                                        <td>
+                                                            <select class="form-control work-exp-industry">
+                                                                <option value=""></option>
+                                                            </select>
+                                                        </td>
+                                                        <td>
+                                                            <select class="form-control work-exp-years">
+                                                                <option value=""></option>
+                                                            </select>
+                                                        </td>
+                                                        <td style="vertical-align:middle;text-align:right">
+                                                            <button class="btn btn-xs btn-primary add-work-exp">Add</button>
+                                                        </td>
+                                                    </tr>
+                                                </thead>
+                                                <tbody>
+                                                                                 
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                    </div>
+                                </div>                                                                                                
+                            </div>
+                          </div>
+                          
+                          <div class="modal-footer">
+                            <span class="error text-danger"></span>
+                            <button type="button" class="btn btn-default" data-dismiss="modal">{!$Label.CS_Close}</button>
+                            <button type="button" class="btn btn-primary btn-save">{!$Label.CS_Save}</button>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+
+                    <!-- modal for Cancel opportunity Card -->
+                    <div class="modal fade  modal-authrex" id="cancel-opportunity-modal" data-backdrop="static" tabindex="-1" role="dialog">
+                      <div class="modal-dialog">
+                        <div class="modal-content">
+                          <div class="modal-header">
+                            <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                            <h4 class="modal-title"><i class="fa fa-plus-square-o"></i>&nbsp;&nbsp;Opportunity</h4>
+                          </div>
+        
+                          <div class="modal-body">
+        
+                            <div class="row">
+                              <div class="col-sm-6">
+                                <div class="form-group">
+                                  <label>Are you Sure you?</label>
+                                </div>                
+                              </div>
+                            </div>
+                          </div>
+        
+                          <div class="modal-footer">
+                            <span class="text-danger save-error"></span>&nbsp;&nbsp;
+                            <button type="button" class="btn btn-primary btn-cancel-opportunity-card">Yes</button>
+                            <button type="button" class="btn btn-default" data-dismiss="modal">No</button>
+                            
+                          </div>
+                        </div><!-- /.modal-content -->
+                      </div><!-- /.modal-dialog -->
+                    </div><!-- /.modal --> 
+                    
+                    
+                </body>
+            </html>
+
+        </apex:define>
+    </apex:composition>
+</apex:page>

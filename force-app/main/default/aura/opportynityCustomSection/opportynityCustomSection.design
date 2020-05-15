@@ -1,0 +1,3 @@
+<design:component>
+	<design:attribute name="recordId" required="true" default="{!recordId}"/>
+</design:component>

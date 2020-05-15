@@ -1,0 +1,22 @@
+<apex:page controller="EditRemoteObjectData" sidebar="false" tabstyle="Remote_Data__tab">
+    <apex:sectionHeader title="Edit" subtitle="{!strObjectName}"/>
+    <apex:form >        
+        <apex:pageBlock >
+             <apex:pageBlockSection columns="2" Title="Object Information">
+                 <apex:repeat value="{!lstColumn}" var="f">                       
+                     <apex:inputField value="{!objSobject[f]}" rendered="{!mapFieldNameToFieldMetadata[f].type != 'reference'}"/>
+                     <apex:outputText label="{!mapFieldNameToFieldMetadata[f].label}" value="{!objSobject[f]}" rendered="{!mapFieldNameToFieldMetadata[f].type == 'reference'}"/>
+                 </apex:repeat>
+             </apex:pageBlockSection>
+             <apex:pageBlockButtons >
+                 <apex:commandButton value="Save" action="{!updateRecord}" status="topStatus" />             
+                 <apex:commandButton value="Cancel" action="{!CancelUpdate}"/>
+                 <apex:actionStatus stopText="" id="topStatus">
+                     <apex:facet name="start">                      
+                             <img src="/img/loading.gif" width="16" height="16"/>                     
+                      </apex:facet>
+                 </apex:actionStatus>
+             </apex:pageBlockButtons>
+         </apex:pageBlock>
+     </apex:form>
+</apex:page>

@@ -1,0 +1,11 @@
+<apex:component controller="IncludeAttachmentsController" access="global">
+    <apex:attribute name="contactId"
+
+        description="Contact Id"
+
+        assignTo="{!contactObjectId}"
+
+        type="Id" />
+
+    <apex:outputText value="{!PageContents}" escape="false" />
+</apex:component>

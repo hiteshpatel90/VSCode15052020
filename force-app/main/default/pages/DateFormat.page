@@ -1,0 +1,5 @@
+<apex:page standardController="Account" >
+    <apex:outputText value="{0,date,MM'/'dd'/'yyyy}">
+        <apex:param value="{!now()}" /> 
+    </apex:outputText>
+</apex:page>

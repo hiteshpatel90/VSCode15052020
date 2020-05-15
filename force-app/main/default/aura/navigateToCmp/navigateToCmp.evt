@@ -1,0 +1,3 @@
+<aura:event access="global" type="APPLICATION" description="Event template" >
+    <aura:attribute name="navigate" type="Boolean" default="false"/>
+</aura:event>

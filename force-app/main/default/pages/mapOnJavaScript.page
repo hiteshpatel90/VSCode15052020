@@ -1,0 +1,9 @@
+<apex:page controller="mapOnJavaScriptController">
+    <script>
+        var myMap = new Map();
+        myMap = JSON.parse('{!mapPriceCodeEvaluateOutput }'); 
+        for(key in myMap ){
+            alert("key=" + key + "********Value="+ myMap[key]);
+        }   
+    </script>
+</apex:page>

@@ -1,0 +1,3 @@
+<aura:event type="APPLICATION">
+    <aura:attribute name="accountSearchText" type="String"/>
+</aura:event>

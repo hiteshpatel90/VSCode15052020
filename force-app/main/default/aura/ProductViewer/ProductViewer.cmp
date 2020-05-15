@@ -1,0 +1,63 @@
+<aura:component controller="AwesomeProductController">
+    <aura:attribute name="product" type="Product__c" default="{'sobjectType': 'Product__c'}"/>
+    <aura:attribute name="products" type="Product__c[]"/>
+    <aura:handler name="init" value="{!this}" action="{!c.doInit}" />
+    <aura:registerEvent name="addToCartEvent" type="c:AddToCart"/>
+	<link href='/resource/bootstrap/' rel="stylesheet"/>
+    <link href='/resource/style/' rel="stylesheet"/>
+    <!--<div class="container"> 
+        <div class="row">
+            <div class="col-lg-3 col-md-4 col-sm-5">
+                <div class="well">
+                    <div class="btn-group btn-group-cart">
+                        <select onchange="{!c.change}">
+                            <aura:iteration items="{!v.products}" var="p">
+                                <option>{!p.Name}</option>
+                            </aura:iteration>
+                        </select>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>-->
+		
+    <div class="container main-container">
+        <div class="row">
+            <aura:iteration items="{!v.products}" var="p">
+        	<div class="col-lg-3 col-md-3 col-sm-12">
+
+
+					<div class="no-padding">
+	            		<span class="title">{!p.Name}</span>
+	            	</div>
+		                <div class="thumbnail col-lg-12 col-md-12 col-sm-6 text-center">
+		                	<a href="detail.html" >
+                                <img src="{!p.Photo__c}" alt=""/>								                               
+		                	</a>
+                            Product Name: {!p.Name}<br/>
+                            Product Version: {!p.Product_Version__c}<br/>
+                            Size: {!p.File_Size__c}
+		                    <div class="caption prod-caption">
+		                        <p>{!p.Description__c}</p>
+		                        <p>
+		                        	<div class="btn-group">
+			                        	<!--<a href="#" class="btn btn-default">{!p.Points__c} $</a>-->
+			                        	<a href="#" onclick="{!c.addToCart}" class="btn btn-primary"><i class="fa fa-shopping-cart"></i> Add</a>
+		                        	</div>
+		                        </p>
+		                    </div>
+		                </div>
+  					</div>
+
+        	<div class="clearfix visible-sm"></div>
+
+            
+
+            
+</aura:iteration>
+        </div>
+        <c:MessageArea />
+        <c:ShoppingCart />
+	</div>
+        
+</aura:component>

@@ -1,0 +1,38 @@
+<apex:page controller="Liveagent_Testpage_dynamicController">
+    <html>
+        <head>
+        {!LiveChatButtonList.size}bb
+        <!--       SALES for US -- START -->
+        <apex:repeat value="{!LiveChatButtonList}" var="lcb">
+           
+           <!-- Deployemnt -->
+           
+           <script type='text/javascript' src='https://c.la2w1.salesforceliveagent.com/content/g/js/39.0/deployment.js'></script>
+            <script type='text/javascript'>
+            liveagent.init('https://d.la2w1.salesforceliveagent.com/chat', '572i00000006rm7', '00Di0000000kGsS');
+            </script>
+           
+           <!-- Chat -->
+           
+           <a id="liveagent_button_online_573i0000000blWk" href="javascript://Chat" style="display: none;" onclick="liveagent.startChat('573i0000000blWk')">
+           <!-- Online Chat Content -->
+           Online
+           </a>
+           <div id="liveagent_button_offline_573i0000000blWk" style="display: none;">
+           
+           <!-- Offline Chat Content -->Offline
+           </div><script type="text/javascript">
+            if (!window._laq) { window._laq = []; }
+            window._laq.push(function(){liveagent.showWhenOnline('573i0000000blWk', document.getElementById('liveagent_button_online_573i0000000blWk'));
+            liveagent.showWhenOffline('573i0000000blWk', document.getElementById('liveagent_button_offline_573i0000000blWk'));
+            });</script>
+            
+            
+            
+
+           
+        </apex:repeat>
+        
+        </head>
+    </html>
+</apex:page>

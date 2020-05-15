@@ -1,0 +1,22 @@
+<apex:page showHeader="false" lightningStylesheets="true" sidebar="false">
+    <apex:includeLightning />
+
+    <div id="dvCreatePricing"></div> 
+    
+ <script>
+      // Here 'VfApp' Is Lightning Application Name
+    $Lightning.use("c:TestShowToastApp", function() {
+      /* 'LcForVf' is Lightning Component Name which we are Displaying In Vf Page 
+       * syntax for create lightning component dynamically :
+       * $Lightning.createComponent(String type, Object attributes, String locator, function callback) */
+    $Lightning.createComponent("c:TestShowToast",
+    { 
+     
+    },
+   "dvCreatePricing",
+    function(component) {
+        
+    });
+ });
+ </script>
+</apex:page>

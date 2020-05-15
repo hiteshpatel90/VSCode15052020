@@ -1,0 +1,31 @@
+<aura:component controller="LogACallController" 
+                implements="force:appHostable,flexipage:availableForAllPageTypes" >
+    
+    <ltng:require styles="/resource/SLDS0120/assets/styles/salesforce-lightning-design-system-ltng.css" />
+    <aura:handler name="init" value="{!this}" action="{!c.doInit}"/>
+
+        <aura:attribute name="newTask" type="Task" default="{'sobjectType':'Task', 'Description':'',
+                                                             'Subject':'', 'Type':'',                                                          
+                                                             'ActivityDate':''                                                                                              
+                                                            }"/>            
+    <div style="font-size: 20px;" id="scroll">Create Activity</div>
+   
+    <ui:inputText aura:id="Subject" label="Subject"
+        class="slds-input insertText"
+		labelClass="slds-form-element__label"
+		value="{!v.newTask.Subject}"
+    />
+    
+    <ui:inputText aura:id="Comments" label="Comments"
+        class="slds-input insertText"
+        labelClass="slds-form-element__label"
+        value="{!v.newTask.Description}"
+        placeholder=""
+    />
+    <ui:inputDate aura:id="Taskdate"  class="insertText" label="Date"  displayDatePicker="true" value="{!v.newTask.ActivityDate}" />    
+    
+    <div style="text-align:center;padding:10px;">
+        <ui:button aura:id="Clear" label="Clear Form" press="{!c.resetControls}" class="btn"/>
+        <ui:button aura:id="Save" label="Save" press="{!c.getInput}" class="btn"/>
+    </div>       
+</aura:component>

@@ -1,0 +1,97 @@
+<apex:page controller="FetchRemoteObjectDataController"  sidebar="false" tabstyle="Remote_Data__tab">
+    <apex:sectionHeader title="Remote" subtitle="Object"/>
+    <apex:form >
+		<apex:pageBlock id="pbId" >  
+	    	<apex:pageMessages id="msg" escape="false"/>        
+           	<table>
+               <tr>
+                   <td>
+                       <b><apex:outputLabel value="Select Client: "></apex:outputLabel></b>
+                       <apex:selectList value="{!selectedClient}" size="1" label="Choose a Client">
+                           <apex:selectOptions value="{!lstClient}"/>
+                       </apex:selectList>
+                   </td> 
+                   <td>
+                       &nbsp;
+                   </td>
+                   <td>
+                       <apex:commandButton id="getRecords" value="Connect" action="{!fetchDetails}" 
+                       			rerender="remoteObjListId,msg,multipicklistId,pBtableId,pbbId" status="topStatus" />
+                       <apex:actionStatus stopText="" id="topStatus">
+                        <apex:facet name="start">                     
+                                <img src="/img/loading.gif" width="16" height="16"/>                     
+                         </apex:facet>
+                       </apex:actionStatus>
+                   </td>
+               </tr>
+            </table><br/>
+            
+            
+            <apex:actionFunction name="callValidateObjectWithUserOrg" action="{!validateObjectWithUserOrg}" status="onchangeStatus" 
+            						rerender="msg,multipicklistId,pBtableId,pbbId" >
+            </apex:actionFunction>
+            <apex:outputPanel id="remoteObjListId" >
+            	<apex:outputText style="font-weight:bold;" value="Remote Custom Object: " rendered="{!lstRemoteObject.size > 0}"/>
+	            <apex:selectList value="{!strRemoteObject}" size="1"  rendered="{!lstRemoteObject.size > 0}" onChange="return callValidateObjectWithUserOrg();">
+					<apex:selectOptions value="{!lstRemoteObject}">
+					</apex:selectOptions>
+				</apex:selectList>&nbsp;
+				<apex:actionStatus stopText="" id="onchangeStatus">
+                	<apex:facet name="start">                     
+                    	<img src="/img/loading.gif" width="16" height="16"/>                     
+                    </apex:facet>
+                </apex:actionStatus>
+			</apex:outputPanel>
+			<br/><br/>
+			<apex:outputPanel id="multipicklistId">
+				<apex:panelGrid columns="4" rendered="{!lstRemoteObjectAllField.size > 0 || lstSelectedField.size > 0}">
+					<apex:outputText style="font-weight:bold;" value="Remote Object Field(s): "/>
+					<apex:selectList multiselect="true" size="7" styleClass="width"	value="{!lstSelectedFromRemoteObjectAllFieldName}">
+						<apex:selectOptions value="{!lstRemoteObjectAllField}" />
+					</apex:selectList>
+					<apex:panelGroup >
+						<!-- Buttons to Add and remove Field names from both select list-->
+						<apex:commandbutton id="btnId" title="Add"
+							action="{!addClassNameToTag}" reRender="multipicklistId,msg,pbbId" value="{!$Label.Remote_Admin_Add}" status="status" />
+						<br />
+						<apex:commandbutton action="{!removeClassNameFromTag}"
+							title="Remove" reRender="multipicklistId,msg,pbbId" value="{!$Label.Remote_Admin_Remove}" status="status"/>
+					</apex:panelGroup>
+					<apex:selectList multiselect="true" size="7" styleClass="width" value="{!lstSelectedFieldName}">
+						<apex:selectOptions value="{!lstSelectedField}" />
+					</apex:selectList>
+				</apex:panelGrid>  
+			</apex:outputpanel> 
+			
+			<apex:outputPanel id="pbbId">
+				<apex:commandButton value="Get Data" action="{!getResponse}" rerender="pBtableId,msg" status="getDataStatus" rendered="{!lstSelectedField.size > 0}"/>
+				&nbsp;
+				<apex:actionStatus stopText="" id="getDataStatus">
+                	<apex:facet name="start">                     
+                    	<img src="/img/loading.gif" width="16" height="16"/>                     
+                    </apex:facet>
+                </apex:actionStatus>
+			</apex:outputPanel>
+			
+          	<apex:outputPanel id="pBtableId" >
+            	 <apex:outputPanel rendered="{!lstSobject.size > 0}">
+                    <apex:pageBlockTable value="{!lstSobject}" var="rec" >
+                         <apex:column headerValue="Action">
+                            <apex:outputLink value="../apex/EditRemoteObjectData?cid={!rec.Id}&sid={!sessionId}&surl={!serverUrl}&client={!selectedClient}&oname={!strRemoteObject}&fields={!strfields}" 
+                                            id="theLink">Edit</apex:outputLink>
+                        </apex:column>
+						 <apex:repeat value="{!lstColumn}"  var="f">
+                            <apex:column headerValue="{!mapFieldAPIToField[f].label}">                            
+                                 <apex:outputText value="{!rec[f]}" rendered="{!f == 'Id' || mapFieldAPIToField[f].type == 'reference'}"/>
+                                 <apex:outputField value="{!rec[f]}" rendered="{!f != 'Id' && mapFieldAPIToField[f].type != 'reference'}"/>
+                            </apex:column>
+                       </apex:repeat>
+                    </apex:pageBlockTable>
+                 </apex:outputPanel>
+                <apex:outputPanel rendered="{!lstSobject.size == 0 && lstSelectedField.size > 0} ">
+                   <span style="color:red;" > No Records Found</span>
+                </apex:outputPanel>
+            </apex:outputPanel>
+    	</apex:pageBlock>
+     </apex:form>
+</apex:page>

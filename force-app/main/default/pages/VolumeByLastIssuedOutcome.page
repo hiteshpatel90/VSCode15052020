@@ -1,0 +1,10 @@
+<apex:page controller="VolumeByLastIssuedOutcomeController" showHeader="false" sidebar="false">
+    <apex:form >       
+        <apex:pageBlock >
+            <apex:pageBlockTable value="{!pieData}" var="pie">
+                <apex:column headerValue="Last Issued Outcome" value="{!pie.name}"/>
+                <apex:column headerValue="Number of Cases" value="{!pie.data}"/>
+            </apex:pageBlockTable> 
+        </apex:pageBlock>       
+    </apex:form>
+</apex:page>

@@ -1,0 +1,135 @@
+<apex:page controller="Liveagent_TestpageController">
+    <html>
+        <head>
+            <!--<script>
+                var xhttp = new XMLHttpRequest();
+                xhttp.open("GET", "http://ip-api.com/json", false);
+                xhttp.send();
+                var response = JSON.parse(xhttp.responseText);
+                var userCountry = response.country;
+            </script>-->
+        
+        <!--       SALES for US -- START -->
+        
+            <script type='text/javascript' src='https://c.la2c1cs.salesforceliveagent.com/content/g/js/39.0/deployment.js'></script>
+            <script type='text/javascript'>
+                liveagent.init('https://d.la2c1cs.salesforceliveagent.com/chat', '{!strSalesUSChatDeploymentId}', '{!strOrganizationId}');
+            </script>
+            
+            <img id="liveagent_button_online_{!strSalesUSChatbuttonId}" style="display: none; border: 0px none; cursor: pointer" onclick="liveagent.startChat('{!strSalesUSChatbuttonId}')" src="https://chat-lenovo.cs15.force.com/livechat/resource/1481283209000/chat_icon_on1" />
+            <img id="liveagent_button_offline_{!strSalesUSChatbuttonId}" style="display: none; border: 0px none; " src="https://chat-lenovo.cs15.force.com/livechat/resource/1481283209000/chat_icon_off" />
+            - Sales USA
+            <script type="text/javascript">
+                if (!window._laq) { window._laq = []; }
+                    window._laq.push(function(){liveagent.showWhenOnline('{!strSalesUSChatbuttonId}', document.getElementById('liveagent_button_online_{!strSalesUSChatbuttonId}'));
+                    liveagent.showWhenOffline('{!strSalesUSChatbuttonId}', document.getElementById('liveagent_button_offline_{!strSalesUSChatbuttonId}'));
+                });
+            </script>
+            
+        <!--       SALES for US -- END   -->
+            <br/>
+            <br/>
+        <!--       SALES for CANADA  -- START -->
+        
+            <script type='text/javascript' src='https://c.la2c1cs.salesforceliveagent.com/content/g/js/39.0/deployment.js'></script>
+            <script type='text/javascript'>
+                liveagent.init('https://d.la2c1cs.salesforceliveagent.com/chat', '{!strSalesCanadaChatDeploymentId}', '{!strOrganizationId}');
+            </script>
+            
+            <img id="liveagent_button_online_{!strSalesCandaChatbuttonId}" style="display: none; border: 0px none; cursor: pointer" onclick="liveagent.startChat('{!strSalesCandaChatbuttonId}')" src="https://chat-lenovo.cs15.force.com/livechat/resource/1481283209000/chat_icon_on1" />
+            <img id="liveagent_button_offline_{!strSalesCandaChatbuttonId}" style="display: none; border: 0px none; " src="https://chat-lenovo.cs15.force.com/livechat/resource/1481283209000/chat_icon_off" />
+            - Sales Canada
+            <script type="text/javascript">
+                if (!window._laq) { window._laq = []; }
+                    window._laq.push(function(){liveagent.showWhenOnline('{!strSalesCandaChatbuttonId}', document.getElementById('liveagent_button_online_{!strSalesCandaChatbuttonId}'));
+                    liveagent.showWhenOffline('{!strSalesCandaChatbuttonId}', document.getElementById('liveagent_button_offline_{!strSalesCandaChatbuttonId}'));
+                });
+            </script>
+            
+        <!--       SALES for CANADA  -- END   -->
+            <br/>
+            <br/>
+        
+        <!--       SERVICE for US -- START -->
+        
+            <script type='text/javascript' src='https://c.la2c1cs.salesforceliveagent.com/content/g/js/39.0/deployment.js'></script>
+            <script type='text/javascript'>
+                liveagent.init('https://d.la2c1cs.salesforceliveagent.com/chat', '{!strServiceUSChatDeploymentId}', '{!strOrganizationId}');
+            </script>
+            
+            <img id="liveagent_button_online_{!strServiceUSChatbuttonId}" style="display: none; border: 0px none; cursor: pointer" onclick="liveagent.startChat('{!strServiceUSChatbuttonId}')" src="https://chat-lenovo.cs15.force.com/livechat/resource/1481283209000/chat_icon_on1" />
+            <img id="liveagent_button_offline_{!strServiceUSChatbuttonId}" style="display: none; border: 0px none; " src="https://chat-lenovo.cs15.force.com/livechat/resource/1481283209000/chat_icon_off" />
+            - Service USA
+            <script type="text/javascript">
+                if (!window._laq) { window._laq = []; }
+                    window._laq.push(function(){liveagent.showWhenOnline('{!strServiceUSChatbuttonId}', document.getElementById('liveagent_button_online_{!strServiceUSChatbuttonId}'));
+                    liveagent.showWhenOffline('{!strServiceUSChatbuttonId}', document.getElementById('liveagent_button_offline_{!strServiceUSChatbuttonId}'));
+                });
+            </script>
+            
+        <!--       SERVICE for US -- END   -->
+            <br/>
+            <br/>
+        <!--       SERVICE for CANADA  -- START -->
+        
+            <script type='text/javascript' src='https://c.la2c1cs.salesforceliveagent.com/content/g/js/39.0/deployment.js'></script>
+            <script type='text/javascript'>
+                liveagent.init('https://d.la2c1cs.salesforceliveagent.com/chat', '{!strServiceCanadaChatDeploymentId}', '{!strOrganizationId}');
+            </script>
+            
+            <img id="liveagent_button_online_{!strServiceCandaChatbuttonId}" style="display: none; border: 0px none; cursor: pointer" onclick="liveagent.startChat('{!strServiceCandaChatbuttonId}')" src="https://chat-lenovo.cs15.force.com/livechat/resource/1481283209000/chat_icon_on1" />
+            <img id="liveagent_button_offline_{!strServiceCandaChatbuttonId}" style="display: none; border: 0px none; " src="https://chat-lenovo.cs15.force.com/livechat/resource/1481283209000/chat_icon_off" />
+            - Service  Canada
+            <script type="text/javascript">
+                if (!window._laq) { window._laq = []; }
+                    window._laq.push(function(){liveagent.showWhenOnline('{!strServiceCandaChatbuttonId}', document.getElementById('liveagent_button_online_{!strServiceCandaChatbuttonId}'));
+                    liveagent.showWhenOffline('{!strServiceCandaChatbuttonId}', document.getElementById('liveagent_button_offline_{!strServiceCandaChatbuttonId}'));
+                });
+            </script>
+            
+        <!--       SERVICE for CANADA  -- END   -->
+        
+            <br/>
+            <br/>
+        <!--       SMSC Claims  -- START -->
+        
+            <script type='text/javascript' src='https://c.la2c1cs.salesforceliveagent.com/content/g/js/39.0/deployment.js'></script>
+            <script type='text/javascript'>
+                liveagent.init('https://d.la2c1cs.salesforceliveagent.com/chat', '{!strSMSCClaimsChatDeploymentId}', '{!strOrganizationId}');
+            </script>
+            
+            <img id="liveagent_button_online_{!strSMSCClaimsChatbuttonId}" style="display: none; border: 0px none; cursor: pointer" onclick="liveagent.startChat('{!strSMSCClaimsChatbuttonId}')" src="https://chat-lenovo.cs15.force.com/livechat/resource/1481283209000/chat_icon_on1" />
+            <img id="liveagent_button_offline_{!strSMSCClaimsChatbuttonId}" style="display: none; border: 0px none; " src="https://chat-lenovo.cs15.force.com/livechat/resource/1481283209000/chat_icon_off" />
+            - SMSC Claims
+            <script type="text/javascript">
+                if (!window._laq) { window._laq = []; }
+                    window._laq.push(function(){liveagent.showWhenOnline('{!strSMSCClaimsChatbuttonId}', document.getElementById('liveagent_button_online_{!strSMSCClaimsChatbuttonId}'));
+                    liveagent.showWhenOffline('{!strSMSCClaimsChatbuttonId}', document.getElementById('liveagent_button_offline_{!strSMSCClaimsChatbuttonId}'));
+                });
+            </script>
+            
+        <!--       SMSC Claims   -- END   -->
+            <br/>
+            <br/>
+        <!--       SMSC Finance  -- START -->
+        
+            <script type='text/javascript' src='https://c.la2c1cs.salesforceliveagent.com/content/g/js/39.0/deployment.js'></script>
+            <script type='text/javascript'>
+                liveagent.init('https://d.la2c1cs.salesforceliveagent.com/chat', '{!strSMSCFinanceChatDeploymentId}', '{!strOrganizationId}');
+            </script>
+            
+            <img id="liveagent_button_online_{!strSMSCFinanceChatbuttonId}" style="display: none; border: 0px none; cursor: pointer" onclick="liveagent.startChat('{!strSMSCFinanceChatbuttonId}')" src="https://chat-lenovo.cs15.force.com/livechat/resource/1481283209000/chat_icon_on1" />
+            <img id="liveagent_button_offline_{!strSMSCFinanceChatbuttonId}" style="display: none; border: 0px none; " src="https://chat-lenovo.cs15.force.com/livechat/resource/1481283209000/chat_icon_off" />
+            - SMSC Finance
+            <script type="text/javascript">
+                if (!window._laq) { window._laq = []; }
+                    window._laq.push(function(){liveagent.showWhenOnline('{!strSMSCFinanceChatbuttonId}', document.getElementById('liveagent_button_online_{!strSMSCFinanceChatbuttonId}'));
+                    liveagent.showWhenOffline('{!strSMSCFinanceChatbuttonId}', document.getElementById('liveagent_button_offline_{!strSMSCFinanceChatbuttonId}'));
+                });
+            </script>
+            
+        <!--       SMSC Finance   -- END   -->
+        
+        </head>
+    </html>
+</apex:page>

@@ -1,0 +1,121 @@
+<apex:page controller="RequestMessageChart" sidebar="false" readOnly="true">
+<style type="text/css">
+    fieldset { 
+        width:384px !important;                        
+    }
+</style>    
+    <apex:form id="form">
+    <script type="text/javascript">
+        window.onload = setFocus
+        function setFocus() {
+            document.getElementById("FromDate").focus();
+        }
+    </script>
+        <apex:actionFunction id="Processing1"  status="Processing"  name="callchartdata" action="{!callgetdata}" reRender="form"/>
+        <fieldset>
+            <legend style="font-weight:bold;">Time Frame</legend>
+            <table>
+                <tr>
+                    <td>
+                        <apex:selectList value="{!strStandardObject}" size="1" multiselect="false" style="width:180px;"> 
+                            Date field<apex:selectOptions value="{!optionsFieldName}"/><br/>
+                        </apex:selectList><p/>
+                    </td>
+                    <td> 
+                        <apex:selectList value="{!values}" size="1"  multiselect="false" style="width:180px;" onchange="calldata();"> 
+                            Range<apex:selectOptions value="{!items}"/>
+                        </apex:selectList><p/>
+                    </td>
+                </tr>
+                <tr>
+                    <td colspan="2">
+                <table style="display: {!IF(values == 'Custom','','none')}; ">
+                    <tr>
+                        <td style="padding: 0px 0px 0px 185px;">From<br/>
+                            <apex:inputText id="FromDate" value="{!strFromDate}" onfocus="DatePicker.pickDate(false,this, false);" style="width:80px"/>
+                        </td>
+                        <td style="padding: 0px -10px 0px 0px;">To<br/>
+                            <apex:inputText id="ToDate" value="{!strToDate}" onfocus="DatePicker.pickDate(false, this , false);" style="width:80px"/>
+                        </td>
+                    </tr>
+                </table>
+                </td>
+                </tr>
+            </table> 
+        </fieldset>
+        <apex:commandButton status="Processing" value="Get Chart" action="{!callgetdata}"  reRender="form"/>
+        <br/>
+            <b>
+                <font size="3">No of Notifications</font>
+            </b><br/><br/>
+            <table>
+                <tr>
+                    <td width="402px" style="background-color: #EDEDED;"><b>No of Notifications:</b><b style="float:right;">{!intEmail + intPhone + intSMS + intPager + intFax }</b></td>
+                </tr>
+            </table>
+            <table width="30%">
+                <tr>
+                    <td align="center"><b><font size="3">Message Send</font></b></td>
+                </tr>
+            </table>
+        <apex:outputText value="No Request Message Chart to display." style="font-weight:bold;" rendered="{!if(blnRecords == true,false,true)}"/>        
+        <apex:outputPanel rendered="{!if(blnRecords == true,true,false)}"> 
+            <table style="border-left: 1px solid #EDEDED;border-right: 1px solid #EDEDED;border-top: 1px solid #EDEDED;border-bottom: 1px solid #EDEDED;">
+                <tr>
+                    <td style="padding: 8px 0px 0px 160px;"><b><font size="3">Volume</font></b></td>
+                </tr>
+                <tr>
+                    <td>
+                        <apex:chart id="chart" height="250" width="400" data="{!lstdata}" > 
+                            <apex:axis type="Numeric" position="left" fields="data1" grid="true"/>
+                            <apex:axis type="Category" position="bottom" fields="name"/>
+                            <apex:barSeries id="bseries" title="Monthly Sales" orientation="vertical" axis="left" xField="name" yField="data1"/>
+                        </apex:chart>
+                    </td>
+                </tr>
+            </table>
+        </apex:outputPanel>      
+   </apex:form>
+   <Script>
+        function calldata(){
+            callchartdata();
+        }
+    </script>
+    
+     <!------------- Start: Processing Div---------------------------------------->
+        <style>
+            .ProcessingBackground
+            {
+                background-color: black;
+                opacity: 0.50;
+                filter: alpha(opacity = 50);
+                width: 100%;
+                height: 100%;
+                position: fixed;
+                z-index: 8551;
+                top:0;
+                left:0;
+            }
+            .Processing
+            {
+                z-index: 8552;
+                left: 50%;
+                top: 50%;
+                text-align: center;
+                position: fixed;
+            }        
+        </style>
+        
+        <div id="divProcessing" style="display:none;">
+            <div class="ProcessingBackground"></div>
+            <div class="Processing">
+                <!--<apex:image alt="Processing" url="{!$Resource.ProcessImg}" />-->
+            </div>
+        </div>  
+        
+        <apex:actionStatus id="Processing" onstart="document.getElementById('divProcessing').style.display = '';" onstop="document.getElementById('divProcessing').style.display = 'none';">                            
+        </apex:actionStatus>
+        <!------------- End: Processing Div---------------------------------------->
+     
+      
+</apex:page>

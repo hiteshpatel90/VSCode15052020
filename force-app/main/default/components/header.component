@@ -1,0 +1,19 @@
+<apex:component >
+    <link rel="stylesheet" href="{!$Resource.clearmeBundle}"/>    
+    <header>
+        <nav>
+            <div class="container dropdown">
+                <p class="brand visible-xs visible-sm"><a href="/home">CLEAR</a></p>
+                <button class="navbar-toggle dropdown-toggle" data-toggle="dropdown" type="button"><span class="icon"></span></button>
+                <ul class="navbar-nav">
+                    <li class="brand">
+                                <a href="/home"> CLEAR</a>
+                        
+                    </li>
+                    
+                    <li style="font-family: FFMarkWebProMedium;"><a href="https://my.clearme.com" target="_blank">LOG OUT</a></li>
+                </ul>
+            </div>
+        </nav>
+    </header>
+</apex:component>

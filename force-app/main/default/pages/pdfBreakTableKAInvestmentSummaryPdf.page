@@ -1,0 +1,171 @@
+<apex:page controller="pdfBreakTableController" action="{!updateReportingPeriod}" standardStylesheets="false" applyBodyTag="false" applyHtmlTag="false" showHeader="false" showChat="false" sidebar="false" renderAs="pdf">
+    <apex:stylesheet value="{!URLFOR($Resource.styles, 'Screen.css')}" />
+    <head>
+        <style>
+            table.summary {
+                width:95%;
+            }
+            .notes{
+                max-width:700px;
+                position:relative;
+            }
+          
+        </style>
+    </head>
+    <body>
+        <div style="page-break-inside:avoid;page-break-after:avoid;page-break-before:avoid">
+        <apex:form id="frm">
+        <div class="RightColumn">
+            
+            <div class="MainContent">
+             
+                    <div class="L3TitleHolder">
+                    <apex:image value="{!$Resource.Kayne_Logo}" style="position:relative;top:-32px;" width="170" height="50" />
+                    <h2>
+                        <span>Investor Summary</span>
+                    </h2>
+                    </div>
+                <apex:outputPanel rendered="{!renderTable}">
+                    <apex:variable var="rowNum" value="{!0}"/>
+                    <apex:repeat value="{!orderedMainOrgs}" var="mainOrg">
+                         <apex:variable var="rowNum" value="{!rowNum+1}"/>
+                        <div class="Spacer"></div>
+                        {!orderedMainOrgs.size}vv
+                        <h2 class="L2Header">{!mainOrg.Name}</h2><br/>
+                        
+                        <div style="{!If(orderedMainOrgs.size == rowNum, '', 'page-break-after:always;')}">
+                      
+                        
+                        <apex:outputPanel id="summaryOp">
+                            <!-- Account repeat -->
+                            <apex:repeat value="{!mainOrgToOrderedSubOrgs[mainOrg]}" var="so">
+                                <div style="page-break-inside:avoid;">
+                                <h3 class="L3Header">{!so.Name}</h3>
+                                <table class="summary" border="0" cellpadding="0" cellspacing="0" style="table-layout: fixed;">
+
+                                    <tr>
+                                        <th class="al-left" style="width:8%;word-wrap: break-word;">Fund</th>
+                                        <th class="al-center" style="width:8%;word-wrap: break-word;">Period<br/>Start</th>
+                                        <th class="al-right" style="width:10%;word-wrap: break-word;">Starting<br/>Balance</th>
+                                        <th class="al-right" style="width:12%;word-wrap: break-word;">Contributions</th>
+                                        <th class="al-right" style="width:12%;word-wrap: break-word;">Distributions/<br/>Withdrawals</th>
+                                        <th class="al-right" style="width:10%;word-wrap: break-word;">Gain/(Loss)</th>
+                                        <th class="al-right" style="width:10%;word-wrap: break-word;">Capital<br/>Balance</th>
+                                        <th class="al-right" style="{!IF(renderCommitmentColumns,'','display:none;')}; width:10%;word-wrap: break-word;">Unrealized<br/>Carried<br/>Interest</th>
+                                        <th class="al-right" style="{!IF(renderCommitmentColumns,'','display:none;')}; width:10%;word-wrap: break-word;">Net<br/>Capital<br/>Balance</th>
+                                        <th class="al-center" style="width:10%;word-wrap: break-word;">Period End</th>
+                                    </tr>
+                                    <!-- Contact repeat -->
+                                    <apex:repeat value="{!orgIdToInvestmentSummaryList[so.Id]}" var="isw">
+                                    
+                                        <tr class="oddRow">
+                                            
+                                            <td style="white-space:nowrap;">{!isw.Name}</td>
+                                            <td class="al-center">&nbsp;{!isw.Name}</td>
+                                            <td class="al-right"><span>&nbsp;{!isw.Name}</span></td>
+                                            <td class="al-right"><span>&nbsp;{!isw.Name}</span></td>
+                                            <td class="al-right"><span>&nbsp;{!isw.Name}</span></td>
+                                            <td class="al-right"><span>&nbsp;{!isw.Name}</span></td>
+                                            <td class="al-right"><span>&nbsp;{!isw.Name}</span></td>
+                                            <td class="al-right" style="{!IF(renderCommitmentColumns,'','display:none;')}"><span>&nbsp;{!isw.Name}</span></td>
+                                            <td class="al-right" style="{!IF(renderCommitmentColumns,'','display:none;')}"><span>&nbsp;{!isw.Name}</span></td>
+                                            <td class="al-center">&nbsp;{!isw.Name}</td>
+                                            
+                                        </tr>
+                                    </apex:repeat>
+                                    
+                                    <!--<apex:repeat value="{!orgIdToInvestmentSummaryList[so.Id]}" var="isw">
+                                        <tr class="oddRow">
+                                            <td style="white-space:nowrap;">
+                                                <a href="{!baseURL}KAAccountStatements?menu={!IF(isw.fundType='Non-Commitment', 'hef', 'cbf')}&submenu=cas&fund={!isw.fundId}&subOrg={!so.Id}">
+                                                    {!isw.fundCode}
+                                                </a>
+                                            </td>
+                                            <td class="al-center">&nbsp;{!isw.periodStart}</td>
+                                            <td class="al-right"><span>&nbsp;{!isw.startingBalance}</span></td>
+                                            <td class="al-right"><span>&nbsp;{!isw.contributions}</span></td>
+                                            <td class="al-right"><span>&nbsp;{!isw.distributions}</span></td>
+                                            <td class="al-right"><span>&nbsp;{!isw.gain}</span></td>
+                                            <td class="al-right"><span>&nbsp;{!isw.capitalBalance}</span></td>
+                                            <td class="al-right" style="{!IF(renderCommitmentColumns,'','display:none;')}"><span>&nbsp;{!isw.unrealizedCarriedInterest}</span></td>
+                                            <td class="al-right" style="{!IF(renderCommitmentColumns,'','display:none;')}"><span>&nbsp;{!isw.netCapitalBalance}</span></td>
+                                            <td class="al-center">&nbsp;{!isw.periodEnd}</td>
+                                        </tr>
+                                    </apex:repeat>-->
+
+                                    <tr class="subtotal" style="{!IF(displaySubtotals[so.Id], '', 'display:none;')}">
+                                        <td>Subtotal</td>
+                                        <td>&nbsp;</td>
+                                        <apex:repeat value="{!subtotals[so.Id]}" var="st">
+                                            <td class="al-right"><span>&nbsp;{!st}</span></td>
+                                        </apex:repeat>
+                                        <td>&nbsp;</td>
+                                    </tr>
+                                </table><br/>
+                                </div>
+                                
+                            </apex:repeat>
+                            
+                            <apex:outputPanel rendered="{!displayTotals[mainOrg.Id]}">
+                                <div class="Spacer"></div>
+                                <h2 class="L2Header">Total for {!mainOrg.Name}</h2>
+                            
+                                <table class="summary" border="0" cellpadding="0" cellspacing="0">
+                                    <tr class="subtotal" style="font-weight: bold;">
+                                        <td>&nbsp;</td>
+                                        <td>&nbsp;</td>
+                                        <apex:repeat value="{!totals[mainOrg.Id]}" var="t">
+                                            <td class="al-right">&nbsp;<span style="border-bottom: 3px double;">{!t}</span></td>
+                                        </apex:repeat>
+                                        <td>&nbsp;</td>
+                                    </tr>
+                                </table><br/>
+                            </apex:outputPanel>
+                             
+                        </apex:outputPanel>
+                       </div>
+                       vvvv
+                    </apex:repeat>
+                      
+                    <div style="page-break-after:always">
+                    <apex:outputPanel rendered="{!displayGrandTotals}">
+                        
+                        <h2 class="L1Header">Grand Total</h2>
+                          <table class="summary" border="0" cellpadding="0" cellspacing="0">
+                            <tr class="subtotal" style="font-weight: bold;">
+                                <td style="width:8%;word-wrap: break-word;">&nbsp;</td>
+                                <td style="width:8%;word-wrap: break-word;">&nbsp;</td>
+                                <apex:repeat value="{!grandTotals}" var="gt">
+                                    <td style="width:10%;word-wrap: break-word;" class="al-right">&nbsp;<span style="border-bottom: 3px double;">{!gt}</span></td>
+                                </apex:repeat>
+                                <td style="width:8%;word-wrap: break-word;">&nbsp;</td>
+                            </tr>
+                          </table><br />
+                          
+                    </apex:outputPanel>
+                   
+                    </div>
+                    <apex:outputPanel id="footnoteOp">
+                    ccccccc
+                        <apex:repeat value="{!footnotes}" var="fn">
+                            <div style='clear: both;' class="notes">
+                                <apex:outputText value="{!fn.Format_Text__c}" escape="false"/>
+                            </div>
+                            <br/>
+                        </apex:repeat>
+                        <div style="{!IF(multipleEndDates, 'clear:both;', 'display:none;')}" class="notes">
+                            <apex:outputText value="Portal_Date_Mismatch_Footnote" escape="false"/>
+                        </div>
+                        <br style="{!IF(multipleEndDates, '', 'display:none;')}"/>
+                    </apex:outputPanel>
+                    
+                </apex:outputPanel>
+                <apex:outputPanel rendered="{!!renderTable}">
+                    You have no investment data at this time.
+                </apex:outputPanel>
+            </div>
+        </div>
+    </apex:form>
+    </div>
+    </body>
+</apex:page>

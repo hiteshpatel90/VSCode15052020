@@ -1,0 +1,13 @@
+<apex:page controller="ctrlbarGraphTypesubtype" showHeader="false" sidebar="false">
+    <apex:chart height="250" width="350" data="{!BarchartData}">
+        <apex:legend position="bottom"/>
+        <apex:axis type="Numeric" position="left" dashSize="2" grid="true" fields="isMechSubtype1,isMechSubtype2,isElectSubtype1,isElectSubtype2,isOtherSubtype1" title="Record Count">
+            <apex:chartLabel />
+        </apex:axis>
+        <apex:axis type="Category" position="bottom" fields="caseType" title="Type">
+            <apex:chartLabel rotate="315"/>
+        </apex:axis>
+        <apex:barSeries orientation="vertical" stacked="true" axis="left" xField="caseType" yField="isMechSubtype1,isMechSubtype2,isElectSubtype1,isElectSubtype2,isOtherSubtype1" title="Mech Sub type1,Mech Sub type2,Elect Sub type1,Elect Sub type2,Other Sub type1">
+        </apex:barSeries>
+    </apex:chart>
+</apex:page>

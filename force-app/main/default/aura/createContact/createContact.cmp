@@ -1,0 +1,63 @@
+<aura:component implements="forceCommunity:availableForAllPageTypes,lightning:actionOverride,force:hasRecordId,force:hasSObjectName" controller="createContactController" access="global">
+	    
+    <aura:attribute name="strFirstName" type="String"/>
+    <aura:attribute name="strLastName" type="String"/>
+    <aura:attribute name="strEmail" type="String"/>
+    <aura:attribute name="strPhone" type="String"/>
+    <aura:attribute name="newContactError" type="String"/>
+    
+    <aura:attribute name="FirstName" type="String" default="First Name" access="global" />
+    <aura:attribute name="LastName" type="String" default="Last Name" access="global" />
+    
+    <aura:attribute name="Email" type="String" default="Email" access="global" />
+    <aura:attribute name="Phone" type="String" default="Phone" access="global" />
+    <aura:attribute name="BgColor" type="String" default="#E5E4E2" access="global" />
+    
+    <aura:attribute name="accRequired" type="String" default="none" access="public"/>
+       
+    <aura:handler name="init" value="{!this}" action="{!c.doInit}"/>
+	<!-- Display the new contact form -->
+    <div class="slds-brand-band slds-brand-band_none slds-template_default forceBrandBand">
+    <div class="slds-template__container" style="{!'background-color:' +v.BgColor}">
+        <div class="slds-clearfix slds-card forceDetailPanel" data-aura-class="forceDetailPanel">
+        <h2 class="inlineTitle slds-p-top--large slds-p-horizontal--medium slds-p-bottom--medium slds-text-heading--medium" data-aura-rendered-by="2:1802;a">New Contact</h2>
+            <h3 class="slds-section__title slds-theme--shade primaryPaletteBorder test-id__section-header-container" data-aura-rendered-by="753:1858;a"><span class="test-id__section-header-title section-header-title slds-p-horizontal--small slds-truncate" data-aura-rendered-by="755:1858;a">Contact Information</span></h3>
+            <div class="slds-form slds-is-editing" role="list">
+                <div class="slds-grid full forcePageBlockSectionRow" data-aura-class="forcePageBlockSectionRow">
+
+                    <lightning:input aura:id="contactField" name="firstName" label="{!v.FirstName}"
+                                     value="{!v.strFirstName}" required="true" class="slds-size--1-of-2 slds-p-horizontal_x-small"/>
+                    
+                   
+                 </div>
+                 
+                                
+                 <div class="slds-grid full forcePageBlockSectionRow" data-aura-class="forcePageBlockSectionRow">
+                     <lightning:input aura:id="contactField" name="lastname" label="{!v.LastName}"
+                                      value="{!v.strLastName}" required="true" class="slds-size--1-of-2 slds-p-horizontal_x-small"/>
+                     
+                </div>
+               
+                                             
+                <div class="slds-grid full forcePageBlockSectionRow" data-aura-class="forcePageBlockSectionRow">
+                      <lightning:input aura:id="contactField" name="Email" label="{!v.Email}"
+                                      value="{!v.strEmail}" required="true" class="slds-size--1-of-2 slds-p-horizontal_x-small"/>
+                    
+                     <lightning:input name="Phone" label="{!v.Phone}"
+                                      value="{!v.strPhone}" class="slds-size--1-of-2 slds-p-horizontal_x-small"/>
+                	                   
+                </div>
+            <br/>
+                <div class="row">
+                    <br/>
+                <lightning:buttonGroup >            
+                    <lightning:button aura:id="submit" type="submit" label="Save" onclick="{!c.handleSaveContact}" />&nbsp;&nbsp;&nbsp;
+                    <lightning:button label="Cancel" onclick="{!c.onCancel}"/>
+                </lightning:buttonGroup>
+                </div>
+          
+            </div>
+        </div>
+        </div>
+    </div>
+</aura:component>

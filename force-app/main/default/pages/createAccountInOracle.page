@@ -1,0 +1,29 @@
+<apex:page controller="createAccountInOracle">
+    <apex:form >
+        <apex:pageBlock title="Create Account in Oracle" rendered="{!If(strResponseVal == null, true, false)}">
+            <apex:pageblockButtons >
+                <apex:commandButton value="Create Account" action="{!createAccount}"/>
+            </apex:pageblockButtons>
+            <apex:pageblockSection columns="1">                
+                <apex:pageblockSectionItem >
+                    <apex:outputLabel value="First Name : "></apex:outputLabel>
+                    <apex:inputText value="{!strfirstName}"/>
+                </apex:pageblockSectionItem>
+                <apex:pageblockSectionItem >
+                    <apex:outputLabel value="Last Name : "></apex:outputLabel>
+                    <apex:inputText value="{!strLastName}"/>
+                </apex:pageblockSectionItem>
+            </apex:pageblockSection>
+        </apex:pageBlock>
+        <apex:pageBlock title="Response from Oracle" rendered="{!If(strResponseVal != null, true, false)}">
+            <apex:pageblockSection columns="1">                
+                <apex:pageblockSectionItem >
+                    <apex:outputLabel value="Oracle Id :- "></apex:outputLabel>
+                    <apex:outputLabel value="{!strResponseVal}"></apex:outputLabel>
+ 
+                </apex:pageblockSectionItem>
+            </apex:pageblockSection>
+        </apex:pageBlock>
+        <br/>
+           </apex:form>
+</apex:page>

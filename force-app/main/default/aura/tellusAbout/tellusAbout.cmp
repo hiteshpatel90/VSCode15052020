@@ -1,0 +1,95 @@
+<aura:component access="global" implements="force:appHostable">
+    <ltng:require styles="{!join(',', 
+                          $Resource.CengageResourceCSS + '/CSS/magma.min.css',
+                          $Resource.CengageResourceCSS + '/CSS/Site.css',
+                          $Resource.CengageResourceCSS + '/CSS/icomoon.css')
+                         }" />        
+            
+    <div aura:id="dvSearchProduct" class="toggle">
+        <c:searchProduct />
+    </div>
+    
+    <div aura:id="tellusAbountCmp" class="primaryPage" ng-controller="PrimaryPageController" ng-app="app">
+      
+        <div class="row">
+             <h2 class="col-md-12">Tell us a little about yourself...</h2>
+        </div>
+        <div class="row">
+            <div class="col-md-12 center btnContainer">
+                <a type="button" id="studButton" class="btn btn-green" onclick="{!c.toggle}">I am a <b>Student</b></a>
+
+                <a type="button" id="profButton" class="btn btn-green" ng-click="instructorButtonClicked()">I am an <b>Instructor</b></a>
+            </div>
+        </div>
+         </div>
+    <div aura:id="helpText">
+    	<h2 class="studentSelectedTitle" ng-show="instructorSelected || studentSelected">What can we help you with?</h2>
+        </div>
+                                                                                        
+          <div aura:id="hideTEXT" class="col-md-12 toggle">
+            
+            
+               <ul ng-show="studentSelected" class="studentOptions">
+                    <!-- ngRepeat: p in studentPrimaries --><li ng-repeat="p in studentPrimaries" class="studentOption ng-scope">
+                        <a onclick="{!c.navigateToSearchProduct}">
+                            <div class="optionImage four">
+                                <ul>
+                                    <!-- ngRepeat: i in p.items --><li ng-repeat="i in p.items" class="ng-scope">
+                                    <span ng-bind-html="bindHtml(i)" class="ng-binding">Wrong Access Code</span></li><!-- end ngRepeat: i in p.items --><li ng-repeat="i in p.items" class="ng-scope"><span ng-bind-html="bindHtml(i)" class="ng-binding">Registering My Access Code</span></li><!-- end ngRepeat: i in p.items --><li ng-repeat="i in p.items" class="ng-scope">
+                                    <span ng-bind-html="bindHtml(i)" class="ng-binding">Invalid Access Code and More...</span></li><!-- end ngRepeat: i in p.items -->
+                                </ul>
+                            </div>
+                            <div class="optionTitle ng-binding">Access Codes &amp; Registration</div>
+                        </a>
+                    </li><!-- end ngRepeat: p in studentPrimaries --><li ng-repeat="p in studentPrimaries" class="studentOption ng-scope">
+                        <a onclick="{!c.navigateToSearchProduct}">
+                            <div class="optionImage one">
+                                <ul>
+                                    <!-- ngRepeat: i in p.items --><li ng-repeat="i in p.items" class="ng-scope">
+                                    <span ng-bind-html="bindHtml(i)" class="ng-binding">Edit Account</span></li><!-- end ngRepeat: i in p.items --><li ng-repeat="i in p.items" class="ng-scope">
+                                    <span ng-bind-html="bindHtml(i)" class="ng-binding">Forgot username</span></li><!-- end ngRepeat: i in p.items --><li ng-repeat="i in p.items" class="ng-scope">
+                                    <span ng-bind-html="bindHtml(i)" class="ng-binding">Reset Password and more...</span></li><!-- end ngRepeat: i in p.items -->
+                                </ul>
+                            </div>
+                            <div class="optionTitle ng-binding">Account Questions</div>
+                        </a>
+                    </li><!-- end ngRepeat: p in studentPrimaries --><li ng-repeat="p in studentPrimaries" class="studentOption ng-scope">
+                        <a onclick="{!c.navigateToSearchProduct}">
+                            <div class="optionImage five">
+                                <ul>
+                                    <!-- ngRepeat: i in p.items --><li ng-repeat="i in p.items" class="ng-scope"><span ng-bind-html="bindHtml(i)" class="ng-binding">“How Do I…?”</span></li><!-- end ngRepeat: i in p.items --><li ng-repeat="i in p.items" class="ng-scope">
+                                    <span ng-bind-html="bindHtml(i)" class="ng-binding">System Requirements</span></li><!-- end ngRepeat: i in p.items --><li ng-repeat="i in p.items" class="ng-scope">
+                                    <span ng-bind-html="bindHtml(i)" class="ng-binding">Content and Grading Issues and more...</span></li><!-- end ngRepeat: i in p.items -->
+                                </ul>
+                            </div>
+                            <div class="optionTitle ng-binding">Product and System Support</div>
+                        </a>
+                    </li><!-- end ngRepeat: p in studentPrimaries --><li ng-repeat="p in studentPrimaries" class="studentOption ng-scope">
+                        <a onclick="{!c.navigateToSearchProduct}">
+                            <div class="optionImage two">
+                                <ul>
+                                    <!-- ngRepeat: i in p.items --><li ng-repeat="i in p.items" class="ng-scope"><span ng-bind-html="bindHtml(i)" class="ng-binding">How to Access My Digital Purchase</span></li><!-- end ngRepeat: i in p.items --><li ng-repeat="i in p.items" class="ng-scope"><span ng-bind-html="bindHtml(i)" class="ng-binding">Issue with My Order</span></li><!-- end ngRepeat: i in p.items --><li ng-repeat="i in p.items" class="ng-scope">
+                                    <span ng-bind-html="bindHtml(i)" class="ng-binding">Rental Questions and more...</span></li><!-- end ngRepeat: i in p.items -->
+                                </ul>
+                            </div>
+                            <div class="optionTitle ng-binding">Purchase Questions</div>
+                        </a>
+                    </li><!-- end ngRepeat: p in studentPrimaries --><li ng-repeat="p in studentPrimaries" class="studentOption ng-scope">
+                        <a onclick="{!c.navigateToSearchProduct}">
+                            <div class="optionImage three">
+                                <ul>
+                                    <!-- ngRepeat: i in p.items --><li ng-repeat="i in p.items" class="ng-scope"><span ng-bind-html="bindHtml(i)" class="ng-binding">Purchased Wrong Item</span></li><!-- end ngRepeat: i in p.items --><li ng-repeat="i in p.items" class="ng-scope"><span ng-bind-html="bindHtml(i)" class="ng-binding">Unable to Use Due to Technical Issue</span></li><!-- end ngRepeat: i in p.items --><li ng-repeat="i in p.items" class="ng-scope">
+                                    <span ng-bind-html="bindHtml(i)" class="ng-binding">Refund Status and more...</span></li><!-- end ngRepeat: i in p.items -->
+                                </ul>
+                            </div>
+                            <div class="optionTitle ng-binding">Refund</div>
+                        </a>
+                    </li><!-- end ngRepeat: p in studentPrimaries -->
+                </ul>
+                
+            </div>
+    
+       
+
+    
+</aura:component>
